@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:alfred/config/alfred_constants.dart';
 
 class SaveStartingPointDialog extends StatelessWidget {
   const SaveStartingPointDialog({super.key});
@@ -9,12 +11,14 @@ class SaveStartingPointDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.white, width: 2), // Blue border
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: Colors.white, width: 2),
       ),
       title: Text(
         "Save your Base Point",
-        style: GoogleFonts.roboto(textStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+        style: GoogleFonts.roboto(
+          textStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+        ),
       ),
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.5,
@@ -23,7 +27,7 @@ class SaveStartingPointDialog extends StatelessWidget {
           thickness: 1,
         ),
       ),
-      // Adds a su,btle divider line
+      // Adds a subtle divider line
       actions: [
         OutlinedButton(
           onPressed: () {
@@ -32,13 +36,25 @@ class SaveStartingPointDialog extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
             textStyle: TextStyle(fontSize: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
           ),
-          child: Text("Cancel", style: GoogleFonts.roboto(textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black))),
+          child: Text(
+            "Cancel",
+            style: GoogleFonts.roboto(
+              textStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ),
         ),
         FilledButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context); // Close dialog
+            context.go(AlfredConstants.routeBasePointMarkerScreen); // Navigate to BasePointMarkerScreen
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Base Point saved successfully!")),
             );
@@ -47,11 +63,15 @@ class SaveStartingPointDialog extends StatelessWidget {
             backgroundColor: Colors.black, // Black button
             padding: EdgeInsets.symmetric(horizontal: 45, vertical: 20),
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
           ),
           child: Text(
             "Yes",
-            style: GoogleFonts.roboto(textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+            style: GoogleFonts.roboto(
+              textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
           ),
         ),
       ],

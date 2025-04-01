@@ -24,14 +24,14 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 30), // Moved title up
+          const SizedBox(height: 79), // Moved title up
 
           // Title
           Text(
             "Mark Base Point",
             style: GoogleFonts.inter(textStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
 
           // Subtitle
           Text(
@@ -44,15 +44,16 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
           const Center(
             child: Image(
               image: AssetImage("assets/images/base_point.png"),
-              height: 320, // Increased size
+              height: 320,
+              width: 610,// Increased size
             ),
           ),
-          const SizedBox(height: 50),
+          const SizedBox(height: 100),
 
           // Button
           SizedBox(
-            width: 400,
-            height: 55,
+            width: 697,
+            height: 80,
             child: ElevatedButton(
               onPressed: () {
                 showDialog(

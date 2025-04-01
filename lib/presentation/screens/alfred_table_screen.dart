@@ -1,0 +1,213 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import '../widgets/custom_appbar.dart';
+import 'package:alfred/config/alfred_constants.dart';
+
+class TableMoveScreen extends ConsumerStatefulWidget {
+  const TableMoveScreen({super.key});
+
+  @override
+  ConsumerState<TableMoveScreen> createState() => _TableMoveScreenState();
+}
+
+class _TableMoveScreenState extends ConsumerState<TableMoveScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Schedule navigation after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        context.go(AlfredConstants.routeTaskCompleteScreen);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tableNumber = GoRouterState.of(context).pathParameters['tableNumber'] ?? '0';
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background content
+          Column(
+            children: [
+              CustomAppBar(),
+              Expanded(
+                child: Container(), // Empty expanded to push content down
+              ),
+            ],
+          ),
+
+          // Centered Content Column
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 77), // Maintain top spacing
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Table Number Text
+                  SizedBox(
+                    width: 114,
+                    height: 38,
+                    child: Text(
+                      "Table $tableNumber",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.nunito(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                        letterSpacing: 0.02,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+
+                  // "Alfred is on the move..." Text
+                  const SizedBox(height: 20), // 135 - 77 - 38 ≈ 20
+                  SizedBox(
+                    width: 217,
+                    height: 29,
+                    child: Text(
+                      "Alfred is on move...",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.nunito(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                        letterSpacing: 0.02,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+
+                  // Alfred Moving Image
+                  const SizedBox(height: 64), // 228 - 135 - 29 ≈ 64
+                  SizedBox(
+                    width: 209,
+                    height: 439,
+                    child: Image.asset(
+                      "assets/images/alfred_moving.png",
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:go_router/go_router.dart';
+// import '../widgets/custom_appbar.dart';
+// import 'package:alfred/config/alfred_constants.dart';
+//
+// class TableMoveScreen extends ConsumerStatefulWidget {
+//   const TableMoveScreen({super.key});
+//
+//   @override
+//   ConsumerState<TableMoveScreen> createState() => _TableMoveScreenState();
+// }
+//
+// class _TableMoveScreenState extends ConsumerState<TableMoveScreen> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     // Schedule navigation after 5 seconds
+//     Future.delayed(const Duration(seconds: 5), () {
+//       if (mounted) {
+//         context.go(AlfredConstants.routeTaskCompleteScreen);
+//       }
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final tableNumber = GoRouterState.of(context).pathParameters['tableNumber'] ?? '0';
+//
+//     return Scaffold(
+//       body: Stack(
+//         children: [
+//           // Background content
+//           Column(
+//             children: [
+//               CustomAppBar(),
+//               Expanded(
+//                 child: Container(), // Empty expanded to push content down
+//               ),
+//             ],
+//           ),
+//
+//           // Table Number Text
+//           Positioned(
+//            // left: 583,
+//             left:583,
+//             top: 77,
+//             child: SizedBox(
+//               width: 114,
+//               height: 38,
+//               child: Text(
+//                 "Table $tableNumber",
+//                 textAlign: TextAlign.center,
+//                 style: GoogleFonts.nunito(
+//                   fontSize: 32,
+//                   fontWeight: FontWeight.w700,
+//                   height: 1.2,
+//                   letterSpacing: 0.02,
+//                   color: Colors.black,
+//                 ),
+//               ),
+//             ),
+//           ),
+//
+//           // "Alfred is on the move..." Text
+//           Positioned(
+//             //left: 532,
+//             left:532,
+//             top: 135,
+//             child: SizedBox(
+//               width: 217,
+//               height: 29,
+//               child: Text(
+//                 "Alfred is on move...",
+//                 textAlign: TextAlign.center,
+//                 style: GoogleFonts.nunito(
+//                   fontSize: 24,
+//                   fontWeight: FontWeight.w700,
+//                   height: 1.2,
+//                   letterSpacing: 0.02,
+//                   color: Colors.black54,
+//                 ),
+//               ),
+//             ),
+//           ),
+//           // Alfred Moving Image
+//           Positioned(
+//             //left: 569.68,
+//             left: 569.68,
+//             top: 228,
+//             child: SizedBox(
+//               width: 209,
+//               height: 439,
+//               child: Image.asset(
+//                 "assets/images/alfred_moving.png",
+//                 fit: BoxFit.contain,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
