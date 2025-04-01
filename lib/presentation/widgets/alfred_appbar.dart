@@ -2,15 +2,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
+class AlfredAppBar extends StatefulWidget implements PreferredSizeWidget {
   @override
-  _CustomAppBarState createState() => _CustomAppBarState();
+  _AlfredAppBarState createState() => _AlfredAppBarState();
 
   @override
   Size get preferredSize => Size.fromHeight(30);
 }
 
-class _CustomAppBarState extends State<CustomAppBar> {
+class _AlfredAppBarState extends State<AlfredAppBar> {
   String _currentTime = "";
   bool _isDarkMode = false;
   Timer? _timer; // Add this to store the timer reference

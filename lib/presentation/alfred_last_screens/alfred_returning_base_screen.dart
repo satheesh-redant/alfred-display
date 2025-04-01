@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/custom_appbar.dart';
+import '../widgets/alfred_appbar.dart';
 
-class ReturningBaseScreen extends ConsumerWidget {
-  const ReturningBaseScreen({super.key});
+class AlfredReturningBaseScreen extends ConsumerWidget {
+  const AlfredReturningBaseScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,7 +14,7 @@ class ReturningBaseScreen extends ConsumerWidget {
           // Background content
           Column(
             children: [
-              CustomAppBar(),
+              AlfredAppBar(),
               Expanded(
                 child: Container(), // Empty expanded to push content down
               ),

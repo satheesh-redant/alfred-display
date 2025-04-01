@@ -5,11 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:alfred/providers/table_providers.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/custom_appbar.dart';
+import '../widgets/alfred_appbar.dart';
 import '../widgets/table.dart';
 
-class TableScreen extends ConsumerWidget {
-  const TableScreen({super.key});
+class AlfredTrainingScreen extends ConsumerWidget {
+  const AlfredTrainingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,7 +18,7 @@ class TableScreen extends ConsumerWidget {
     final isTraining = ref.watch(isTrainingProvider);
 
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: AlfredAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: Column(
@@ -95,71 +95,74 @@ class TableScreen extends ConsumerWidget {
                         const SizedBox(height: 40),
 
                         // Table Grid View
-
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.only(right: 35),
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              crossAxisSpacing: 35,
-                              mainAxisSpacing: 30,
-                              childAspectRatio: 138 / 60,
-                            ),
-                            itemCount: tables.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index < tables.length) {
-                                final isSelected = selectedTable == tables[index];
-                                final isDisabled = isTraining && !isSelected;
+                          constraints: BoxConstraints(
+                            maxHeight: 400, // Adjust this value as needed
+                          ),
+                          child: SingleChildScrollView(
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: 35,
+                                mainAxisSpacing: 30,
+                                childAspectRatio: 138 / 60,
+                              ),
+                              itemCount: tables.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index < tables.length) {
+                                  final isSelected = selectedTable == tables[index];
+                                  final isDisabled = isTraining && !isSelected;
 
-                                return TableGridButton(
-                                  label: tables[index].toString(),
-                                  tableNumber: tables[index],
-                                  isSelected: isSelected,
-                                  isDisabled: isDisabled,
-                                  onPressed: isDisabled
-                                      ? null
-                                      : () {
-                                    ref.read(selectedTableProvider.notifier).state =
-                                    isSelected ? null : tables[index];
-                                  },
-                                );
-                              } else {
-                                // Add Table Button - always disabled during training
-                                return DottedBorder(
-                                  borderType: BorderType.RRect,
-                                  radius: const Radius.circular(8),
-                                  dashPattern: const [4, 4],
-                                  color: isTraining ? Colors.grey[300]! : const Color(0xFF757575),
-                                  strokeWidth: 1,
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: isTraining
-                                          ? null
-                                          : () => ref.read(tableProvider.notifier).addTable(),
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Center(
-                                        child: Text(
-                                          "Add Table",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: isTraining
-                                                ? Colors.grey[300]
-                                                : const Color(0xFF757575),
+                                  return TableGridButton(
+                                    label: tables[index].toString(),
+                                    tableNumber: tables[index],
+                                    isSelected: isSelected,
+                                    isDisabled: isDisabled,
+                                    onPressed: isDisabled
+                                        ? null
+                                        : () {
+                                      ref.read(selectedTableProvider.notifier).state =
+                                      isSelected ? null : tables[index];
+                                    },
+                                  );
+                                } else {
+                                  return DottedBorder(
+                                    borderType: BorderType.RRect,
+                                    radius: const Radius.circular(8),
+                                    dashPattern: const [4, 4],
+                                    color: isTraining ? Colors.grey[300]! : const Color(0xFF757575),
+                                    strokeWidth: 1,
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: isTraining
+                                            ? null
+                                            : () => ref.read(tableProvider.notifier).addTable(),
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Center(
+                                          child: Text(
+                                            "Add Table",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: isTraining
+                                                  ? Colors.grey[300]
+                                                  : const Color(0xFF757575),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }
-                            },
+                                  );
+                                }
+                              },
+                            ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -202,14 +205,14 @@ class TableScreen extends ConsumerWidget {
                           if (isTraining) {
                             // Finish training and navigate
                             ref.read(isTrainingProvider.notifier).state = false;
-                            context.pushReplacement(AlfredConstants.routeBaseScreen);
+                            context.pushReplacement(AlfredConstants.routeAlfredMainScreen);
                           } else {
                             // Start training mode if table is selected
                             if (selectedTable != null) {
                               ref.read(isTrainingProvider.notifier).state = true;
                             } else {
                               // Return to base if no table selected
-                              context.pushReplacement(AlfredConstants.routeBaseScreen);
+                              context.pushReplacement(AlfredConstants.routeAlfredMainScreen);
                             }
                           }
                         },

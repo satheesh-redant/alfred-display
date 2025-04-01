@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/alfred_constants.dart';
-import '../widgets/custom_appbar.dart';
+import '../widgets/alfred_appbar.dart';
 
-class TaskCompleteScreen extends ConsumerWidget {
-  const TaskCompleteScreen({super.key});
+class AlfredCompletionScreen extends ConsumerWidget {
+  const AlfredCompletionScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,7 +16,7 @@ class TaskCompleteScreen extends ConsumerWidget {
           // Background content
           Column(
             children: [
-              CustomAppBar(),
+              AlfredAppBar(),
               Expanded(
                 child: Container(), // Empty expanded to push content down
               ),
@@ -102,7 +102,7 @@ class TaskCompleteScreen extends ConsumerWidget {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        context.go(AlfredConstants.routeReturningBaseScreen);
+                        context.go(AlfredConstants.routeAlfredReturningBaseScreen);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,

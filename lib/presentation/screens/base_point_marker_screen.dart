@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alfred/config/alfred_constants.dart';
-import 'package:alfred/presentation/widgets/custom_appbar.dart';
+import 'package:alfred/presentation/widgets/alfred_appbar.dart';
 
 class BasePointMarkerScreen extends ConsumerWidget {
   const BasePointMarkerScreen({super.key});
@@ -17,12 +17,12 @@ class BasePointMarkerScreen extends ConsumerWidget {
     // Navigation after delay
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 2), () {
-        if (context.mounted) context.go(AlfredConstants.routeTableScreen);
+        if (context.mounted) context.go(AlfredConstants.routeAlfredTrainingScreen);
       });
     });
 
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: AlfredAppBar(),
       backgroundColor: Colors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {

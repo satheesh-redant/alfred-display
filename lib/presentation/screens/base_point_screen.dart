@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../widgets/custom_appbar.dart';
+import '../widgets/alfred_appbar.dart';
 
 class BasePointScreen extends ConsumerStatefulWidget {
 
@@ -20,7 +20,7 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(), // Using the updated CustomAppBar
+      appBar: AlfredAppBar(), // Using the updated CustomAppBar
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

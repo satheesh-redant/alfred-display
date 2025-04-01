@@ -3,17 +3,16 @@ import 'package:alfred/presentation/screens/base_point_screen.dart';
 import 'package:alfred/presentation/screens/delivery_screen.dart';
 import 'package:alfred/presentation/screens/loading_screen.dart';
 import 'package:alfred/presentation/screens/mapping_screen.dart';
-import 'package:alfred/presentation/screens/returning_base_screen.dart';
+import 'package:alfred/presentation/alfred_last_screens/alfred_returning_base_screen.dart';
 import 'package:alfred/presentation/screens/splash_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../presentation/screens/alfred_base_screen.dart';
-import '../presentation/screens/alfred_table_screen.dart';
+import '../presentation/alfred_last_screens/alfred_main_screen.dart';
+import '../presentation/alfred_last_screens/alfred_progress_screen.dart';
 import '../presentation/screens/check_list_screen.dart';
-import '../presentation/screens/table_screen.dart';
-import 'package:alfred/presentation/screens/base_marking_screen.dart';
-import '../presentation/screens/task_complete_screen.dart';
-
+import '../presentation/screens/alfred_training_screen.dart';
+import 'package:alfred/presentation/screens/base_point_marker_screen.dart';
+import '../presentation/alfred_last_screens/alfred_completion_screen.dart';
 
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -40,24 +39,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const BasePointMarkerScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeTableScreen,  // New Route
-        builder: (context, state) => const TableScreen(),
+        path: AlfredConstants.routeAlfredTrainingScreen,  // New Route
+        builder: (context, state) => const AlfredTrainingScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeBaseScreen,
-        builder: (context, state) => const BaseScreen(),
+        path: AlfredConstants.routeAlfredMainScreen,
+        builder: (context, state) => const AlfredMainScreen(),
       ),
       GoRoute(
-        path: '${AlfredConstants.routeTableMoveScreen}/:tableNumber',
-        builder: (context, state) => const TableMoveScreen(),
+        path: '${AlfredConstants.routeAlfredProgressScreen}/:tableNumber',
+        builder: (context, state) => const AlfredProgressScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeTaskCompleteScreen,
-        builder: (context, state) => const TaskCompleteScreen(),
+        path: AlfredConstants.routeAlfredCompletionScreen,
+        builder: (context, state) => const AlfredCompletionScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeReturningBaseScreen,
-        builder: (context, state) => const ReturningBaseScreen(),
+        path: AlfredConstants.routeAlfredReturningBaseScreen,
+        builder: (context, state) => const AlfredReturningBaseScreen(),
       ),
       GoRoute(
         path: AlfredConstants.routeMappingScreen,

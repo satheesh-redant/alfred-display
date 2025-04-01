@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/custom_appbar.dart';
+import '../widgets/alfred_appbar.dart';
 import 'package:alfred/config/alfred_constants.dart';
 
-class TableMoveScreen extends ConsumerStatefulWidget {
-  const TableMoveScreen({super.key});
+class AlfredProgressScreen extends ConsumerStatefulWidget {
+  const AlfredProgressScreen({super.key});
 
   @override
-  ConsumerState<TableMoveScreen> createState() => _TableMoveScreenState();
+  ConsumerState<AlfredProgressScreen> createState() => _AlfredProgressScreenState();
 }
 
-class _TableMoveScreenState extends ConsumerState<TableMoveScreen> {
+class _AlfredProgressScreenState extends ConsumerState<AlfredProgressScreen> {
   @override
   void initState() {
     super.initState();
     // Schedule navigation after 5 seconds
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
-        context.go(AlfredConstants.routeTaskCompleteScreen);
+        context.go(AlfredConstants.routeAlfredCompletionScreen);
       }
     });
   }
@@ -34,7 +34,7 @@ class _TableMoveScreenState extends ConsumerState<TableMoveScreen> {
           // Background content
           Column(
             children: [
-              CustomAppBar(),
+              AlfredAppBar(),
               Expanded(
                 child: Container(), // Empty expanded to push content down
               ),

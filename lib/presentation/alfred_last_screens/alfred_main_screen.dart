@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/providers/table_providers.dart';
 import '../../config/alfred_constants.dart';
-import '../widgets/custom_appbar.dart';
+import '../widgets/alfred_appbar.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/table.dart';
 
@@ -20,8 +20,8 @@ class SelectedTableNotifier extends StateNotifier<int?> {
   }
 }
 
-class BaseScreen extends ConsumerWidget {
-  const BaseScreen({super.key});
+class AlfredMainScreen extends ConsumerWidget {
+  const AlfredMainScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,7 +33,7 @@ class BaseScreen extends ConsumerWidget {
         children: [
           Column(
             children: [
-              CustomAppBar(),
+              AlfredAppBar(),
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +213,7 @@ class BaseScreen extends ConsumerWidget {
                         ),
                       );
                       context.go(
-                        '${AlfredConstants.routeTableMoveScreen}/$selectedTable',
+                        '${AlfredConstants.routeAlfredProgressScreen}/$selectedTable',
                       );
                     }
                         : null,

@@ -1,5 +1,5 @@
 import 'package:alfred/config/alfred_constants.dart';
-import 'package:alfred/presentation/widgets/custom_appbar.dart';
+import 'package:alfred/presentation/widgets/alfred_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +20,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: AlfredAppBar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
         child: Column(
