@@ -1,95 +1,149 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class AlfredAppBar extends StatefulWidget implements PreferredSizeWidget {
-  @override
-  _AlfredAppBarState createState() => _AlfredAppBarState();
+// First define the state class
+class AlfredAppBarState {
+  final String currentTime;
 
-  @override
-  Size get preferredSize => Size.fromHeight(30);
+  AlfredAppBarState({
+    this.currentTime = "",
+  });
+
+  AlfredAppBarState copyWith({
+    String? currentTime,
+  }) {
+    return AlfredAppBarState(
+      currentTime: currentTime ?? this.currentTime,
+    );
+  }
 }
 
-class _AlfredAppBarState extends State<AlfredAppBar> {
-  String _currentTime = "";
-  bool _isDarkMode = false;
-  Timer? _timer; // Add this to store the timer reference
-
-  @override
-  void initState() {
-    super.initState();
-    _updateTime();
-    // Initialize timer when widget is created
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      _updateTime();
-    });
+// Then define the StateNotifier
+class AlfredAppBarStateNotifier extends StateNotifier<AlfredAppBarState> {
+  AlfredAppBarStateNotifier() : super(AlfredAppBarState()) {
+    _init();
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel(); // Cancel the timer when widget is disposed
-    super.dispose();
+  Timer? _timer;
+
+  void _init() {
+    _updateTime();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateTime());
   }
 
   void _updateTime() {
-    if (!mounted) return; // Add safety check
+    final now = DateTime.now();
+    final timeString = DateFormat('h:mm').format(now);
+    final period = now.hour < 12 ? 'am' : 'pm';
+    final dateString = DateFormat('d MMMM').format(now);
 
-    setState(() {
-      _currentTime = DateFormat('hh:mm a, d MMMM').format(DateTime.now());
-    });
-  }
-
-  void _toggleDarkMode() {
-    if (!mounted) return; // Add safety check
-
-    setState(() {
-      _isDarkMode = !_isDarkMode;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Dark Mode: ${_isDarkMode ? 'Enabled' : 'Disabled'}")),
+    state = state.copyWith(
+      currentTime: '$timeString $period, $dateString',
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 45,
-      child: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[300],
-        toolbarHeight: 45,
-        title: Row(
-          children: [
-            Image.asset(
-              "assets/images/ra_logo.png",
-              height: 25,
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+}
+
+// Define the provider next
+final alfredAppBarProvider = StateNotifierProvider<AlfredAppBarStateNotifier, AlfredAppBarState>(
+      (ref) => AlfredAppBarStateNotifier(),
+);
+
+// Then define the widget that uses the provider
+class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  @override
+  final Size preferredSize = const Size.fromHeight(35);
+
+  static double _scaleFactor(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 1.3;
+    if (width > 600) return 1.1;
+    return 1.0;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(alfredAppBarProvider);
+    final scale = _scaleFactor(context);
+
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.grey[300],
+      toolbarHeight: 35 * scale,
+      title: Row(
+        children: [
+          Container(
+            width: 15 * scale,
+            height: 22.41 * scale,
+            margin: EdgeInsets.only(left: 10 * scale),
+            // This ensures perfect vertical centering within app bar
+            alignment: Alignment.center,
+            child: Image.asset(
+              "assets/images/company_logo.png",
+              width: 15 * scale,
+              height: 20 * scale,
+              fit: BoxFit.contain,
             ),
-            SizedBox(width: 20),
-            Text(
-              _currentTime,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.wifi, color: Colors.grey),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.toggle_on_outlined, color: Colors.grey),
-                  onPressed: _toggleDarkMode,
-                ),
-              ],
+          ),
+
+          SizedBox(width: 20 * scale),
+          Text(
+            state.currentTime,
+            style: TextStyle(
+              fontSize: 14 * scale,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF101828),
+              fontFamily: 'Inter',
+              height: 29/(14 * scale),
+              letterSpacing: 0.01 * scale,
             ),
           ),
         ],
       ),
+      actions: [
+        Padding(
+          padding: EdgeInsets.only(right: 10 * scale),
+          child: Row(
+            children: [
+              Container(
+                width: 32 * scale,
+                height: 32 * scale,
+                margin: EdgeInsets.only(right: 10 * scale),
+                child: InkWell(
+                  onTap: () {},
+                  child: SvgPicture.asset(
+                    "assets/images/wifi_icon.svg",
+                    width: 24 * scale,
+                    height: 24 * scale,
+                    fit: BoxFit.scaleDown,
+                  ),
+                ),
+              ),
+              Container(
+                width: 32 * scale,
+                height: 32 * scale,
+                child: InkWell(
+                  onTap: null,
+                  child: SvgPicture.asset(
+                    "assets/images/dark_mode_icon.svg",
+                    width: 24 * scale,
+                    height: 24 * scale,
+                    fit: BoxFit.scaleDown,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
