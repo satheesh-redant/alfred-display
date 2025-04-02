@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/alfred_appbar.dart';
+import '../../widgets/alfred_appbar.dart';
 import 'package:alfred/config/alfred_constants.dart';
 
-class AlfredProgressScreen extends ConsumerStatefulWidget {
-  const AlfredProgressScreen({super.key});
+class DeliveryInProgressScreen extends ConsumerStatefulWidget {
+  const DeliveryInProgressScreen({super.key});
 
   @override
-  ConsumerState<AlfredProgressScreen> createState() => _AlfredProgressScreenState();
+  ConsumerState<DeliveryInProgressScreen> createState() => _DeliveryInProgressScreenState();
 }
 
-class _AlfredProgressScreenState extends ConsumerState<AlfredProgressScreen> {
+class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScreen> {
   @override
   void initState() {
     super.initState();
     // Schedule navigation after 5 seconds
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
-        context.go(AlfredConstants.routeAlfredCompletionScreen);
+        context.go(AlfredConstants.routeDeliveryCompleteScreen);
       }
     });
   }

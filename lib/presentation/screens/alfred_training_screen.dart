@@ -205,14 +205,14 @@ class AlfredTrainingScreen extends ConsumerWidget {
                           if (isTraining) {
                             // Finish training and navigate
                             ref.read(isTrainingProvider.notifier).state = false;
-                            context.pushReplacement(AlfredConstants.routeAlfredMainScreen);
+                            context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
                           } else {
                             // Start training mode if table is selected
                             if (selectedTable != null) {
                               ref.read(isTrainingProvider.notifier).state = true;
                             } else {
                               // Return to base if no table selected
-                              context.pushReplacement(AlfredConstants.routeAlfredMainScreen);
+                              context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
                             }
                           }
                         },

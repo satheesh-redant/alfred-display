@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/alfred_appbar.dart';
+import '../../widgets/alfred_appbar.dart';
 
-class AlfredReturningBaseScreen extends ConsumerWidget {
-  const AlfredReturningBaseScreen({super.key});
+class DeliveryReturningBaseScreen extends ConsumerWidget {
+  const DeliveryReturningBaseScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

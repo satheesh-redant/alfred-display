@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../../config/alfred_constants.dart';
-import '../widgets/alfred_appbar.dart';
+import '../../../config/alfred_constants.dart';
+import '../../widgets/alfred_appbar.dart';
 
-class AlfredCompletionScreen extends ConsumerWidget {
-  const AlfredCompletionScreen({super.key});
+class DeliveryCompleteScreen extends ConsumerWidget {
+  const DeliveryCompleteScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,7 +102,7 @@ class AlfredCompletionScreen extends ConsumerWidget {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        context.go(AlfredConstants.routeAlfredReturningBaseScreen);
+                        context.go(AlfredConstants.routeDeliveryReturningBaseScreen);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,

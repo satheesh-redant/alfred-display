@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/providers/table_providers.dart';
-import '../../config/alfred_constants.dart';
-import '../widgets/alfred_appbar.dart';
+import '../../../config/alfred_constants.dart';
+import '../../widgets/alfred_appbar.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/table.dart';
+import '../../widgets/table.dart';
 
 // Provider using int? for table numbers
 final selectedTableProvider = StateNotifierProvider<SelectedTableNotifier, int?>((ref) {
@@ -20,8 +20,8 @@ class SelectedTableNotifier extends StateNotifier<int?> {
   }
 }
 
-class AlfredMainScreen extends ConsumerWidget {
-  const AlfredMainScreen({super.key});
+class DeliveryMainScreen extends ConsumerWidget {
+  const DeliveryMainScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -213,7 +213,7 @@ class AlfredMainScreen extends ConsumerWidget {
                         ),
                       );
                       context.go(
-                        '${AlfredConstants.routeAlfredProgressScreen}/$selectedTable',
+                        '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
                       );
                     }
                         : null,
