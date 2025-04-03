@@ -1,10 +1,12 @@
 import 'package:alfred/config/alfred_constants.dart';
+import 'package:alfred/view_models/boot_check_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../gen/strings.g.dart';
+import '../../models/boot_status_state.dart';
 import '../../view_models/ros_connection_view_model.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
@@ -15,23 +17,32 @@ class LoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
+
   @override
   void initState() {
     super.initState();
     // Trigger ROS connection.
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 2), () {
       ref.read(rosConnectionVMProvider.notifier).connect();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final connectionStatus = ref.watch(rosConnectionVMProvider);
-    // if (connectionStatus == ConnectionStatus.connected) {
-    //   context.go(AlfredConstants.routeChecklistScreen);
-    // }
-    Future.delayed(const Duration(seconds: 5), () {
-      context.go(AlfredConstants.routeChecklistScreen);
+    ref.listen(rosConnectionVMProvider, (previous, next) {
+      if (next == ConnectionStatus.connected) {
+        ref.read(bootCheckVMProvider.notifier).init();
+      }
+    });
+    // Once boot check is successful, navigate to the next screen.
+    ref.listen(bootCheckVMProvider, (previous, next) {
+      if (next.hardwareOk && next.batteryOk && next.sensorOk) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Future.delayed(const Duration(seconds: 2), () {
+            context.go(AlfredConstants.routeChecklistScreen);
+          });
+        });
+      }
     });
 
     return Scaffold(
@@ -56,22 +67,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    connectionStatus == ConnectionStatus.connecting
-                        ? const CircularProgressIndicator()
-                        : connectionStatus == ConnectionStatus.connecting
-                            ? Text(
-                                'Initializing System...',
-                                style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
-                              )
-                            : connectionStatus == ConnectionStatus.error
-                                ? Text(
-                                    'Initialization Failed',
-                                    style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
-                                  )
-                                : Text(
-                                    'System Initialized',
-                                    style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
-                                  ),
+                    _buildStatusWidget(context, ref.watch(rosConnectionVMProvider), ref.watch(bootCheckVMProvider)),
                   ],
                 )),
             const SizedBox(height: 50),
@@ -79,5 +75,32 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildStatusWidget(
+    BuildContext context,
+    ConnectionStatus connectionStatus,
+    BootStatusResponse bootStatus,
+  ) {
+    if (connectionStatus == ConnectionStatus.connecting) {
+      return const CircularProgressIndicator();
+    } else if (connectionStatus == ConnectionStatus.error) {
+      return Text(
+        'Initialization Failed',
+        style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+      );
+    } else if (connectionStatus == ConnectionStatus.connected) {
+      if (!bootStatus.hardwareOk || !bootStatus.batteryOk || !bootStatus.sensorOk) {
+        return Text(
+          bootStatus.message,
+          style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+        );
+      }
+      return Text(
+        'System Initialized',
+        style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+      );
+    }
+    return Container();
   }
 }

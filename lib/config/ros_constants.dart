@@ -8,5 +8,9 @@ class ROSConstants {
   static const String odomTopicMsg = 'nav_msgs/msg/Odometry';
 
   static const String cmdVelTopic = '/cmd_vel';
-// Add additional topic names if needed.
+
+  static const String bootStatusService = '/check_boot_status';
+  static const String bootStatusServiceMsg = 'std_srvs/Trigger';
+
+
 }
