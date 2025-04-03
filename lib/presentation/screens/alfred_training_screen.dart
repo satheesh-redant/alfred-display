@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:alfred/providers/table_providers.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/appbar_widget.dart';
 import '../widgets/training_table_widget.dart';
+import '../widgets/animated_add_button_widget.dart'; // Add this import
 
 class AlfredTrainingScreen extends ConsumerWidget {
   const AlfredTrainingScreen({super.key});
@@ -46,7 +46,7 @@ class AlfredTrainingScreen extends ConsumerWidget {
                                 Container(
                                   width: 355,
                                   height: 49,
-                                  margin: const EdgeInsets.only(top: 25, left: 61),
+                                  margin: const EdgeInsets.only(top: 50, left: 63),
                                   alignment: Alignment.center,
                                   child: Text.rich(
                                     TextSpan(
@@ -88,7 +88,7 @@ class AlfredTrainingScreen extends ConsumerWidget {
                         Expanded(
                           flex: 3,
                           child: Container(
-                            padding: const EdgeInsets.only(top: 50),
+                            padding: const EdgeInsets.only(top: 82),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -97,9 +97,10 @@ class AlfredTrainingScreen extends ConsumerWidget {
                                   style: GoogleFonts.nunito(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
+                                    height: 1.20,
                                   ),
                                 ),
-                                const SizedBox(height: 40),
+                                const SizedBox(height: 43),
                                 SizedBox(
                                   height: 400,
                                   child: Scrollbar(
@@ -109,14 +110,16 @@ class AlfredTrainingScreen extends ConsumerWidget {
                                     child: GridView.builder(
                                       controller: scrollController,
                                       shrinkWrap: true,
-                                      padding: const EdgeInsets.only(right: 20, bottom: 20),
+                                      padding: const EdgeInsets.only(right: 60, bottom: 20),
                                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
-                                        crossAxisSpacing: 35,
-                                        mainAxisSpacing: 30,
+                                        crossAxisSpacing: 49,
+                                        mainAxisSpacing: 26,
                                         childAspectRatio: 138 / 60,
                                       ),
                                       itemCount: tables.length + 1,
+
+                                      // In your GridView.builder:
                                       itemBuilder: (context, index) {
                                         if (index < tables.length) {
                                           final isSelected = selectedTable == tables[index];
@@ -135,33 +138,9 @@ class AlfredTrainingScreen extends ConsumerWidget {
                                             },
                                           );
                                         } else {
-                                          return DottedBorder(
-                                            borderType: BorderType.RRect,
-                                            radius: const Radius.circular(8),
-                                            dashPattern: const [4, 4],
-                                            color: isTraining ? Colors.grey[300]! : const Color(0xFF757575),
-                                            strokeWidth: 1,
-                                            child: Material(
-                                              color: Colors.transparent,
-                                              child: InkWell(
-                                                onTap: isTraining
-                                                    ? null
-                                                    : () => ref.read(tableProvider.notifier).addTable(),
-                                                borderRadius: BorderRadius.circular(8),
-                                                child: Center(
-                                                  child: Text(
-                                                    "Add Table",
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.w500,
-                                                      color: isTraining
-                                                          ? Colors.grey[300]
-                                                          : const Color(0xFF757575),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                          return AnimatedAddButton(
+                                            isTraining: isTraining,
+                                            onPressed: () => ref.read(tableProvider.notifier).addTable(),
                                           );
                                         }
                                       },
@@ -183,7 +162,7 @@ class AlfredTrainingScreen extends ConsumerWidget {
           // Bottom button with flex:3 width
           // Bottom button with adjusted width to match table grid
           Padding(
-            padding: const EdgeInsets.only(bottom: 20, right: 50, left: 15),
+            padding: const EdgeInsets.only(bottom: 20, right: 70, left: 15),
             child: Row(
               children: [
                 // Left spacer (flex:2 to match your layout)
@@ -195,7 +174,7 @@ class AlfredTrainingScreen extends ConsumerWidget {
 
                 // Button with adjusted width
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.56, // Reduced from 0.6 to 0.45
+                  width: MediaQuery.of(context).size.width * 0.55, // Reduced from 0.6 to 0.45
                   height: 80,
                   child: DecoratedBox(
                     decoration: BoxDecoration(

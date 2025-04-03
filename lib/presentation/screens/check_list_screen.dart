@@ -45,7 +45,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                       height: 24.2 / 24,
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 36),
                   Text(
                     "Please complete the checks before marking the tables with Alfred",
                     style: GoogleFonts.inter(
@@ -94,7 +94,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
 
       /// **Bottom Continue Button**
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 300.0, right: 300.0, bottom: 20.0),
+        padding: const EdgeInsets.only(left: 300.0, right: 300.0, bottom: 36.0),
         child: SizedBox(
           width: 697,
           height: 80,
@@ -153,7 +153,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
             /// **Checkbox & Title**
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.only(left: 42),
                 child: Row(
                   children: [
                     SizedBox(
@@ -166,7 +166,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                         activeColor: Colors.black,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 16),
                     Flexible(
                       child: Text(
                         title,

@@ -21,7 +21,7 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 50),
+          const SizedBox(height: 44),
           // Title
           Text(
             "Mark Base Point",
@@ -29,7 +29,7 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
               textStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 36),
           // Subtitle
           Text(
             "Place Alfred at the Base point to start marking",
@@ -50,7 +50,7 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
           Spacer(),
           // Button with bottom margin
           Padding(
-            padding: const EdgeInsets.only(bottom: 30), // 20px from bottom
+            padding: const EdgeInsets.only(bottom: 36), // 20px from bottom
             child: SizedBox(
               width: 697,
               height: 80,

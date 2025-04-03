@@ -30,7 +30,7 @@ class BasePointMarkerScreen extends ConsumerWidget {
             children: [
               /// **Instruction Text**
               Padding(
-                padding: const EdgeInsets.only(top: 30.0),
+                padding: const EdgeInsets.only(top: 50.0),
                 child: Text(
                   "You are at your Base Point, please move Alfred towards the table to start marking",
                   textAlign: TextAlign.center,
