@@ -1,25 +1,5 @@
-// // table_providers.dart
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-//
-// // State provider for managing the list of tables
-// final tableProvider = StateNotifierProvider<TableNotifier, List<int>>((ref) {
-//   return TableNotifier();
-// });
-//
-// // State provider for tracking the selected table
-// final selectedTableProvider = StateProvider<int?>((ref) => null);
-//
-// class TableNotifier extends StateNotifier<List<int>> {
-//   TableNotifier() : super([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-//
-//   void addTable() {
-//     int newTable = state.isNotEmpty ? state.last + 1 : 1;
-//     state = [...state, newTable];
-//   }
-// }
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 // Provider for tables list
 final tableProvider = StateNotifierProvider<TableNotifier, List<int>>((ref) => TableNotifier());
 

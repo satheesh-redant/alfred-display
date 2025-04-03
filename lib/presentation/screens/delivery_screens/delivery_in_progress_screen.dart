@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../../widgets/alfred_appbar.dart';
+import '../../widgets/appbar_widget.dart';
 import 'package:alfred/config/alfred_constants.dart';
 
 class DeliveryInProgressScreen extends ConsumerStatefulWidget {
