@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import '../../config/alfred_constants.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -16,50 +16,76 @@ class SplashScreen extends StatelessWidget {
       }
     });
 
-    return Container(
-      width: 1280,
-      height: 800,
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(color: Colors.white),
-      child: Stack(
-        children: [
-          Positioned(
-            left: 598,
-            top: 232,
-            child: Container(
-              width: 84,
-              height: 126,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/images/company_logo.png"),
-                  fit: BoxFit.contain, // Changed to contain to preserve aspect ratio
+    // Get screen size
+    final screenSize = MediaQuery.of(context).size;
+
+    // Responsive values using the correct API
+    final logoSize = _getResponsiveValue(
+      context,
+      mobile: 80.0,
+      tablet: 100.0,
+      desktop: 126.0,
+    );
+
+    final fontSize = _getResponsiveValue(
+      context,
+      mobile: 32.0,
+      tablet: 48.0,
+      desktop: 64.0,
+    );
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo
+              Container(
+                width: logoSize * 0.67, // Maintain aspect ratio
+                height: logoSize,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/company_logo.png"),
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            left: 341,
-            top: 421,
-            child: SizedBox(
-              width: 598,
-              child: Container(
-                color: Colors.white, // Ensures no background color affects text
+              SizedBox(height: logoSize * 0.5),
+              // Text
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'Redant Technology',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     color: Colors.black,
-                    fontSize: 64,
+                    fontSize: fontSize,
                     fontWeight: FontWeight.w600,
-                    height: 0.38,
-                    decoration: TextDecoration.none, // Ensures no underline
+                    height: 1.2,
+                    decoration: TextDecoration.none,
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
+
+  // Helper function to get responsive values
+  double _getResponsiveValue(
+      BuildContext context, {
+        required double mobile,
+        required double tablet,
+        required double desktop,
+      }) {
+    if (ResponsiveBreakpoints.of(context).isMobile) return mobile;
+    if (ResponsiveBreakpoints.of(context).isTablet) return tablet;
+    return desktop;
+  }
 }
+

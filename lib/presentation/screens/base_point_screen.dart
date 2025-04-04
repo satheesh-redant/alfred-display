@@ -1,3 +1,4 @@
+
 import 'package:alfred/presentation/screens/save_starting_point_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
               textStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
             ),
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: 30),
           // Subtitle
           Text(
             "Place Alfred at the Base point to start marking",
