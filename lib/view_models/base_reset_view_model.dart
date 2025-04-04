@@ -1,42 +1,32 @@
 
-import 'dart:convert';
-
 import 'package:alfred/config/ros_constants.dart';
-import 'package:alfred/models/boot_status_state.dart';
+import 'package:alfred/models/trigger_state.dart';
 import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/service.dart';
-import 'package:rosbridge/core/topic.dart';
 
-class BootCheckViewModel extends StateNotifier<BootStatusResponse> {
+class BaseResetViewModel extends StateNotifier<TriggerResponse> {
 
   final ROSService _rosService;
   late Service service;
 
   Map<String, dynamic> requestData = {};
 
-  BootCheckViewModel(this._rosService) : super(BootStatusResponse());
+  BaseResetViewModel(this._rosService) : super(TriggerResponse());
 
-  Future<void> init() async {
-    print('Initializing boot status check...');
+  Future<void> resetBasePoint() async {
+    print('sending base rest command...');
     service = Service(
-      name: ROSConstants.bootStatusService,
+      name: ROSConstants.baseResetService,
       type: ROSConstants.triggerServiceMsg,
       ros: _rosService.ros,
     );
     await service.call(requestData).then((response) {
       print("Service response: $response");
-      if(response is Map<String, dynamic>) {
-        var bootStatus = jsonDecode(response['message']);
-        state = BootStatusResponse.fromJson(bootStatus);
-      } else {
-        BootStatusResponse error = BootStatusResponse(
-          message: response,
-        );
-        state = error;
-      }
+      state = TriggerResponse.fromJson(response);
     }).catchError((onError) {
-      BootStatusResponse error = BootStatusResponse(
+      print("onError: $onError");
+      TriggerResponse error = TriggerResponse(
         message: onError.toString(),
       );
       state = error;
@@ -47,8 +37,8 @@ class BootCheckViewModel extends StateNotifier<BootStatusResponse> {
   // Future<Map<String, dynamic>>? serviceHandler(Map<String, dynamic> args) async {
   //   Map<String, dynamic> response = {};
   //   print("Service response: $response");
-  //   // var bootStatus = jsonDecode(response['message']);
-  //   state = BootStatusResponse.fromJson({});
+  //   var bootStatus = jsonDecode(response['message']);
+  //   state = BootStatusResponse.fromJson(bootStatus);
   //   return response;
   // }
 
@@ -60,7 +50,7 @@ class BootCheckViewModel extends StateNotifier<BootStatusResponse> {
 
 }
 
-final bootCheckVMProvider = StateNotifierProvider<BootCheckViewModel, BootStatusResponse>((ref) {
+final baseResetVMProvider = StateNotifierProvider<BaseResetViewModel, TriggerResponse>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return BootCheckViewModel(rosService);
+  return BaseResetViewModel(rosService);
 });

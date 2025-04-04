@@ -1,23 +1,41 @@
 import 'package:alfred/presentation/screens/save_starting_point_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:toastification/toastification.dart';
 
+import '../../config/alfred_constants.dart';
+import '../../view_models/base_reset_view_model.dart';
 import '../widgets/alfred_appbar.dart';
 
-class BasePointScreen extends ConsumerStatefulWidget {
+class BasePointScreen extends ConsumerWidget {
 
   const BasePointScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _BasePointScreenState();
-
-}
-
-class _BasePointScreenState extends ConsumerState<BasePointScreen> {
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(baseResetVMProvider, (prev, next) {
+      toastification.show(
+        context: context,
+        type: next.success ? ToastificationType.success : ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        title: Text(next.success ? 'Success!' : "Failed"),
+        description: Text(next.success ? 'Base Point saved successfully!' : next.message),
+        alignment: Alignment.bottomCenter,
+        autoCloseDuration: const Duration(seconds: 2),
+        borderRadius: BorderRadius.circular(4.0),
+        boxShadow: highModeShadow,
+        showProgressBar: true,
+        applyBlurEffect: true,
+        closeButton: ToastCloseButton(showType: CloseButtonShowType.none),
+      );
+      if(next.success) {
+        Future.delayed(Duration(seconds: 2), () {
+          context.go(AlfredConstants.routeBasePointMarkerScreen); // Navigate to BasePointMarkerScreen
+        });
+      }
+    });
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AlfredAppBar(), // Using the updated CustomAppBar

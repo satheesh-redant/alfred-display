@@ -9,8 +9,10 @@ class ROSConstants {
 
   static const String cmdVelTopic = '/cmd_vel';
 
+  /*  SERVICE */
+  static const String triggerServiceMsg = 'std_srvs/Trigger';
   static const String bootStatusService = '/check_boot_status';
-  static const String bootStatusServiceMsg = 'std_srvs/Trigger';
+  static const String baseResetService = '/reset_base_location';
 
 
 }

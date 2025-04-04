@@ -1,13 +1,18 @@
+import 'package:alfred/view_models/base_reset_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alfred/config/alfred_constants.dart';
 
-class SaveStartingPointDialog extends StatelessWidget {
+class SaveStartingPointDialog extends ConsumerWidget {
   const SaveStartingPointDialog({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(baseResetVMProvider, (prev, next) {
+      Navigator.pop(context); // Close dialog
+    });
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
@@ -53,11 +58,8 @@ class SaveStartingPointDialog extends StatelessWidget {
         ),
         FilledButton(
           onPressed: () {
-            Navigator.pop(context); // Close dialog
-            context.go(AlfredConstants.routeBasePointMarkerScreen); // Navigate to BasePointMarkerScreen
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Base Point saved successfully!")),
-            );
+            // Save base point logic here
+            ref.read(baseResetVMProvider.notifier).resetBasePoint();
           },
           style: FilledButton.styleFrom(
             backgroundColor: Colors.black, // Black button
