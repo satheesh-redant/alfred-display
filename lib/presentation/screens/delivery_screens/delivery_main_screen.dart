@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/providers/table_providers.dart';
 import '../../../config/alfred_constants.dart';
-import '../../widgets/alfred_appbar.dart';
+import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
-import '../../widgets/table.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../widgets/training_table_widget.dart';
 
 // Provider using int? for table numbers
 final selectedTableProvider = StateNotifierProvider<SelectedTableNotifier, int?>((ref) {
@@ -53,21 +54,45 @@ class DeliveryMainScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.brush),
+                              icon: SvgPicture.asset(
+                                'assets/images/Edit_icon.svg',
+                                width: 31,
+                                height: 31,
+                              ),
                               onPressed: () {},
                             ),
-                            Text(
-                              "Training Mode",
-                              style: GoogleFonts.nunito(fontSize: 12),
+                            Center(
+                              child: Text(
+                                'Training \nMode',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.nunito(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.20,
+                                  letterSpacing: 0.24,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 10),
                             IconButton(
-                              icon: const Icon(Icons.settings),
+                              icon: SvgPicture.asset(
+                                'assets/images/setting_icon.svg',
+                                width: 36,
+                                height: 36,
+                              ),
                               onPressed: () {},
                             ),
                             Text(
                               "Settings",
-                              style: GoogleFonts.nunito(fontSize: 12),
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.nunito(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                height: 1.20,
+                                letterSpacing: 0.24,
+                              ),
                             ),
                           ],
                         ),
@@ -80,7 +105,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                         children: [
                           Positioned(
                             left: 183,
-                            top: 71,
+                            top: 50,
                             child: Text(
                               "Alfred at Base",
                               style: GoogleFonts.nunito(
@@ -92,7 +117,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                           ),
                           Positioned(
                             left: 111,
-                            top: 121,
+                            top: 100,
                             child: Text(
                               "Start the Service by selecting table number",
                               style: GoogleFonts.nunito(
@@ -105,6 +130,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                           Positioned(
                             left: 122,
                             top: 218,
+                            bottom: 5,
                             child: Image.asset(
                               "assets/images/alfred_base.png",
                               width: 267,
@@ -131,18 +157,18 @@ class DeliveryMainScreen extends ConsumerWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 49),
                             // Grid of Tables
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.only(right: 35),
+                              padding: const EdgeInsets.only(right: 40),
                               child: GridView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 4,
-                                  crossAxisSpacing: 35,
-                                  mainAxisSpacing: 30,
+                                  crossAxisSpacing: 49,
+                                  mainAxisSpacing: 26,
                                   childAspectRatio: 138 / 60,
                                 ),
                                 itemCount: tables.length,
@@ -177,66 +203,86 @@ class DeliveryMainScreen extends ConsumerWidget {
             ],
           ),
           // "Go to Table" Button
+          // Bottom button matching table grid width (responsive)
           Positioned(
-            left: 600,
-            top: 684,
-            right: 50,
-            child: Consumer(
-              builder: (context, ref, child) {
-                final selectedTable = ref.watch(selectedTableProvider);
-                return Container(
-                  width: 697,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: selectedTable != null ? Colors.black : const Color(0xFFC4C4C4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        offset: const Offset(0, 1),
-                        blurRadius: 3,
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        offset: const Offset(0, 4),
-                        blurRadius: 8,
-                      ),
-                    ],
+            left: 0,
+            right: 40,
+            bottom: 36,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 15),
+              child: Row(
+                children: [
+                  // Left spacer matching table grid layout (flex:2)
+                  const Expanded(
+                    flex: 2,
+                    child: SizedBox(),
                   ),
-                  child: ElevatedButton(
-                    onPressed: selectedTable != null
-                        ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Going to Table $selectedTable'),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                      context.go(
-                        '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
-                      );
-                    }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Go to Table",
-                        style: GoogleFonts.nunito(
-                          color: selectedTable != null ? Colors.white : Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                  const SizedBox(width: 20), // Same gap as in table grid
+
+                  // Button with adjusted width
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.53, // Reduced from 0.6 to 0.52
+                    height: 80,
+                    margin: const EdgeInsets.only(right: 20),
+                    child: Consumer(
+                      builder: (context, ref, child) {
+                        final selectedTable = ref.watch(selectedTableProvider);
+                        return DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: selectedTable != null ? Colors.black : const Color(0xFFC4C4C4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                offset: const Offset(0, 1),
+                                blurRadius: 3,
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                offset: const Offset(0, 4),
+                                blurRadius: 8,
+                                spreadRadius: 3,
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: selectedTable != null
+                                ? () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Going to Table $selectedTable'),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                              context.go(
+                                '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
+                              );
+                            }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Go to Table",
+                                style: GoogleFonts.nunito(
+                                  color: selectedTable != null ? Colors.white : Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
           ),
         ],

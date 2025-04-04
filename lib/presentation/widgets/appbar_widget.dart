@@ -1,10 +1,12 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-// First define the state class
+// State class
 class AlfredAppBarState {
   final String currentTime;
 
@@ -21,7 +23,7 @@ class AlfredAppBarState {
   }
 }
 
-// Then define the StateNotifier
+// StateNotifier
 class AlfredAppBarStateNotifier extends StateNotifier<AlfredAppBarState> {
   AlfredAppBarStateNotifier() : super(AlfredAppBarState()) {
     _init();
@@ -52,12 +54,12 @@ class AlfredAppBarStateNotifier extends StateNotifier<AlfredAppBarState> {
   }
 }
 
-// Define the provider next
+// Provider (make sure this is declared as final and globally accessible)
 final alfredAppBarProvider = StateNotifierProvider<AlfredAppBarStateNotifier, AlfredAppBarState>(
       (ref) => AlfredAppBarStateNotifier(),
 );
 
-// Then define the widget that uses the provider
+// Widget
 class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   final Size preferredSize = const Size.fromHeight(35);
@@ -71,7 +73,7 @@ class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(alfredAppBarProvider);
+    final state = ref.watch(alfredAppBarProvider); // Now this will work
     final scale = _scaleFactor(context);
 
     return AppBar(
@@ -84,24 +86,21 @@ class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
             width: 15 * scale,
             height: 22.41 * scale,
             margin: EdgeInsets.only(left: 10 * scale),
-            // This ensures perfect vertical centering within app bar
             alignment: Alignment.center,
             child: Image.asset(
               "assets/images/company_logo.png",
               width: 15 * scale,
-              height: 20 * scale,
+              height: 18 * scale,
               fit: BoxFit.contain,
             ),
           ),
-
           SizedBox(width: 20 * scale),
           Text(
             state.currentTime,
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 14 * scale,
               fontWeight: FontWeight.bold,
               color: const Color(0xFF101828),
-              fontFamily: 'Inter',
               height: 29/(14 * scale),
               letterSpacing: 0.01 * scale,
             ),
@@ -116,7 +115,7 @@ class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
               Container(
                 width: 32 * scale,
                 height: 32 * scale,
-                margin: EdgeInsets.only(right: 10 * scale),
+                margin: EdgeInsets.only(right: 5 * scale),
                 child: InkWell(
                   onTap: () {},
                   child: SvgPicture.asset(
@@ -147,3 +146,4 @@ class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 }
+

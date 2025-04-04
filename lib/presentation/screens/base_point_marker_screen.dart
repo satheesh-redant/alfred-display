@@ -3,72 +3,75 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alfred/config/alfred_constants.dart';
-import 'package:alfred/presentation/widgets/alfred_appbar.dart';
+import 'package:alfred/presentation/widgets/appbar_widget.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class BasePointMarkerScreen extends ConsumerWidget {
   const BasePointMarkerScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Get screen dimensions
-    final screenSize = MediaQuery.of(context).size;
-    final isMobile = screenSize.width < 600;
-
-    // Navigation after delay
+    /// **Navigation after delay**
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(seconds: 2), () {
-        if (context.mounted) context.go(AlfredConstants.routeAlfredTrainingScreen);
+      Future.delayed(const Duration(seconds: 6), () {
+        if (context.mounted) {
+          context.go(AlfredConstants.routeAlfredTrainingScreen);
+        }
       });
     });
+
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AlfredAppBar(),
       backgroundColor: Colors.white,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Calculate scaling factor while maintaining original proportions
-          final scaleFactor = isMobile
-              ? screenSize.width / 743 // Base on original text width
-              : 1.0;
-
-          return Stack(
-            children: [
-              // Text with exact proportions but scaled for mobile
-              Positioned(
-                left: 268 * scaleFactor,
-                top: 128 * scaleFactor,
-                child: SizedBox(
-                  width: 743 * scaleFactor,
-                  height: 25 * scaleFactor,
-                  child: Text(
-                    "You are at your Base Point, please move Alfred towards the table to start marking",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 20 * scaleFactor,
-                      fontWeight: FontWeight.w400,
-                      height: 24.2 / 20,
-                      color: Colors.black,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20.0 : 40.0,
+                vertical: 20.0,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: screenHeight - kToolbarHeight,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    /// **Instruction Text**
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: Text(
+                        "You are at your Base Point, please move Alfred towards the table to start marking",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: isMobile ? 16.0 : 20.0,
+                          fontWeight: FontWeight.w400,
+                          height: 1.2,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
 
-              // Image with exact proportions but scaled for mobile
-              Positioned(
-                left: (screenSize.width - (600 * scaleFactor)) / 2, // Center horizontally
-                top: 250* scaleFactor,
-                child: SizedBox(
-                  width: 600 * scaleFactor,
-                  height: 600 * scaleFactor,
-                  child: Image.asset(
-                    'assets/images/alfred_basepoint_marking.png',
-                    fit: BoxFit.contain,
-                  ),
+                    /// **Alfred Image**
+                    SizedBox(
+                      width: isMobile ? screenWidth * 0.9 : 600,
+                      height: isMobile ? screenWidth * 0.9 : 600,
+                      child: Image.asset(
+                        'assets/images/alfred_basepoint_marking.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ),
       ),
     );
   }
