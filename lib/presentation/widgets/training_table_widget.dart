@@ -28,34 +28,27 @@ class TableGridButton extends ConsumerWidget {
     final shouldBeSelected = isSelected || (!isDashed && ref.watch(selectedTableProvider) == tableNumber);
 
     // Button content
-    Widget buttonContent = Container(
+    Widget buttonContent = SizedBox(
       width: 138,
       height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 17),
-      decoration: ShapeDecoration(
-        color: shouldBeSelected ? Colors.black : Colors.white.withOpacity(0),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 0.50,
-            color: isDisabled
-                ? Colors.grey[300]!
-                : shouldBeSelected ? Colors.black : const Color(0xFF757575),
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.nunito(
-            fontSize: 20,
-            fontWeight: FontWeight.w400,
-            height: 1.20,
-            letterSpacing: 0.20,
-            color: isDisabled
-                ? Colors.grey[300]
-                : shouldBeSelected ? Colors.white : const Color(0xFF757575),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8), // Reduced from 35 to 8
+        child: Center(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.nunito(
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                height: 1.20,
+                letterSpacing: 0.20,
+                color: isDisabled
+                    ? Colors.grey[300]
+                    : shouldBeSelected ? Colors.white : const Color(0xFF757575),
+              ),
+            ),
           ),
         ),
       ),
@@ -74,7 +67,15 @@ class TableGridButton extends ConsumerWidget {
           child: InkWell(
             onTap: isTraining ? null : onPressed, // Disabled during training
             borderRadius: BorderRadius.circular(8),
-            child: buttonContent,
+            child: Container(
+              decoration: ShapeDecoration(
+                color: shouldBeSelected ? Colors.black : Colors.white.withOpacity(0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: buttonContent,
+            ),
           ),
         ),
       );
@@ -86,7 +87,21 @@ class TableGridButton extends ConsumerWidget {
       child: InkWell(
         onTap: isDisabled ? null : onPressed,
         borderRadius: BorderRadius.circular(8),
-        child: buttonContent,
+        child: Container(
+          decoration: ShapeDecoration(
+            color: shouldBeSelected ? Colors.black : Colors.white.withOpacity(0),
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 0.50,
+                color: isDisabled
+                    ? Colors.grey[300]!
+                    : shouldBeSelected ? Colors.black : const Color(0xFF757575),
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: buttonContent,
+        ),
       ),
     );
   }

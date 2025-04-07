@@ -1,8 +1,11 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 
 class AnimatedAddButton extends StatelessWidget {
   final bool isTraining;
+  final bool isDisabled;  // Add this new parameter
   final VoidCallback onPressed;
   final bool useSolidBorder;
 
@@ -11,6 +14,7 @@ class AnimatedAddButton extends StatelessWidget {
     required this.isTraining,
     required this.onPressed,
     this.useSolidBorder = false,
+    this.isDisabled = false,  // Default to false
   });
 
   @override
@@ -36,13 +40,13 @@ class AnimatedAddButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          onTap: isTraining ? null : onPressed,
+          onTap: (isTraining || isDisabled) ? null : onPressed,  // Updated condition
           child: DottedBorder(
             borderType: BorderType.RRect,
             radius: const Radius.circular(8),
             padding: EdgeInsets.zero,
             dashPattern: const [4, 4],
-            color: isTraining ? Colors.grey[300]! : const Color(0xFF757575),
+            color: (isTraining || isDisabled) ? Colors.grey[300]! : const Color(0xFF757575),  // Updated condition
             strokeWidth: 1,
             child: _buildButtonContent(),
           ),
@@ -59,14 +63,14 @@ class AnimatedAddButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          onTap: isTraining ? null : onPressed,
+          onTap: (isTraining || isDisabled) ? null : onPressed,  // Updated condition
           child: Container(
             decoration: ShapeDecoration(
               color: Colors.white.withOpacity(0),
               shape: RoundedRectangleBorder(
                 side: BorderSide(
                   width: 0.50,
-                  color: isTraining ? Colors.grey[300]! : const Color(0xFF757575),
+                  color: (isTraining || isDisabled) ? Colors.grey[300]! : const Color(0xFF757575),  // Updated condition
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -79,11 +83,11 @@ class AnimatedAddButton extends StatelessWidget {
   }
 
   Widget _buildButtonContent() {
-    return const Center(
+    return Center(
       child: Text(
         "Add Table",
         style: TextStyle(
-          color: Color(0xFF757575),
+          color: (isTraining || isDisabled) ? Colors.grey[300]! : const Color(0xFF757575),  // Updated condition
           fontSize: 20,
           fontFamily: 'Nunito',
           fontWeight: FontWeight.w400,
@@ -92,7 +96,3 @@ class AnimatedAddButton extends StatelessWidget {
     );
   }
 }
-
-
-
-
