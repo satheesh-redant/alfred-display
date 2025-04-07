@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -140,6 +141,7 @@ class AlfredTrainingScreen extends ConsumerWidget {
                                         } else {
                                           return AnimatedAddButton(
                                             isTraining: isTraining,
+                                            isDisabled: isTraining,
                                             onPressed: () => ref.read(tableProvider.notifier).addTable(),
                                           );
                                         }

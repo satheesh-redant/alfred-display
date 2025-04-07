@@ -1,4 +1,5 @@
 
+
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/presentation/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                   Text(
                     "Let's Setup Alfred",
                     style: GoogleFonts.inter(
+                      color: Colors.black,
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       height: 24.2 / 24,
@@ -50,6 +52,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                   Text(
                     "Please complete the checks before marking the tables with Alfred",
                     style: GoogleFonts.inter(
+                      color: Colors.black,
                       fontSize: 20,
                       fontWeight: FontWeight.w400,
                       height: 24.2 / 20,
@@ -141,14 +144,15 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
         ),
         boxShadow: const [
           BoxShadow(
-            color: Colors.black26,
+            color: Color(0x3F000000),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: Offset(0, 4),
+            spreadRadius: 0,
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
         child: Row(
           children: [
             /// **Checkbox & Title**
@@ -171,7 +175,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                     Flexible(
                       child: Text(
                         title,
-                        style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w400),
+                        style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w400,color: Colors.black ),
                         softWrap: true,
                       ),
                     ),
