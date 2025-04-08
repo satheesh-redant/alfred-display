@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../widgets/appbar_widget.dart';
 import '../widgets/training_table_widget.dart';
 import '../widgets/animated_add_button_widget.dart'; // Add this import
+import '../widgets/bottom_button_widget.dart'; // Import your BottomActionButton
 
 class AlfredTrainingScreen extends ConsumerWidget {
   const AlfredTrainingScreen({super.key});
@@ -161,74 +161,35 @@ class AlfredTrainingScreen extends ConsumerWidget {
             ),
           ),
 
-          // Bottom button with flex:3 width
-          // Bottom button with adjusted width to match table grid
+          // Use the BottomActionButton here
+
           Padding(
             padding: const EdgeInsets.only(bottom: 20, right: 70, left: 15),
             child: Row(
               children: [
-                // Left spacer (flex:2 to match your layout)
                 const Expanded(
                   flex: 2,
                   child: SizedBox(),
                 ),
                 const SizedBox(width: 20), // Same spacing as between your sections
 
-                // Button with adjusted width
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.55, // Reduced from 0.6 to 0.45
-                  height: 80,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.black,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                          spreadRadius: 3,
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          if (isTraining) {
-                            ref.read(isTrainingProvider.notifier).state = false;
-                            context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
-                          } else {
-                            if (selectedTable != null) {
-                              ref.read(isTrainingProvider.notifier).state = true;
-                            } else {
-                              context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
-                            }
-                          }
-                        },
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              isTraining ? "Finish Training" : "Return to Base",
-                              style: GoogleFonts.inter(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                height: 24.2 / 22,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                // Replace your custom button with BottomActionButton
+                BottomActionButton(
+                  text: isTraining ? "Finish Training" : "Return to Base",
+                  onPressed: () {
+                    if (isTraining) {
+                      ref.read(isTrainingProvider.notifier).state = false;
+                      context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+                    } else {
+                      if (selectedTable != null) {
+                        ref.read(isTrainingProvider.notifier).state = true;
+                      } else {
+                        context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+                      }
+                    }
+                  },
+                  isActive: selectedTable != null || isTraining, // Adjust logic based on your needs
+                  width: MediaQuery.of(context).size.width * 0.55,
                 ),
               ],
             ),
@@ -238,4 +199,3 @@ class AlfredTrainingScreen extends ConsumerWidget {
     );
   }
 }
-

@@ -7,19 +7,10 @@ import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/training_table_widget.dart';
+import '../../widgets/bottom_button_widget.dart';  // Import the BottomActionButton widget
 
-// Provider using int? for table numbers
-final selectedTableProvider = StateNotifierProvider<SelectedTableNotifier, int?>((ref) {
-  return SelectedTableNotifier();
-});
-
-class SelectedTableNotifier extends StateNotifier<int?> {
-  SelectedTableNotifier() : super(null);
-
-  void selectTable(int table) {
-    state = table;
-  }
-}
+// Screen-specific provider
+final deliveryScreenTableProvider = StateProvider<int?>((ref) => null);
 
 class DeliveryMainScreen extends ConsumerWidget {
   const DeliveryMainScreen({super.key});
@@ -27,7 +18,8 @@ class DeliveryMainScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tables = ref.watch(tableProvider);
-    final selectedTable = ref.watch(selectedTableProvider);
+    // Use screen-specific provider
+    final selectedTable = ref.watch(deliveryScreenTableProvider);
 
     return Scaffold(
       body: Stack(
@@ -39,7 +31,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Sidebar
+                    // Sidebar (unchanged)
                     Padding(
                       padding: const EdgeInsets.only(left: 0, top: 70),
                       child: Container(
@@ -98,7 +90,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    // Left Section (Robot Image & Text)
+                    // Left Section (unchanged)
                     Expanded(
                       flex: 2,
                       child: Stack(
@@ -142,7 +134,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    // Right Section (Table Selection)
+                    // Right Section (only changed provider reference)
                     Expanded(
                       flex: 3,
                       child: Container(
@@ -158,7 +150,6 @@ class DeliveryMainScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 49),
-                            // Grid of Tables
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.only(right: 40),
@@ -173,9 +164,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                                 ),
                                 itemCount: tables.length,
                                 itemBuilder: (context, index) {
-                                  final currentSelection = ref.watch(selectedTableProvider);
-                                  final isSelected = currentSelection == tables[index];
-
+                                  final isSelected = selectedTable == tables[index];
                                   return Padding(
                                     padding: EdgeInsets.only(
                                       right: index % 4 == 3 ? 0 : 0,
@@ -183,16 +172,16 @@ class DeliveryMainScreen extends ConsumerWidget {
                                     child: TableGridButton(
                                       label: tables[index].toString(),
                                       tableNumber: tables[index],
-                                      isSelected: isSelected, // Now this will work
+                                      isSelected: isSelected,
                                       onPressed: () {
-                                        ref.read(selectedTableProvider.notifier).state =
-                                        currentSelection == tables[index] ? null : tables[index];
+                                        ref.read(deliveryScreenTableProvider.notifier).state =
+                                        isSelected ? null : tables[index];
                                       },
                                     ),
                                   );
                                 },
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -202,8 +191,8 @@ class DeliveryMainScreen extends ConsumerWidget {
               ),
             ],
           ),
-          // "Go to Table" Button
-          // Bottom button matching table grid width (responsive)
+          // "Go to Table" Button (replaced with BottomActionButton)
+
           Positioned(
             left: 0,
             right: 40,
@@ -212,74 +201,28 @@ class DeliveryMainScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(left: 15),
               child: Row(
                 children: [
-                  // Left spacer matching table grid layout (flex:2)
                   const Expanded(
                     flex: 2,
                     child: SizedBox(),
                   ),
-                  const SizedBox(width: 20), // Same gap as in table grid
-
-                  // Button with adjusted width
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.53, // Reduced from 0.6 to 0.52
-                    height: 80,
-                    margin: const EdgeInsets.only(right: 20),
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        final selectedTable = ref.watch(selectedTableProvider);
-                        return DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: selectedTable != null ? Colors.black : const Color(0xFFC4C4C4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                offset: const Offset(0, 1),
-                                blurRadius: 3,
-                              ),
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                offset: const Offset(0, 4),
-                                blurRadius: 8,
-                                spreadRadius: 3,
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            onPressed: selectedTable != null
-                                ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Going to Table $selectedTable'),
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
-                              context.go(
-                                '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
-                              );
-                            }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Go to Table",
-                                style: GoogleFonts.nunito(
-                                  color: selectedTable != null ? Colors.white : Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                  const SizedBox(width: 20),
+                  BottomActionButton(
+                    text: "Go to Table",
+                    onPressed: selectedTable != null
+                        ? () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Going to Table $selectedTable'),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                      context.go(
+                        '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
+                      );
+                    }
+                        : () {},  // Fallback empty function when no table is selected
+                    isActive: selectedTable != null,
+                    width: MediaQuery.of(context).size.width * 0.53,
                   ),
                 ],
               ),
@@ -290,5 +233,3 @@ class DeliveryMainScreen extends ConsumerWidget {
     );
   }
 }
-
-
