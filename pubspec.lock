@@ -309,30 +309,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
-  hive_ce:
-    dependency: "direct main"
-    description:
-      name: hive_ce
-      sha256: ac66daee46ad46486a1ed12cf91e9d7479c875fb46889be8d2c96b557406647f
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.10.1"
-  hive_ce_flutter:
-    dependency: "direct main"
-    description:
-      name: hive_ce_flutter
-      sha256: "74c1d5f10d803446b4e7913bb272137e2724ba8a56465444f9e7713aeb60a877"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.0"
-  hive_ce_generator:
-    dependency: "direct dev"
-    description:
-      name: hive_ce_generator
-      sha256: "0b1c750e2d10c55a14cde16d479ada42704be6cef43c54b728ed0e4e02f7d808"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.2"
   http:
     dependency: transitive
     description:
@@ -366,7 +342,7 @@ packages:
     source: hosted
     version: "1.0.0"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
@@ -633,10 +609,10 @@ packages:
     dependency: "direct main"
     description:
       name: rosbridge
-      sha256: f67314a4fd10200a19ac26d6957f7ed9f159d7dc89a64105178ca267d1dd6284
+      sha256: "920fc7eb4dd5e6e69e50aa1b7f2445caf9eae6e809828e25d3b1e3f4e49eefc1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.2-dev+4"
+    version: "0.0.3-dev+4"
   shelf:
     dependency: transitive
     description:
@@ -682,22 +658,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.6.0"
-  source_gen:
-    dependency: transitive
-    description:
-      name: source_gen
-      sha256: "35c8150ece9e8c8d263337a265153c3329667640850b9304861faea59fc98f6b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
-  source_helper:
-    dependency: transitive
-    description:
-      name: source_helper
-      sha256: "86d247119aedce8e63f4751bd9626fc9613255935558447569ad42f9f5b48b3c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.5"
   source_span:
     dependency: transitive
     description:
@@ -898,14 +858,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.3"
-  yaml_writer:
-    dependency: transitive
-    description:
-      name: yaml_writer
-      sha256: "69651cd7238411179ac32079937d4aa9a2970150d6b2ae2c6fe6de09402a5dc5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
 sdks:
   dart: ">=3.7.2 <4.0.0"
   flutter: ">=3.27.0"

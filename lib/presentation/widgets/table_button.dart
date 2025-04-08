@@ -7,11 +7,11 @@ class TableButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   const TableButton({
-    Key? key,
+    super.key,
     required this.tableNumber,
     required this.isSelected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

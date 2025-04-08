@@ -1,12 +1,12 @@
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/view_models/boot_check_view_model.dart';
+import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../gen/strings.g.dart';
-import '../../models/boot_status_state.dart';
+import '../../models/boot_check_state.dart';
 import '../../view_models/ros_connection_view_model.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
@@ -17,7 +17,6 @@ class LoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -36,14 +35,27 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     });
     // Once boot check is successful, navigate to the next screen.
     ref.listen(bootCheckVMProvider, (previous, next) {
-      if (next.hardwareOk && next.batteryOk && next.sensorOk) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Future.delayed(const Duration(seconds: 2), () {
-            context.go(AlfredConstants.routeChecklistScreen);
-          });
-        });
+      if (next.overallStatus == 'OK') {
+        // ref.read(bootCheckVMProvider.notifier).clearTopic();
+        ref.read(opsVMProvider.notifier).getCurrentOp();
       }
     });
+    ref.listen(
+      opsVMProvider,
+      (previous, next) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              if (next == 'delivery') {
+                context.go(AlfredConstants.routeDeliveryMainScreen);
+              } else {
+                context.go(AlfredConstants.routeChecklistScreen);
+              }
+            }
+          });
+        });
+      },
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -80,7 +92,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   Widget _buildStatusWidget(
     BuildContext context,
     ConnectionStatus connectionStatus,
-    BootStatusResponse bootStatus,
+    BootCheckResponse bootStatus,
   ) {
     if (connectionStatus == ConnectionStatus.connecting) {
       return const CircularProgressIndicator();
@@ -90,17 +102,108 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
       );
     } else if (connectionStatus == ConnectionStatus.connected) {
-      if (!bootStatus.hardwareOk || !bootStatus.batteryOk || !bootStatus.sensorOk) {
+      if (bootStatus.overallStatus == 'OK') {
         return Text(
           bootStatus.message,
-          style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+          style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24, color: Colors.green),
+        );
+      } else if (bootStatus.overallStatus == 'FAIL') {
+        String msg = bootStatus.message;
+        for (var check in bootStatus.checks!) {
+          if (check.status == 'FAIL') {
+            msg += '(${check.error!})';
+          }
+        }
+        return Column(
+          children: [
+            Text(
+              msg,
+              style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24, color: Colors.red),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(bootCheckVMProvider.notifier).reinit();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 4,
+              ),
+              child: Text(
+                "RETRY",
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            )
+          ],
+        );
+      } else if (connectionStatus == ConnectionStatus.closed) {
+        return Text(
+          'Connection closed',
+          style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24, color: Colors.red),
         );
       }
       return Text(
-        'System Initialized',
+        'Checking System Status...',
         style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
       );
     }
     return Container();
   }
+
+  // Helper widget that builds a row for each request.
+  Widget _buildRequestRow(
+    BuildContext context,
+    String title,
+    RequestStatus status,
+    VoidCallback onRetry,
+  ) {
+    Widget trailing;
+    switch (status) {
+      case RequestStatus.inProgress:
+        trailing = const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        );
+        break;
+      case RequestStatus.success:
+        trailing = const Icon(Icons.check_circle, color: Colors.green);
+        break;
+      case RequestStatus.error:
+        trailing = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error, color: Colors.red),
+            const SizedBox(width: 8),
+            TextButton(
+              onPressed: onRetry,
+              child: const Text('Retry'),
+            ),
+          ],
+        );
+        break;
+      default:
+        trailing = const SizedBox();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(child: Text(title, style: const TextStyle(fontSize: 16))),
+          trailing,
+        ],
+      ),
+    );
+  }
 }
+
+// Define the status for each request.
+enum RequestStatus { notStarted, inProgress, success, error }

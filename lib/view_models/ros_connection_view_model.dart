@@ -3,7 +3,7 @@ import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/ros.dart';
 
-enum ConnectionStatus { connecting, connected, error }
+enum ConnectionStatus { connecting, connected, error, closed }
 
 class ROSConnectionViewModel extends StateNotifier<ConnectionStatus> {
 
@@ -19,6 +19,8 @@ class ROSConnectionViewModel extends StateNotifier<ConnectionStatus> {
         state = ConnectionStatus.connected;
       } else if (status == Status.errored) {
         state = ConnectionStatus.error;
+      } else if (status == Status.closed) {
+        state = ConnectionStatus.closed;
       } else {
         state = ConnectionStatus.connecting;
       }
