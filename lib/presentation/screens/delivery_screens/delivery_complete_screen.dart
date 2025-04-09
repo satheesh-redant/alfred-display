@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../config/alfred_constants.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import '../../widgets/bottom_button_widget.dart';  // Import the BottomActionButton widget
 
 class DeliveryCompleteScreen extends ConsumerWidget {
   const DeliveryCompleteScreen({super.key});
@@ -78,7 +79,6 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                                     ),
                                   ),
                                 ),
-
                                 // Alfred Ready Image
                                 SizedBox(height: 55 * scaleFactor),
                                 SizedBox(
@@ -105,59 +105,12 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                       right: 0,
                       bottom: 20,
                       child: Center(
-                        child: Container(
-                          width: min(697 * scaleFactor, screenWidth * 0.9),
-                          height: 80 * scaleFactor,
-                          margin: EdgeInsets.symmetric(
-                            horizontal: max(20, (screenWidth - 697 * scaleFactor) / 2),
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF000000),
-                            borderRadius: BorderRadius.circular(8 * scaleFactor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF000000).withOpacity(0.3),
-                                offset: const Offset(0, 1),
-                                blurRadius: 3 * scaleFactor,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: const Color(0xFF000000).withOpacity(0.15),
-                                offset: const Offset(0, 4),
-                                blurRadius: 8 * scaleFactor,
-                                spreadRadius: 3 * scaleFactor,
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.go(AlfredConstants.routeDeliveryReturningBaseScreen);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8 * scaleFactor),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 35 * scaleFactor,
-                              ),
-                            ),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                "Go to Base",
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.inter(
-                                  fontSize: 22 * scaleFactor,
-                                  fontWeight: FontWeight.w600,
-                                  height: 24.2 / 22,
-                                  letterSpacing: 0,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
+                        child: BottomActionButton(
+                          text: "Go to Base",
+                          onPressed: () {
+                            context.go(AlfredConstants.routeDeliveryReturningBaseScreen);
+                          },
+                          isActive: true,
                         ),
                       ),
                     ),

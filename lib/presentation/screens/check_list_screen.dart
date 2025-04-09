@@ -1,11 +1,11 @@
-
-
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/presentation/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../widgets/bottom_button_widget.dart'; // Import the BottomActionButton
 
 class ChecklistScreen extends ConsumerStatefulWidget {
   const ChecklistScreen({super.key});
@@ -95,35 +95,19 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
           ],
         ),
       ),
-
       /// **Bottom Continue Button**
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: 300.0, right: 300.0, bottom: 36.0),
-        child: SizedBox(
-          width: 697,
-          height: 80,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: (_task1Completed && _task2Completed && _task3Completed)
-                ? () => context.go(AlfredConstants.routeBasePointScreen)
-                : null,
-            child: Text(
-              "Continue",
-              style: GoogleFonts.inter(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ),
+        child: BottomActionButton(
+          text: "Continue",
+          onPressed: (_task1Completed && _task2Completed && _task3Completed)
+              ? () => context.go(AlfredConstants.routeBasePointScreen)
+              : null,
+          isActive: _task1Completed && _task2Completed && _task3Completed,
         ),
       ),
     );
   }
-
   /// **Checklist Card Builder**
   Widget _buildChecklistCard({
     required String title,
@@ -199,4 +183,3 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
     );
   }
 }
-

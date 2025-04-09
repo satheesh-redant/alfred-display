@@ -8,6 +8,7 @@ import 'package:toastification/toastification.dart';
 import '../../config/alfred_constants.dart';
 import '../../view_models/base_reset_view_model.dart';
 import '../widgets/appbar_widget.dart';
+import '../widgets/bottom_button_widget.dart'; // Import the BottomActionButton
 
 class BasePointScreen extends ConsumerWidget {
   const BasePointScreen({super.key});
@@ -68,9 +69,7 @@ class BasePointScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 36),
-
                     // Subtitle
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -90,9 +89,7 @@ class BasePointScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 100),
-
                     // Image
                     Center(
                       child: FittedBox(
@@ -104,42 +101,22 @@ class BasePointScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-
                     const Spacer(),
-
                     // Bottom Button with margin
                     Padding(
                       padding: const EdgeInsets.only(bottom: 36, left: 16, right: 16),
                       child: Center(
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: SizedBox(
-                            width: 697,
-                            height: 80,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => SaveStartingPointDialog(),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                elevation: 4,
-                              ),
-                              child: Text(
-                                "I am at the Base Point",
-                                style: GoogleFonts.inter(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                  height: 1.10,
-                                ),
-                              ),
-                            ),
+                          child: BottomActionButton(
+                            text: "I am at the Base Point",
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => SaveStartingPointDialog(),
+                              );
+                            },
+                            isActive: true, // You can add logic here if needed
                           ),
                         ),
                       ),
