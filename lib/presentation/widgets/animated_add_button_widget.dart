@@ -3,13 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 
-class AnimatedAddButton extends StatelessWidget {
+class AnimatedAddButtonWidget extends StatelessWidget {
   final bool isTraining;
   final bool isDisabled;  // Add this new parameter
   final VoidCallback onPressed;
   final bool useSolidBorder;
 
-  const AnimatedAddButton({
+  const AnimatedAddButtonWidget({
     super.key,
     required this.isTraining,
     required this.onPressed,

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +27,7 @@ class BasePointMarkerScreen extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AlfredAppBar(),
+      appBar: AppBarWidget(),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: LayoutBuilder(

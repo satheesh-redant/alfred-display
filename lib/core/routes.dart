@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../presentation/screens/delivery_screens/delivery_main_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_in_progress_screen.dart';
 import '../presentation/screens/check_list_screen.dart';
-import '../presentation/screens/alfred_training_screen.dart';
+import '../presentation/screens/training_screen.dart';
 import 'package:alfred/presentation/screens/base_point_marker_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_complete_screen.dart';
 

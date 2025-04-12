@@ -1,10 +1,10 @@
+
 import 'package:alfred/presentation/screens/save_starting_point_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../widgets/appbar_widget.dart';
-import '../widgets/bottom_button_widget.dart'; // Import the BottomActionButton
+import '../widgets/button_widget.dart';
 
 class BasePointScreen extends ConsumerStatefulWidget {
   const BasePointScreen({super.key});
@@ -18,7 +18,7 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AlfredAppBar(),
+      appBar: AppBarWidget(),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -88,7 +88,7 @@ class _BasePointScreenState extends ConsumerState<BasePointScreen> {
                       child: Center(
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: BottomActionButton(
+                          child: ButtonWidget(
                             text: "I am at the Base Point",
                             onPressed: () {
                               showDialog(

@@ -1,4 +1,5 @@
-import 'dart:math'; // Added for min() function
+
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,7 +46,7 @@ class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScr
               // Background content
               Column(
                 children: [
-                  AlfredAppBar(),
+                  AppBarWidget(),
                   Expanded(
                     child: Container(), // Empty expanded to push content down
                   ),

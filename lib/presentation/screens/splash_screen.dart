@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,7 @@ class SplashScreen extends StatelessWidget {
       tablet: 100.0,
       desktop: 126.0,
     );
+
 
     final fontSize = _getResponsiveValue(
       context,

@@ -26,13 +26,12 @@ class DeliveryReturningBaseScreen extends ConsumerWidget {
               // Background content
               Column(
                 children: [
-                  AlfredAppBar(),
+                  AppBarWidget(),
                   Expanded(
                     child: Container(), // Empty expanded to push content down
                   ),
                 ],
               ),
-
               // Centered Content with scaled dimensions
               Center(
                 child: Transform.scale(

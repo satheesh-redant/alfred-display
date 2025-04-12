@@ -1,12 +1,12 @@
-// lib/presentation/widgets/table_button.dart
+
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 
-class TableButton extends StatelessWidget {
+class TableButtonWidget extends StatelessWidget {
   final int tableNumber;
   final bool isSelected;
   final VoidCallback onTap;
-  const TableButton({
+  const TableButtonWidget({
     Key? key,
     required this.tableNumber,
     required this.isSelected,

@@ -1,3 +1,4 @@
+
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/presentation/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../widgets/bottom_button_widget.dart'; // Import the BottomActionButton
+import '../widgets/button_widget.dart'; // Import the BottomActionButton
 
 class ChecklistScreen extends ConsumerStatefulWidget {
   const ChecklistScreen({super.key});
@@ -22,7 +23,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AlfredAppBar(),
+      appBar: AppBarWidget(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
@@ -98,7 +99,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
       /// **Bottom Continue Button**
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: 300.0, right: 300.0, bottom: 36.0),
-        child: BottomActionButton(
+        child: ButtonWidget(
           text: "Continue",
           onPressed: (_task1Completed && _task2Completed && _task3Completed)
               ? () => context.go(AlfredConstants.routeBasePointScreen)

@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:alfred/providers/table_providers.dart';
 
-class TableGridButton extends ConsumerWidget {
+class TableGridButtonWidget extends ConsumerWidget {
   final String label;
   final bool isDashed;
   final int? tableNumber;
@@ -12,7 +12,7 @@ class TableGridButton extends ConsumerWidget {
   final bool isSelected;
   final bool isDisabled;
 
-  const TableGridButton({
+  const TableGridButtonWidget({
     super.key,
     required this.label,
     this.isDashed = false,
