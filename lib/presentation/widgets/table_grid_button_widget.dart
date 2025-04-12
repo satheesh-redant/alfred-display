@@ -11,6 +11,7 @@ class TableGridButtonWidget extends ConsumerWidget {
   final VoidCallback? onPressed;
   final bool isSelected;
   final bool isDisabled;
+  final bool isMarked;
 
   const TableGridButtonWidget({
     super.key,
@@ -20,85 +21,89 @@ class TableGridButtonWidget extends ConsumerWidget {
     this.onPressed,
     this.isSelected = false,
     this.isDisabled = false,
+    this.isMarked = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isTraining = ref.watch(isTrainingProvider);
-    final shouldBeSelected = isSelected || (!isDashed && ref.watch(selectedTableProvider) == tableNumber);
+    final selectedTable = ref.watch(selectedTableProvider);
 
-    // Button content
+    // Show as selected if either:
+    // 1. It's the currently selected table (before confirmation)
+    // 2. It's marked as selected (after confirmation)
+    final showSelected = isSelected || (!isDashed && selectedTable == tableNumber);
+    final showMarked = isMarked && !showSelected;
+    final showDisabled = isDisabled && !showSelected;
+
+    // Colors - Selected gets solid black background
+    final backgroundColor = showSelected
+        ? Colors.black // Solid black for selected
+        : showMarked
+        ? Colors.grey[100]!
+        : Colors.transparent;
+
+    final textColor = showSelected
+        ? Colors.white // White text on black
+        : showMarked
+        ? Colors.grey[400]!
+        : showDisabled
+        ? Colors.grey[300]!
+        : const Color(0xFF757575);
+
+    final borderColor = showSelected
+        ? Colors.black // Black border for selected
+        : showMarked
+        ? Colors.grey[400]!
+        : showDisabled
+        ? Colors.grey[300]!
+        : const Color(0xFF757575);
+
     Widget buttonContent = SizedBox(
       width: 138,
       height: 60,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8), // Reduced from 35 to 8
-        child: Center(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.nunito(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-                height: 1.20,
-                letterSpacing: 0.20,
-                color: isDisabled
-                    ? Colors.grey[300]
-                    : shouldBeSelected ? Colors.white : const Color(0xFF757575),
-              ),
-            ),
+      child: Center(
+        child: Text(
+          label,
+          style: GoogleFonts.nunito(
+            fontSize: 20,
+            fontWeight: showMarked ? FontWeight.w300 : FontWeight.w400,
+            color: textColor,
           ),
         ),
       ),
     );
 
-    // For the "Add Table" button (isDashed = true)
     if (isDashed) {
       return DottedBorder(
         borderType: BorderType.RRect,
         radius: const Radius.circular(8),
         dashPattern: const [4, 4],
-        color: isDisabled ? Colors.grey[300]! : const Color(0xFF757575),
+        color: borderColor,
         strokeWidth: 1,
         child: Material(
-          color: Colors.transparent,
+          color: backgroundColor,
           child: InkWell(
-            onTap: isTraining ? null : onPressed, // Disabled during training
+            onTap: isTraining || showDisabled ? null : onPressed,
             borderRadius: BorderRadius.circular(8),
-            child: Container(
-              decoration: ShapeDecoration(
-                color: shouldBeSelected ? Colors.black : Colors.white.withOpacity(0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: buttonContent,
-            ),
+            child: buttonContent,
           ),
         ),
       );
     }
 
-    // For regular table buttons
     return Material(
-      color: Colors.transparent,
+      color: backgroundColor,
       child: InkWell(
-        onTap: isDisabled ? null : onPressed,
+        onTap: showDisabled ? null : onPressed,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          decoration: ShapeDecoration(
-            color: shouldBeSelected ? Colors.black : Colors.white.withOpacity(0),
-            shape: RoundedRectangleBorder(
-              side: BorderSide(
-                width: 0.50,
-                color: isDisabled
-                    ? Colors.grey[300]!
-                    : shouldBeSelected ? Colors.black : const Color(0xFF757575),
-              ),
-              borderRadius: BorderRadius.circular(8),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: borderColor,
+              width: 0.5,
             ),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: buttonContent,
         ),

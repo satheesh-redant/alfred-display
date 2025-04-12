@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,37 +6,43 @@ import 'package:alfred/providers/table_providers.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/appbar_widget.dart';
 import '../widgets/table_grid_button_widget.dart';
-import '../widgets/animated_add_button_widget.dart'; // Add this import
-import '../widgets/button_widget.dart'; // Import your BottomActionButton
+import '../widgets/animated_add_button_widget.dart';
+import '../widgets/button_widget.dart';
 
-class TrainingScreen extends ConsumerWidget {
+class TrainingScreen extends ConsumerStatefulWidget {
   const TrainingScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TrainingScreen> createState() => _TrainingScreenState();
+}
+
+class _TrainingScreenState extends ConsumerState<TrainingScreen> {
+  final scrollController = ScrollController();
+  List<int> markedTables = [];
+  int? currentlyMarkedTable;
+
+  @override
+  Widget build(BuildContext context) {
     final tables = ref.watch(tableProvider);
     final selectedTable = ref.watch(selectedTableProvider);
-    final isTraining = ref.watch(isTrainingProvider);
-    final scrollController = ScrollController();
+    final isMarkingComplete = ref.watch(isMarkingCompleteProvider);
 
     return Scaffold(
       appBar: AppBarWidget(),
       body: Column(
         children: [
-          // Main content area - made scrollable
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(15),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height - 150, // Account for appbar and button
+                  minHeight: MediaQuery.of(context).size.height - 150,
                 ),
                 child: Column(
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Left Section (Text + Image)
                         Expanded(
                           flex: 2,
                           child: Container(
@@ -85,8 +90,6 @@ class TrainingScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 20),
-
-                        // Right Section (Table Buttons + Add Table)
                         Expanded(
                           flex: 3,
                           child: Container(
@@ -120,29 +123,35 @@ class TrainingScreen extends ConsumerWidget {
                                         childAspectRatio: 138 / 60,
                                       ),
                                       itemCount: tables.length + 1,
-
-                                      // In your GridView.builder:
                                       itemBuilder: (context, index) {
                                         if (index < tables.length) {
-                                          final isSelected = selectedTable == tables[index];
-                                          final isDisabled = isTraining && !isSelected;
+                                          final table = tables[index];
+                                          final isMarked = markedTables.contains(table);
+                                          final isSelected = currentlyMarkedTable == table;
+                                          final isDisabled = isMarkingComplete && !isSelected;
 
                                           return TableGridButtonWidget(
-                                            label: tables[index].toString(),
-                                            tableNumber: tables[index],
+                                            label: table.toString(),
+                                            tableNumber: table,
                                             isSelected: isSelected,
-                                            isDisabled: isDisabled,
-                                            onPressed: isDisabled
+                                            isDisabled: isDisabled || isMarked,
+                                            isMarked: isMarked,
+                                            onPressed: isDisabled || isMarked
                                                 ? null
                                                 : () {
-                                              ref.read(selectedTableProvider.notifier).state =
-                                              isSelected ? null : tables[index];
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Table $table selected'),
+                                                  duration: Duration(seconds: 1),
+                                                ),
+                                              );
+                                              ref.read(selectedTableProvider.notifier).state = table;
                                             },
                                           );
                                         } else {
                                           return AnimatedAddButtonWidget(
-                                            isTraining: isTraining,
-                                            isDisabled: isTraining,
+                                            isTraining: false,
+                                            isDisabled: isMarkingComplete,
                                             onPressed: () => ref.read(tableProvider.notifier).addTable(),
                                           );
                                         }
@@ -161,37 +170,59 @@ class TrainingScreen extends ConsumerWidget {
               ),
             ),
           ),
-
-          // Use the BottomActionButton here
-
           Padding(
             padding: const EdgeInsets.only(bottom: 20, right: 70, left: 15),
             child: Row(
               children: [
-                const Expanded(
-                  flex: 2,
-                  child: SizedBox(),
-                ),
-                const SizedBox(width: 20), // Same spacing as between your sections
-
-                // Replace your custom button with BottomActionButton
-                ButtonWidget(
-                  text: isTraining ? "Finish Training" : "Return to Base",
-                  onPressed: () {
-                    if (isTraining) {
-                      ref.read(isTrainingProvider.notifier).state = false;
-                      context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
-                    } else {
-                      if (selectedTable != null) {
-                        ref.read(isTrainingProvider.notifier).state = true;
-                      } else {
-                        context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
-                      }
+                const Expanded(flex: 2, child: SizedBox()),
+                const SizedBox(width: 20),
+                if (!isMarkingComplete)
+                  ButtonWidget(
+                    text: "Confirm",
+                    onPressed: selectedTable != null
+                        ? () {
+                      setState(() {
+                        markedTables.add(selectedTable);
+                        currentlyMarkedTable = selectedTable;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Table $selectedTable marked successfully!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      ref.read(isMarkingCompleteProvider.notifier).state = true;
+                      ref.read(selectedTableProvider.notifier).state = null;
                     }
-                  },
-                  isActive: selectedTable != null || isTraining, // Adjust logic based on your needs
-                  width: MediaQuery.of(context).size.width * 0.55,
-                ),
+                        : null,
+                    isActive: selectedTable != null,
+                    width: MediaQuery.of(context).size.width * 0.55,
+                  ),
+                if (isMarkingComplete)
+                  Row(
+                    children: [
+                      ButtonWidget(
+                        text: "Mark Next Table",
+                        onPressed: () {
+                          ref.read(isMarkingCompleteProvider.notifier).state = false;
+                          setState(() {
+                            currentlyMarkedTable = null;
+                          });
+                        },
+                        isActive: true,
+                        width: MediaQuery.of(context).size.width * 0.25,
+                      ),
+                      SizedBox(width: 10),
+                      ButtonWidget(
+                        text: "Return to Base",
+                        onPressed: () {
+                          context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+                        },
+                        isActive: true,
+                        width: MediaQuery.of(context).size.width * 0.25,
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
