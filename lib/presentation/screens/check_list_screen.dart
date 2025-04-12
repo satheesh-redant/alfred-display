@@ -102,7 +102,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
         child: ButtonWidget(
           text: "Continue",
           onPressed: (_task1Completed && _task2Completed && _task3Completed)
-              ? () => context.go(AlfredConstants.routeBasePointScreen)
+              ? () => context.go(AlfredConstants.routeBasePointMarkingScreen)
               : null,
           isActive: _task1Completed && _task2Completed && _task3Completed,
         ),
