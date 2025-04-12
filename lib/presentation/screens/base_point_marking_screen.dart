@@ -24,7 +24,7 @@ class _BasePointMarkingScreenState extends ConsumerState<BasePointMarkingScreen>
     if (_showMarkerScreen) {
       return _BasePointMarkerScreen(
         onComplete: () {
-          context.go(AlfredConstants.routeAlfredTrainingScreen);
+          context.go(AlfredConstants.routeTrainingScreen);
         },
       );
     }

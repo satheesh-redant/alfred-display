@@ -10,8 +10,8 @@ import '../widgets/table_grid_button_widget.dart';
 import '../widgets/animated_add_button_widget.dart'; // Add this import
 import '../widgets/button_widget.dart'; // Import your BottomActionButton
 
-class AlfredTrainingScreen extends ConsumerWidget {
-  const AlfredTrainingScreen({super.key});
+class TrainingScreen extends ConsumerWidget {
+  const TrainingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
