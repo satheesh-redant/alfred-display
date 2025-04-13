@@ -9,9 +9,9 @@ class TableGridButtonWidget extends ConsumerWidget {
   final bool isDashed;
   final int? tableNumber;
   final VoidCallback? onPressed;
-  final bool isSelected;
-  final bool isDisabled;
-  final bool isMarked;
+  final bool isSelected; //todo: Whether button is in selected state
+  final bool isDisabled; //todo: Whether button is disabled
+  final bool isMarked; //todo: Whether button is in marked state
 
   const TableGridButtonWidget({
     super.key,
@@ -26,33 +26,35 @@ class TableGridButtonWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isTraining = ref.watch(isTrainingProvider);
-    final selectedTable = ref.watch(selectedTableProvider);
 
-    // Show as selected if either:
-    // 1. It's the currently selected table (before confirmation)
-    // 2. It's marked as selected (after confirmation)
+    final isTraining = ref.watch(isTrainingProvider);
+    //todo: Get currently selected table from provider
+    final selectedTable = ref.watch(selectedTableProvider);
     final showSelected = isSelected || (!isDashed && selectedTable == tableNumber);
+    //todo: Show marked state only if not selected
     final showMarked = isMarked && !showSelected;
+
     final showDisabled = isDisabled && !showSelected;
 
-    // Colors - Selected gets solid black background
+    //todo: Determine background color based on state (selected > marked > default)
     final backgroundColor = showSelected
-        ? Colors.black // Solid black for selected
+        ? Colors.black
         : showMarked
         ? Colors.grey[100]!
         : Colors.transparent;
 
+    //todo: Determine text color based on state (selected > marked > disabled > default)
     final textColor = showSelected
-        ? Colors.white // White text on black
+        ? Colors.white
         : showMarked
         ? Colors.grey[400]!
         : showDisabled
         ? Colors.grey[300]!
         : const Color(0xFF757575);
 
+    //todo: Determine border color based on state (selected > marked > disabled > default)
     final borderColor = showSelected
-        ? Colors.black // Black border for selected
+        ? Colors.black
         : showMarked
         ? Colors.grey[400]!
         : showDisabled
@@ -84,6 +86,7 @@ class TableGridButtonWidget extends ConsumerWidget {
         child: Material(
           color: backgroundColor,
           child: InkWell(
+            //todo: Disable tap if in training mode or button is disabled
             onTap: isTraining || showDisabled ? null : onPressed,
             borderRadius: BorderRadius.circular(8),
             child: buttonContent,
@@ -95,6 +98,7 @@ class TableGridButtonWidget extends ConsumerWidget {
     return Material(
       color: backgroundColor,
       child: InkWell(
+        //todo: Disable tap if button is disabled
         onTap: showDisabled ? null : onPressed,
         borderRadius: BorderRadius.circular(8),
         child: Container(
