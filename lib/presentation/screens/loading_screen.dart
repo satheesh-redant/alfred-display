@@ -36,7 +36,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     // Once boot check is successful, navigate to the next screen.
     ref.listen(bootCheckVMProvider, (previous, next) {
       if (next.overallStatus == 'OK') {
-        // ref.read(bootCheckVMProvider.notifier).clearTopic();
+        ref.read(bootCheckVMProvider.notifier).clearTopic();
         ref.read(opsVMProvider.notifier).getCurrentOp();
       }
     });
@@ -59,32 +59,33 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 100),
-            Expanded(
-              child: Image.asset(
-                'assets/images/loading.png',
-                fit: BoxFit.cover, // Or BoxFit.fill based on your image
-                // width: MediaQuery.of(context).size.width * 0.5,
-                height: MediaQuery.of(context).size.height * 0.3,
-              ),
+      body: Column(
+        // mainAxisAlignment: MainAxisAlignment.center,
+        // crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 100),
+          Expanded(
+            child: Image.asset(
+              'assets/images/loading.png',
+              fit: BoxFit.cover, // Or BoxFit.fill based on your image
+              // width: MediaQuery.of(context).size.width * 0.5,
+              height: MediaQuery.of(context).size.height * 0.3,
             ),
-            const SizedBox(height: 50),
-            Padding(
-                padding: EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildStatusWidget(context, ref.watch(rosConnectionVMProvider), ref.watch(bootCheckVMProvider)),
-                  ],
-                )),
-            const SizedBox(height: 50),
-          ],
-        ),
+          ),
+          const SizedBox(height: 50),
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildStatusWidget(
+                      context,
+                      ref.watch(rosConnectionVMProvider),
+                      ref.watch(bootCheckVMProvider)),
+                ],
+              )),
+          const SizedBox(height: 50),
+        ],
       ),
     );
   }
@@ -97,15 +98,46 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     if (connectionStatus == ConnectionStatus.connecting) {
       return const CircularProgressIndicator();
     } else if (connectionStatus == ConnectionStatus.error) {
-      return Text(
-        'Initialization Failed',
-        style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+      return Column(
+        children: [
+          Text(
+            'Initialization Failed',
+            style: GoogleFonts.inter(
+                textStyle: Theme.of(context).textTheme.titleMedium,
+                fontSize: 24,
+                color: Colors.red),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(rosConnectionVMProvider.notifier).connect();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 4,
+            ),
+            child: Text(
+              "RETRY",
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          )
+        ],
       );
     } else if (connectionStatus == ConnectionStatus.connected) {
       if (bootStatus.overallStatus == 'OK') {
         return Text(
           bootStatus.message,
-          style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24, color: Colors.green),
+          style: GoogleFonts.inter(
+              textStyle: Theme.of(context).textTheme.titleMedium,
+              fontSize: 24,
+              color: Colors.green),
         );
       } else if (bootStatus.overallStatus == 'FAIL') {
         String msg = bootStatus.message;
@@ -118,7 +150,10 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           children: [
             Text(
               msg,
-              style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24, color: Colors.red),
+              style: GoogleFonts.inter(
+                  textStyle: Theme.of(context).textTheme.titleMedium,
+                  fontSize: 24,
+                  color: Colors.red),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
@@ -146,12 +181,16 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       } else if (connectionStatus == ConnectionStatus.closed) {
         return Text(
           'Connection closed',
-          style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24, color: Colors.red),
+          style: GoogleFonts.inter(
+              textStyle: Theme.of(context).textTheme.titleMedium,
+              fontSize: 24,
+              color: Colors.red),
         );
       }
       return Text(
         'Checking System Status...',
-        style: GoogleFonts.inter(textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+        style: GoogleFonts.inter(
+            textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
       );
     }
     return Container();

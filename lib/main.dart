@@ -1,16 +1,23 @@
-
 import 'package:alfred/core/routes.dart';
 import 'package:alfred/core/themes.dart';
 import 'package:alfred/gen/strings.g.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   LocaleSettings.useDeviceLocale(); // For localization
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
+  // Force Landscape Mode
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft, // Left-side Landscape
+    DeviceOrientation.landscapeRight, // Right-side Landscape
+  ]);
 
   runApp(
     TranslationProvider(
@@ -25,7 +32,6 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Alfred',
@@ -51,4 +57,3 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-

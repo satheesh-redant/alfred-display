@@ -114,7 +114,6 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
   @override
   void dispose() {
     _topic.unsubscribe();
-    _triggerTopic!.unsubscribe();
     super.dispose();
   }
 }
