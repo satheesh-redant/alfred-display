@@ -7,8 +7,9 @@ import '../providers/ros_service_provider.dart';
 import 'package:rosbridge/rosbridge.dart';
 
 class TableViewModel extends StateNotifier<TableData> {
+
   final ROSService _rosService;
-  Topic? _topicAddTable, _topicGetTables, _topicMoveTable;
+  Topic? _topicAddTable, _topicGetTables, _topicMoveTable, _topicRTB;
 
   TableViewModel(this._rosService) : super(TableData());
 
@@ -50,6 +51,21 @@ class TableViewModel extends StateNotifier<TableData> {
     await _topicAddTable!.publish(json);
   }
 
+  Future<void> getTablesTable() async {
+    print('initiating get tables topic...');
+    _topicAddTable = _rosService.createTopic(
+      ROSConstants.topicGetTables,
+      ROSConstants.msgInteger,
+    );
+
+    // Subscribe to the topic to check for your published message (for confirmation).
+    // Note: In a production scenario, this echo should ideally be part of the ROS system or another node.
+    _topicAddTable!.subscribe((msg) async {
+      print("table list: $msg");
+      _topicAddTable!.unsubscribe();
+    });
+  }
+
   Future<void> moveTable({required int table}) async {
     print('initiating move table topic...');
     _topicMoveTable = _rosService.createTopic(
@@ -57,21 +73,35 @@ class TableViewModel extends StateNotifier<TableData> {
       ROSConstants.msgInteger,
     );
 
-    // Subscribe to the topic to check for your published message (for confirmation).
-    // Note: In a production scenario, this echo should ideally be part of the ROS system or another node.
     _topicMoveTable!.subscribe((msg) async {
-      Map<String, dynamic> response = {};
       print("Received echo on trigger topic: $msg");
-      // Optionally, cancel the subscription after receiving the echo once.
       _topicMoveTable!.unsubscribe();
     });
 
     Map<String, dynamic> json = {"data": table};
     await _topicMoveTable!.publish(json);
   }
+
+  Future<void> returnToBase() async {
+    print('initiating return to base topic...');
+    _topicRTB = _rosService.createTopic(
+      ROSConstants.topicReturnToBase,
+      ROSConstants.msgEmpty,
+    );
+
+    _topicRTB!.subscribe((msg) async {
+      print("Received echo on trigger topic: $msg");
+      _topicRTB!.unsubscribe();
+
+    });
+
+    await _topicRTB!.publish({});
+  }
+
+
 }
 
-final batteryVMProvider = StateNotifierProvider<TableViewModel, TableData>((ref) {
+final tableVMProvider = StateNotifierProvider<TableViewModel, TableData>((ref) {
   final rosService = ref.watch(rosServiceProvider);
   return TableViewModel(rosService);
 });

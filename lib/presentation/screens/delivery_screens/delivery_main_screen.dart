@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/providers/table_providers.dart';
 import '../../../config/alfred_constants.dart';
+import '../../../view_models/table_view_model.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,11 +13,24 @@ import '../../widgets/button_widget.dart';  // Import the BottomActionButton wid
 // Screen-specific provider
 final deliveryScreenTableProvider = StateProvider<int?>((ref) => null);
 
-class DeliveryMainScreen extends ConsumerWidget {
+class DeliveryMainScreen extends ConsumerStatefulWidget {
   const DeliveryMainScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _DeliveryMainScreenState();
+}
+
+class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(tableVMProvider.notifier).getTableList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final tables = ref.watch(tableProvider);
     // Use screen-specific provider
     final selectedTable = ref.watch(deliveryScreenTableProvider);
@@ -210,12 +224,13 @@ class DeliveryMainScreen extends ConsumerWidget {
                     text: "Go to Table",
                     onPressed: selectedTable != null
                         ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Going to Table $selectedTable'),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(
+                      //     content: Text('Going to Table $selectedTable'),
+                      //     duration: const Duration(seconds: 2),
+                      //   ),
+                      // );
+                      ref.read(tableVMProvider.notifier).moveTable(table: selectedTable);
                       context.go(
                         '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
                       );
@@ -232,4 +247,5 @@ class DeliveryMainScreen extends ConsumerWidget {
       ),
     );
   }
+
 }

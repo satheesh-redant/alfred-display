@@ -158,6 +158,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
+                ref.read(bootCheckVMProvider.notifier).setData();
                 ref.read(bootCheckVMProvider.notifier).reinit();
               },
               style: ElevatedButton.styleFrom(
@@ -178,21 +179,23 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
             )
           ],
         );
-      } else if (connectionStatus == ConnectionStatus.closed) {
-        return Text(
-          'Connection closed',
-          style: GoogleFonts.inter(
-              textStyle: Theme.of(context).textTheme.titleMedium,
-              fontSize: 24,
-              color: Colors.red),
-        );
+      } else {
+        return const CircularProgressIndicator();
       }
+    } else if (connectionStatus == ConnectionStatus.closed) {
       return Text(
-        'Checking System Status...',
+        'Connection closed',
         style: GoogleFonts.inter(
-            textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+            textStyle: Theme.of(context).textTheme.titleMedium,
+            fontSize: 24,
+            color: Colors.red),
       );
     }
+    return Text(
+      'Checking System Status...',
+      style: GoogleFonts.inter(
+          textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+    );
     return Container();
   }
 

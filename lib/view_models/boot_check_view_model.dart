@@ -33,6 +33,10 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
     state = BootCheckResponse.fromJson(bootStatus);
   }
 
+  void setData() {
+    state = BootCheckResponse();
+  }
+
   Future<void> reinit() async {
     print('re-initiating boot check topic...');
     /*

@@ -63,7 +63,7 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
   @override
   final Size preferredSize = const Size.fromHeight(35);
 
-  const AlfredAppBar({super.key});
+  const AppBarWidget({super.key});
 
   static double _scaleFactor(BuildContext context) {
     final width = MediaQuery.of(context).size.width;

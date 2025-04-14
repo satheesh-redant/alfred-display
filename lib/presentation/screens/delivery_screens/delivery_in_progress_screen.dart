@@ -22,7 +22,7 @@ class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScr
     // Schedule navigation after 5 seconds
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
-        context.go(AlfredConstants.routeDeliveryCompleteScreen);
+        context.replace(AlfredConstants.routeDeliveryCompleteScreen);
       }
     });
   }

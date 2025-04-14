@@ -1,17 +1,49 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../config/alfred_constants.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-class DeliveryReturningBaseScreen extends ConsumerWidget {
+class DeliveryReturningBaseScreen extends ConsumerStatefulWidget {
   const DeliveryReturningBaseScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _DeliveryReturningBaseScreenState();
+
+}
+
+class _DeliveryReturningBaseScreenState extends ConsumerState<DeliveryReturningBaseScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    // Schedule navigation after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isMobile = ResponsiveBreakpoints.of(context).isMobile;
     final screenWidth = MediaQuery.of(context).size.width;
+
+    @override
+    void initState() {
+      super.initState();
+      // Schedule navigation after 5 seconds
+      Future.delayed(const Duration(seconds: 5), () {
+        if (mounted) {
+          context.replace(AlfredConstants.routeDeliveryCompleteScreen);
+        }
+      });
+    }
 
     return Scaffold(
       body: LayoutBuilder(
