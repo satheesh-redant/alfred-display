@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class BottomActionButton extends StatelessWidget {
+class ButtonWidget extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final bool isActive;
   final double? width;
   final double? height;
 
-  const BottomActionButton({
+  const ButtonWidget({
     super.key,
     required this.text,
     required this.onPressed,

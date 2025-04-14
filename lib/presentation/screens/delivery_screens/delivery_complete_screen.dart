@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../config/alfred_constants.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import '../../widgets/bottom_button_widget.dart';  // Import the BottomActionButton widget
+import '../../widgets/button_widget.dart';
 
 class DeliveryCompleteScreen extends ConsumerWidget {
   const DeliveryCompleteScreen({super.key});
@@ -37,7 +37,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        AlfredAppBar(),
+                        AppBarWidget(),
                         Expanded(
                           child: Padding(
                             padding: EdgeInsets.symmetric(
@@ -105,7 +105,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                       right: 0,
                       bottom: 20,
                       child: Center(
-                        child: BottomActionButton(
+                        child: ButtonWidget(
                           text: "Go to Base",
                           onPressed: () {
                             context.go(AlfredConstants.routeDeliveryReturningBaseScreen);

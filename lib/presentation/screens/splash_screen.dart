@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,6 +25,7 @@ class SplashScreen extends ConsumerWidget {
       tablet: 100.0,
       desktop: 126.0,
     );
+
 
     final fontSize = _getResponsiveValue(
       context,

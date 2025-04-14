@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,25 +6,25 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // State class
-class AlfredAppBarState {
+class AppBarWidgetState {
   final String currentTime;
 
-  AlfredAppBarState({
+  AppBarWidgetState({
     this.currentTime = "",
   });
 
-  AlfredAppBarState copyWith({
+  AppBarWidgetState copyWith({
     String? currentTime,
   }) {
-    return AlfredAppBarState(
+    return AppBarWidgetState(
       currentTime: currentTime ?? this.currentTime,
     );
   }
 }
 
 // StateNotifier
-class AlfredAppBarStateNotifier extends StateNotifier<AlfredAppBarState> {
-  AlfredAppBarStateNotifier() : super(AlfredAppBarState()) {
+class AppBarWidgetStateNotifier extends StateNotifier<AppBarWidgetState> {
+  AppBarWidgetStateNotifier() : super(AppBarWidgetState()) {
     _init();
   }
 
@@ -55,12 +54,12 @@ class AlfredAppBarStateNotifier extends StateNotifier<AlfredAppBarState> {
 }
 
 // Provider (make sure this is declared as final and globally accessible)
-final alfredAppBarProvider = StateNotifierProvider<AlfredAppBarStateNotifier, AlfredAppBarState>(
-      (ref) => AlfredAppBarStateNotifier(),
+final appBarWidgetProvider = StateNotifierProvider<AppBarWidgetStateNotifier, AppBarWidgetState>(
+      (ref) => AppBarWidgetStateNotifier(),
 );
 
 // Widget
-class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
+class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
   @override
   final Size preferredSize = const Size.fromHeight(35);
 
@@ -75,7 +74,7 @@ class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(alfredAppBarProvider); // Now this will work
+    final state = ref.watch(appBarWidgetProvider); // Now this will work
     final scale = _scaleFactor(context);
 
     return AppBar(
@@ -148,4 +147,3 @@ class AlfredAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 }
-

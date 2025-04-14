@@ -22,13 +22,15 @@ final tableSelectionProvider = StateNotifierProvider<TableSelectionNotifier, Map
       (ref) => TableSelectionNotifier(),
 );
 
+// Add this provider to your table_providers.dart file
+final isMarkingCompleteProvider = StateProvider<bool>((ref) => false);
+
 class TableSelectionNotifier extends StateNotifier<Map<int, bool>> {
   TableSelectionNotifier() : super({});
 
   void toggleSelection(int tableNumber) {
     state = {...state, tableNumber: !(state[tableNumber] ?? false)};
   }
-
   void clearSelection() {
     state = {};
   }

@@ -1,5 +1,5 @@
 import 'package:alfred/config/alfred_constants.dart';
-import 'package:alfred/presentation/screens/base_point_screen.dart';
+import 'package:alfred/presentation/screens/base_point_marking_screen.dart';
 import 'package:alfred/presentation/screens/loading_screen.dart';
 import 'package:alfred/presentation/screens/mapping_screen.dart';
 import 'package:alfred/presentation/screens/delivery_screens/delivery_returning_base_screen.dart';
@@ -9,8 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../presentation/screens/delivery_screens/delivery_main_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_in_progress_screen.dart';
 import '../presentation/screens/check_list_screen.dart';
-import '../presentation/screens/alfred_training_screen.dart';
-import 'package:alfred/presentation/screens/base_point_marker_screen.dart';
+import '../presentation/screens/training_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_complete_screen.dart';
 
 
@@ -30,16 +29,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ChecklistScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeBasePointScreen,
-        builder: (context, state) => const BasePointScreen(),
+        path: AlfredConstants.routeBasePointMarkingScreen,
+        builder: (context, state) => const BasePointMarkingScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeBasePointMarkerScreen,  // New Route
-        builder: (context, state) => const BasePointMarkerScreen(),
-      ),
-      GoRoute(
-        path: AlfredConstants.routeAlfredTrainingScreen,  // New Route
-        builder: (context, state) => const AlfredTrainingScreen(),
+        path: AlfredConstants.routeTrainingScreen,  // New Route
+        builder: (context, state) => const TrainingScreen(),
       ),
       GoRoute(
         path: AlfredConstants.routeDeliveryMainScreen,

@@ -2,12 +2,12 @@ import 'package:alfred/view_models/base_reset_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
-import 'package:alfred/config/alfred_constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 class SaveStartingPointDialog extends ConsumerWidget {
-  const SaveStartingPointDialog({super.key});
+  final VoidCallback onConfirmed;
+
+  const SaveStartingPointDialog({required this.onConfirmed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +19,7 @@ class SaveStartingPointDialog extends ConsumerWidget {
     return Dialog(
       backgroundColor: Colors.white,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 16.0 : 0.0, // Add padding on mobile only
+        horizontal: isMobile ? 16.0 : 0.0,
         vertical: 24.0,
       ),
       shape: RoundedRectangleBorder(
@@ -28,46 +28,37 @@ class SaveStartingPointDialog extends ConsumerWidget {
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: isMobile ? double.infinity : 500.0, // Limit width on larger screens
+          maxWidth: isMobile ? double.infinity : 500.0,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24.0), // Maintain original padding
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
               Text(
                 "Save your Base Point",
                 style: GoogleFonts.roboto(
                   textStyle: const TextStyle(
-                    color: const Color(0xFF1D1B20),
+                    color: Color(0xFF1D1B20),
                     fontSize: 24.0,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               const SizedBox(height: 16.0),
-              // Divider
-              const Divider(
-                color: Colors.grey,
-                thickness: 1.0,
-              ),
+              const Divider(color: Colors.grey, thickness: 1.0),
               const SizedBox(height: 24.0),
-              // Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 25.0,
                         vertical: 20.0,
                       ),
-                      textStyle: const TextStyle(fontSize: 16.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -85,24 +76,12 @@ class SaveStartingPointDialog extends ConsumerWidget {
                   ),
                   const SizedBox(width: 16.0),
                   FilledButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.go(AlfredConstants.routeBasePointMarkerScreen);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Base Point saved successfully!"),
-                        ),
-                      );
-                    },
+                    onPressed: onConfirmed,
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 45.0,
                         vertical: 20.0,
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -114,6 +93,7 @@ class SaveStartingPointDialog extends ConsumerWidget {
                         textStyle: const TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w600,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -127,4 +107,3 @@ class SaveStartingPointDialog extends ConsumerWidget {
     );
   }
 }
-

@@ -6,8 +6,8 @@ import '../../../config/alfred_constants.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../widgets/training_table_widget.dart';
-import '../../widgets/bottom_button_widget.dart';  // Import the BottomActionButton widget
+import '../../widgets/table_grid_button_widget.dart';
+import '../../widgets/button_widget.dart';  // Import the BottomActionButton widget
 
 // Screen-specific provider
 final deliveryScreenTableProvider = StateProvider<int?>((ref) => null);
@@ -26,7 +26,7 @@ class DeliveryMainScreen extends ConsumerWidget {
         children: [
           Column(
             children: [
-              AlfredAppBar(),
+              AppBarWidget(),
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +169,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                                     padding: EdgeInsets.only(
                                       right: index % 4 == 3 ? 0 : 0,
                                     ),
-                                    child: TableGridButton(
+                                    child: TableGridButtonWidget(
                                       label: tables[index].toString(),
                                       tableNumber: tables[index],
                                       isSelected: isSelected,
@@ -206,7 +206,7 @@ class DeliveryMainScreen extends ConsumerWidget {
                     child: SizedBox(),
                   ),
                   const SizedBox(width: 20),
-                  BottomActionButton(
+                  ButtonWidget(
                     text: "Go to Table",
                     onPressed: selectedTable != null
                         ? () {
