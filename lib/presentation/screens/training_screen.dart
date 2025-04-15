@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/providers/table_providers.dart';
 import 'package:go_router/go_router.dart';
+import 'package:toastification/toastification.dart'; // keep this import
 import '../widgets/appbar_widget.dart';
 import '../widgets/table_grid_button_widget.dart';
 import '../widgets/animated_add_button_widget.dart';
@@ -19,34 +20,22 @@ class TrainingScreen extends ConsumerStatefulWidget {
 }
 
 class _TrainingScreenState extends ConsumerState<TrainingScreen> {
-  //todo: Controller for managing scroll behavior of the table grid
   final scrollController = ScrollController();
-
-  //todo: List to keep track of all marked tables
   List<int> markedTables = [];
-
-  //todo: Currently marked table reference
   int? currentlyMarkedTable;
-
-  //todo: Flag to toggle between instruction messages
   bool showBasePointMessage = false;
 
   @override
   Widget build(BuildContext context) {
-    //todo: Get current list of tables from provider
+
     final tables = ref.watch(tableProvider);
-
-    //todo: Get currently selected table from provider
     final selectedTable = ref.watch(selectedTableProvider);
-
-    //todo: Check if marking process is complete
     final isMarkingComplete = ref.watch(isMarkingCompleteProvider);
 
     return Scaffold(
       appBar: AppBarWidget(),
       body: Column(
         children: [
-          //todo: Main content area with scrollable table grid
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(15),
@@ -56,11 +45,9 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                 ),
                 child: Column(
                   children: [
-                    //todo: Row containing instruction panel and table grid
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //todo: Left panel with instructions and image
                         Expanded(
                           flex: 2,
                           child: Container(
@@ -80,9 +67,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                         : 'Move Alfred manually, place it towards the table and click on Table Number',
                                     style: GoogleFonts.inter(
                                       fontSize: 18,
-                                      fontWeight: showBasePointMessage
-                                          ? FontWeight.w400
-                                          : FontWeight.w400,
+                                      fontWeight: FontWeight.w400,
                                       height: 24.2 / 18,
                                       color: Colors.black,
                                     ),
@@ -90,7 +75,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 60),
-                                //todo: Alfred base image display
                                 Image.asset(
                                   "assets/images/alfred_base.png",
                                   width: 450,
@@ -102,7 +86,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                           ),
                         ),
                         const SizedBox(width: 20),
-                        //todo: Right panel with table grid
                         Expanded(
                           flex: 3,
                           child: Container(
@@ -110,7 +93,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //todo: "Mark Tables" section title
                                 Text(
                                   "Mark Tables",
                                   style: GoogleFonts.nunito(
@@ -126,7 +108,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                     controller: scrollController,
                                     thumbVisibility: true,
                                     trackVisibility: true,
-                                    //todo: Grid view for displaying tables
                                     child: GridView.builder(
                                       controller: scrollController,
                                       shrinkWrap: true,
@@ -138,18 +119,13 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                         childAspectRatio: 138 / 60,
                                       ),
                                       itemCount: tables.length + 1,
-                                      //todo: Builder for table grid items
                                       itemBuilder: (context, index) {
                                         if (index < tables.length) {
                                           final table = tables[index];
-                                          //todo: Check if table is marked
                                           final isMarked = markedTables.contains(table);
-                                          //todo: Check if table is currently selected
                                           final isSelected = currentlyMarkedTable == table;
-                                          //todo: Check if table should be disabled
                                           final isDisabled = isMarkingComplete && !isSelected;
 
-                                          //todo: Return table button widget
                                           return TableGridButtonWidget(
                                             label: table.toString(),
                                             tableNumber: table,
@@ -171,7 +147,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                             },
                                           );
                                         } else {
-                                          //todo: Return "Add Table" button
                                           return AnimatedAddButtonWidget(
                                             isTraining: false,
                                             isDisabled: isMarkingComplete,
@@ -193,7 +168,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
               ),
             ),
           ),
-          //todo: Bottom action buttons panel
           Padding(
             padding: const EdgeInsets.only(bottom: 20, right: 70, left: 15),
             child: Row(
@@ -204,6 +178,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                 if (!isMarkingComplete)
                   ButtonWidget(
                     text: "Confirm",
+                    // todo: Confirm button action
                     onPressed: selectedTable != null
                         ? () {
                       //todo: Mark table as completed
@@ -212,14 +187,24 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                         currentlyMarkedTable = selectedTable;
                         showBasePointMessage = true;
                       });
-                      //todo: Show success feedback
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Table $selectedTable marked successfully!'),
-                          duration: Duration(seconds: 2),
-                        ),
+
+                      // ✅ Only toast shown
+                      toastification.show(
+                        context: context,
+                        type: ToastificationType.success,
+                        style: ToastificationStyle.fillColored,
+                        title: Text("Success!"),
+                        description: Text("Table $selectedTable marked successfully!"),
+                        alignment: Alignment.bottomCenter,
+                        autoCloseDuration: const Duration(seconds: 2),
+                        animationBuilder: (context, animation, alignment, child) {
+                          return ScaleTransition(scale: animation, child: child);
+                        },
+                        borderRadius: BorderRadius.circular(12.0),
+                        boxShadow: highModeShadow,
+                        showProgressBar: true,
+                        pauseOnHover: false,
                       );
-                      //todo: Update marking complete state
                       ref.read(isMarkingCompleteProvider.notifier).state = true;
                       ref.read(selectedTableProvider.notifier).state = null;
 
@@ -233,25 +218,23 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                 if (isMarkingComplete)
                   Row(
                     children: [
-                      //todo: Button to mark next table
                       ButtonWidget(
+                        //todo: Button to mark next table
                         text: "Mark Next Table",
                         onPressed: () {
                           setState(() {
                             showBasePointMessage = false;
+                            currentlyMarkedTable = null;
                           });
                           //todo: Reset marking complete state
                           ref.read(isMarkingCompleteProvider.notifier).state = false;
-                          setState(() {
-                            currentlyMarkedTable = null;
-                          });
                         },
                         isActive: true,
                         width: MediaQuery.of(context).size.width * 0.25,
                       ),
-                      SizedBox(width: 10),
-                      //todo: Button to return to base screen
+                      SizedBox(width: 40),
                       ButtonWidget(
+                        //todo: Button to return to base screen
                         text: "Return to Base",
                         onPressed: () {
                           ref.read(tableVMProvider.notifier).returnToBase();
@@ -271,3 +254,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     );
   }
 }
+
+
+

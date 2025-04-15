@@ -9,9 +9,9 @@ class TableGridButtonWidget extends ConsumerWidget {
   final bool isDashed;
   final int? tableNumber;
   final VoidCallback? onPressed;
-  final bool isSelected; //todo: Whether button is in selected state
-  final bool isDisabled; //todo: Whether button is disabled
-  final bool isMarked; //todo: Whether button is in marked state
+  final bool isSelected;
+  final bool isDisabled;
+  final bool isMarked;
 
   const TableGridButtonWidget({
     super.key,
@@ -28,22 +28,18 @@ class TableGridButtonWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final isTraining = ref.watch(isTrainingProvider);
-    //todo: Get currently selected table from provider
     final selectedTable = ref.watch(selectedTableProvider);
     final showSelected = isSelected || (!isDashed && selectedTable == tableNumber);
-    //todo: Show marked state only if not selected
     final showMarked = isMarked && !showSelected;
 
     final showDisabled = isDisabled && !showSelected;
 
-    //todo: Determine background color based on state (selected > marked > default)
     final backgroundColor = showSelected
         ? Colors.black
         : showMarked
         ? Colors.grey[100]!
         : Colors.transparent;
 
-    //todo: Determine text color based on state (selected > marked > disabled > default)
     final textColor = showSelected
         ? Colors.white
         : showMarked
@@ -52,7 +48,6 @@ class TableGridButtonWidget extends ConsumerWidget {
         ? Colors.grey[300]!
         : const Color(0xFF757575);
 
-    //todo: Determine border color based on state (selected > marked > disabled > default)
     final borderColor = showSelected
         ? Colors.black
         : showMarked
@@ -98,7 +93,6 @@ class TableGridButtonWidget extends ConsumerWidget {
     return Material(
       color: backgroundColor,
       child: InkWell(
-        //todo: Disable tap if button is disabled
         onTap: showDisabled ? null : onPressed,
         borderRadius: BorderRadius.circular(8),
         child: Container(

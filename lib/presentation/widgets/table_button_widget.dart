@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 
 class TableButtonWidget extends StatelessWidget {
-  final int tableNumber; //todo: Stores the table number identifier
-  final bool isSelected; //todo: Tracks selection state (true/false)
-  final VoidCallback onTap; //todo: Callback when table is tapped
+  final int tableNumber;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   const TableButtonWidget({
     super.key,
@@ -16,15 +16,15 @@ class TableButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap, //todo: Trigger callback on user tap
+      onTap: onTap,
       child: DottedBorder(
-        color: isSelected ? Colors.blue : Colors.grey, //todo: Change border color based on selection
+        color: isSelected ? Colors.blue : Colors.grey,
         dashPattern: const [6, 3],
         strokeWidth: 2,
         child: Container(
           alignment: Alignment.center,
-          color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.grey.withOpacity(0.2), //todo: Change background based on selection
-          child: Text('Table $tableNumber'), //todo: Display dynamic table number
+          color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+          child: Text('Table $tableNumber'),
         ),
       ),
     );
