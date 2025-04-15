@@ -1,26 +1,93 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import '../../config/alfred_constants.dart';
 
 class SplashScreen extends StatelessWidget {
-
-  const SplashScreen({super.key});
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Trigger navigation after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
-      context.go(AlfredConstants.routeLoadingScreen);
+      if (Navigator.of(context).mounted) {
+        context.go(AlfredConstants.routeLoadingScreen);
+      }
     });
+
+    // Get screen size
+    final screenSize = MediaQuery.of(context).size;
+
+    // Responsive values using the correct API
+    final logoSize = _getResponsiveValue(
+      context,
+      mobile: 80.0,
+      tablet: 100.0,
+      desktop: 126.0,
+    );
+
+
+    final fontSize = _getResponsiveValue(
+      context,
+      mobile: 32.0,
+      tablet: 48.0,
+      desktop: 64.0,
+    );
+
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-          'assets/images/splash.png',
-          fit: BoxFit.cover, // Or BoxFit.fill based on your image
-          width: double.infinity,
-          height: double.infinity,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo
+              Container(
+                width: logoSize * 0.67, // Maintain aspect ratio
+                height: logoSize,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/company_logo.png"),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              SizedBox(height: logoSize * 0.5),
+              // Text
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'Redant Technology',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    color: Colors.black,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w600,
+                    height: 1.2,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  // Helper function to get responsive values
+  double _getResponsiveValue(
+      BuildContext context, {
+        required double mobile,
+        required double tablet,
+        required double desktop,
+      }) {
+    if (ResponsiveBreakpoints.of(context).isMobile) return mobile;
+    if (ResponsiveBreakpoints.of(context).isTablet) return tablet;
+    return desktop;
+  }
 }
+
