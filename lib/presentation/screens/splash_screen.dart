@@ -1,24 +1,22 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../config/alfred_constants.dart';
 
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+class SplashScreen extends ConsumerWidget {
+  const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Trigger navigation after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
-      if (Navigator.of(context).mounted) {
+      if (ref.context.mounted) {
         context.go(AlfredConstants.routeLoadingScreen);
       }
     });
-
-    // Get screen size
-    final screenSize = MediaQuery.of(context).size;
 
     // Responsive values using the correct API
     final logoSize = _getResponsiveValue(

@@ -6,7 +6,7 @@ import '../providers/ros_service_provider.dart';
 import 'package:rosbridge/rosbridge.dart';
 
 class OdomViewModel extends StateNotifier<OdomState> {
-  final _rosService;
+  final ROSService _rosService;
   late final Topic odomTopic;
 
   OdomViewModel(this._rosService) : super(const OdomState()) {
@@ -43,8 +43,7 @@ class OdomViewModel extends StateNotifier<OdomState> {
   }
 }
 
-final odomViewModelProvider =
-StateNotifierProvider<OdomViewModel, OdomState>((ref) {
+final odomVMProvider = StateNotifierProvider<OdomViewModel, OdomState>((ref) {
   final rosService = ref.watch(rosServiceProvider);
   return OdomViewModel(rosService);
 });

@@ -1,25 +1,37 @@
-import 'package:hive_ce/hive.dart';
+// To parse this JSON data, do
+//
+//     final tableData = tableDataFromJson(jsonString);
 
-part 'table_data.g.dart';
+import 'dart:convert';
 
-@HiveType(typeId: 0)
-class TableData extends HiveObject {
-  @HiveField(0)
-  final int tableNumber;
+List<TableData> tableDataFromJson(String str) => List<TableData>.from(json.decode(str).map((x) => TableData.fromJson(x)));
 
-  @HiveField(1)
-  final double posX;
+String tableDataToJson(List<TableData> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-  @HiveField(2)
-  final double posY;
-
-  @HiveField(3)
-  final double orientation;
+class TableData {
+  int? table;
+  double? x;
+  double? y;
+  int? yaw;
 
   TableData({
-    required this.tableNumber,
-    required this.posX,
-    required this.posY,
-    required this.orientation,
+    this.table,
+    this.x,
+    this.y,
+    this.yaw,
   });
+
+  factory TableData.fromJson(Map<String, dynamic> json) => TableData(
+    table: json["table"],
+    x: json["x"]?.toDouble(),
+    y: json["y"]?.toDouble(),
+    yaw: json["yaw"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "table": table,
+    "x": x,
+    "y": y,
+    "yaw": yaw,
+  };
 }

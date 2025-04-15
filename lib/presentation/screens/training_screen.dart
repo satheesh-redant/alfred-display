@@ -1,3 +1,5 @@
+import 'package:alfred/view_models/operation_view_model.dart';
+import 'package:alfred/view_models/table_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -133,6 +135,14 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                             onPressed: isDisabled || isMarked
                                                 ? null
                                                 : () {
+                                              //todo: Show selection feedback
+                                              // ScaffoldMessenger.of(context).showSnackBar(
+                                              //   SnackBar(
+                                              //     content: Text('Table $table selected'),
+                                              //     duration: Duration(seconds: 1),
+                                              //   ),
+                                              // );
+                                              //todo: Update selected table state
                                               ref.read(selectedTableProvider.notifier).state = table;
                                             },
                                           );
@@ -197,6 +207,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                       );
                       ref.read(isMarkingCompleteProvider.notifier).state = true;
                       ref.read(selectedTableProvider.notifier).state = null;
+
+                      ref.read(tableVMProvider.notifier).addTable(table: selectedTable);
                     }
                         : null,
                     isActive: selectedTable != null,
@@ -225,6 +237,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                         //todo: Button to return to base screen
                         text: "Return to Base",
                         onPressed: () {
+                          ref.read(tableVMProvider.notifier).returnToBase();
+                          ref.read(opsVMProvider.notifier).sendOpsMode(mode: 'delivery');
                           context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
                         },
                         isActive: true,

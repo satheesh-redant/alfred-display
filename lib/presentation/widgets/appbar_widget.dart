@@ -63,6 +63,8 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
   @override
   final Size preferredSize = const Size.fromHeight(35);
 
+  const AppBarWidget({super.key});
+
   static double _scaleFactor(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width > 1200) return 1.3;
@@ -125,7 +127,7 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 width: 32 * scale,
                 height: 32 * scale,
                 child: InkWell(

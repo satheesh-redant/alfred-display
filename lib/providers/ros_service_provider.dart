@@ -28,6 +28,7 @@ class ROSService {
       type: type,
       queueSize: queueSize,
       throttleRate: throttleRate,
+      reconnectOnClose: false
     );
   }
 }

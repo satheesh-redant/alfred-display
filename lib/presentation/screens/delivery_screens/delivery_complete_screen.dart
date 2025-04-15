@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../config/alfred_constants.dart';
+import '../../../view_models/table_view_model.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../widgets/button_widget.dart';
@@ -108,7 +109,8 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                         child: ButtonWidget(
                           text: "Go to Base",
                           onPressed: () {
-                            context.go(AlfredConstants.routeDeliveryReturningBaseScreen);
+                            ref.read(tableVMProvider.notifier).returnToBase();
+                            context.replace(AlfredConstants.routeDeliveryReturningBaseScreen);
                           },
                           isActive: true,
                         ),

@@ -1,14 +1,19 @@
+import 'package:alfred/view_models/base_reset_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-class SaveStartingPointDialog extends StatelessWidget {
+class SaveStartingPointDialog extends ConsumerWidget {
   final VoidCallback onConfirmed;
 
   const SaveStartingPointDialog({required this.onConfirmed});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(baseResetVMProvider, (prev, next) {
+      Navigator.pop(context); // Close dialog
+    });
     final isMobile = ResponsiveBreakpoints.of(context).isMobile;
 
     print("Building SaveStartingPointDialog...");

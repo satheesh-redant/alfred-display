@@ -74,8 +74,7 @@ class MapViewModel extends StateNotifier<MapState> {
   }
 }
 
-final mapViewModelProvider =
-StateNotifierProvider<MapViewModel, MapState>((ref) {
+final mapVMProvider = StateNotifierProvider<MapViewModel, MapState>((ref) {
   final rosService = ref.watch(rosServiceProvider);
   return MapViewModel(rosService);
 });

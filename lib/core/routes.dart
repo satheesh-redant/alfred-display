@@ -1,6 +1,5 @@
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/presentation/screens/base_point_marking_screen.dart';
-import 'package:alfred/presentation/screens/delivery_screen.dart';
 import 'package:alfred/presentation/screens/loading_screen.dart';
 import 'package:alfred/presentation/screens/mapping_screen.dart';
 import 'package:alfred/presentation/screens/delivery_screens/delivery_returning_base_screen.dart';
@@ -56,10 +55,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AlfredConstants.routeMappingScreen,
         builder: (context, state) => const MappingScreen(),
-      ),
-      GoRoute(
-        path: AlfredConstants.routeDeliveryScreen,
-        builder: (context, state) => const DeliveryScreen(),
       ),
     ],
     initialLocation: AlfredConstants.routeSplashScreen,
