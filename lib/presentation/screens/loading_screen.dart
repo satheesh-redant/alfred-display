@@ -101,33 +101,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       return Column(
         children: [
           Text(
-            'Initialization Failed',
+            'Communication Failed',
             style: GoogleFonts.inter(
                 textStyle: Theme.of(context).textTheme.titleMedium,
                 fontSize: 24,
                 color: Colors.red),
           ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(rosConnectionVMProvider.notifier).connect();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              elevation: 4,
-            ),
-            child: Text(
-              "RETRY",
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          )
         ],
       );
     } else if (connectionStatus == ConnectionStatus.connected) {
@@ -155,28 +134,6 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
                   fontSize: 24,
                   color: Colors.red),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(bootCheckVMProvider.notifier).setData();
-                ref.read(bootCheckVMProvider.notifier).reinit();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 4,
-              ),
-              child: Text(
-                "RETRY",
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            )
           ],
         );
       } else {

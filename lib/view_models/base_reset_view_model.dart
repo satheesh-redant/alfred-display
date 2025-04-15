@@ -14,24 +14,24 @@ class BaseResetViewModel extends StateNotifier<TriggerResponse> {
 
   BaseResetViewModel(this._rosService) : super(TriggerResponse());
 
-  Future<void> resetBasePoint() async {
-    print('sending base rest command...');
-    service = Service(
-      name: ROSConstants.baseResetService,
-      type: ROSConstants.triggerServiceMsg,
-      ros: _rosService.ros,
-    );
-    await service.call(requestData).then((response) {
-      print("Service response: $response");
-      state = TriggerResponse.fromJson(response);
-    }).catchError((onError) {
-      print("onError: $onError");
-      TriggerResponse error = TriggerResponse(
-        message: onError.toString(),
-      );
-      state = error;
-    });
-  }
+  // Future<void> resetBasePoint() async {
+  //   print('sending base rest command...');
+  //   service = Service(
+  //     name: ROSConstants.baseResetService,
+  //     type: ROSConstants.triggerServiceMsg,
+  //     ros: _rosService.ros,
+  //   );
+  //   await service.call(requestData).then((response) {
+  //     print("Service response: $response");
+  //     state = TriggerResponse.fromJson(response);
+  //   }).catchError((onError) {
+  //     print("onError: $onError");
+  //     TriggerResponse error = TriggerResponse(
+  //       message: onError.toString(),
+  //     );
+  //     state = error;
+  //   });
+  // }
 
   /*  For advertise purpose */
   // Future<Map<String, dynamic>>? serviceHandler(Map<String, dynamic> args) async {

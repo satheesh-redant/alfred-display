@@ -18,8 +18,6 @@ class ROSConstants {
 
   /*  BOOT STATUS CHECK */
   static const String topicBootCheck = '/boot_check';
-  // static const String bootCheckMsg = 'std_msgs/msg/String';
-  static const String topicTriggerBootCheck = '/trigger_boot_check';
 
   /*  BATTERY */
   static const String topicBattery = '/battery_status';
@@ -37,9 +35,9 @@ class ROSConstants {
   static const String cmdVelTopic = '/cmd_vel';
 
   /*  SERVICE */
-  static const String triggerServiceMsg = 'std_srvs/Trigger';
-  static const String bootStatusService = '/check_boot_status';
-  static const String baseResetService = '/reset_base_location';
+  // static const String triggerServiceMsg = 'std_srvs/Trigger';
+  // static const String bootStatusService = '/check_boot_status';
+  // static const String baseResetService = '/reset_base_location';
 
 
 }
