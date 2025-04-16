@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,28 +33,30 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Alfred',
-      theme: AlfredTheme.lightTheme,
-      routerConfig: router,
-      locale: TranslationProvider.of(context).flutterLocale,
-      supportedLocales: AppLocaleUtils.supportedLocales,
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-
-      // ✅ Updated responsive builder
-      builder: (context, child) {
-        return ResponsiveBreakpoints.builder(
-          child: child!,
-          breakpoints: [
-            const Breakpoint(start: 0, end: 450, name: MOBILE),
-            const Breakpoint(start: 451, end: 800, name: TABLET),
-            const Breakpoint(start: 801, end: 1000, name: TABLET),
-            const Breakpoint(start: 1001, end: 1200, name: DESKTOP),
-            const Breakpoint(start: 1201, end: 2460, name: '4K'),
-          ],
-        );
-      },
+    return GlobalLoaderOverlay(
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Alfred',
+        theme: AlfredTheme.lightTheme,
+        routerConfig: router,
+        locale: TranslationProvider.of(context).flutterLocale,
+        supportedLocales: AppLocaleUtils.supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        // ✅ Updated responsive builder
+        builder: (context, child) {
+          return ResponsiveBreakpoints.builder(
+            child: child!,
+            breakpoints: [
+              const Breakpoint(start: 0, end: 450, name: MOBILE),
+              const Breakpoint(start: 451, end: 800, name: TABLET),
+              const Breakpoint(start: 801, end: 1000, name: TABLET),
+              const Breakpoint(start: 1001, end: 1200, name: DESKTOP),
+              const Breakpoint(start: 1201, end: 2460, name: '4K'),
+            ],
+          );
+        },
+      )
     );
+
   }
 }

@@ -9,7 +9,7 @@ import 'package:rosbridge/rosbridge.dart';
 class TableViewModel extends StateNotifier<TableData> {
 
   final ROSService _rosService;
-  Topic? _topicAddTable, _topicGetTables, _topicMoveTable, _topicRTB;
+  Topic? _topicGetTables, _topicMoveTable, _topicRTB;
 
   TableViewModel(this._rosService) : super(TableData());
 
@@ -29,41 +29,6 @@ class TableViewModel extends StateNotifier<TableData> {
 
   void unSubscribe() {
     _topicGetTables!.unsubscribe();
-  }
-
-  Future<void> addTable({required int table}) async {
-    print('initiating add table topic...');
-    _topicAddTable = _rosService.createTopic(
-      ROSConstants.topicAddTable,
-      ROSConstants.msgInteger,
-    );
-
-    // Subscribe to the topic to check for your published message (for confirmation).
-    // Note: In a production scenario, this echo should ideally be part of the ROS system or another node.
-    _topicAddTable!.subscribe((msg) async {
-      Map<String, dynamic> response = {};
-      print("Received echo on trigger topic: $msg");
-      // Optionally, cancel the subscription after receiving the echo once.
-      _topicAddTable!.unsubscribe();
-    });
-
-    Map<String, dynamic> json = {"data": table};
-    await _topicAddTable!.publish(json);
-  }
-
-  Future<void> getTablesTable() async {
-    print('initiating get tables topic...');
-    _topicAddTable = _rosService.createTopic(
-      ROSConstants.topicGetTables,
-      ROSConstants.msgInteger,
-    );
-
-    // Subscribe to the topic to check for your published message (for confirmation).
-    // Note: In a production scenario, this echo should ideally be part of the ROS system or another node.
-    _topicAddTable!.subscribe((msg) async {
-      print("table list: $msg");
-      _topicAddTable!.unsubscribe();
-    });
   }
 
   Future<void> moveTable({required int table}) async {

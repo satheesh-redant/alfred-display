@@ -43,6 +43,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     ref.listen(
       opsVMProvider,
       (previous, next) {
+        ref.read(opsVMProvider.notifier).unsubscribe();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
@@ -112,7 +113,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     } else if (connectionStatus == ConnectionStatus.connected) {
       if (bootStatus.overallStatus == 'OK') {
         return Text(
-          bootStatus.message,
+          'All systems are good to go',
           style: GoogleFonts.inter(
               textStyle: Theme.of(context).textTheme.titleMedium,
               fontSize: 24,

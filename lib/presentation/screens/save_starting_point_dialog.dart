@@ -1,4 +1,4 @@
-import 'package:alfred/view_models/base_reset_view_model.dart';
+import 'package:alfred/view_models/base_point_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,9 +11,9 @@ class SaveStartingPointDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(baseResetVMProvider, (prev, next) {
-      Navigator.pop(context); // Close dialog
-    });
+    // ref.listen(basePointVMProvider, (prev, next) {
+    //   Navigator.pop(context); // Close dialog
+    // });
     final isMobile = ResponsiveBreakpoints.of(context).isMobile;
 
     print("Building SaveStartingPointDialog...");
@@ -84,6 +84,7 @@ class SaveStartingPointDialog extends ConsumerWidget {
                   FilledButton(
                     onPressed: () {
                       print("Yes button pressed");
+                      Navigator.pop(context);
                       onConfirmed();
                     },
                     style: FilledButton.styleFrom(
