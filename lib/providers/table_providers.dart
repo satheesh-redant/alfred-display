@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Provider for tables list
 final tableProvider = StateNotifierProvider<TableNotifier, List<int>>((ref) => TableNotifier());
 
+final markedTablesProvider = StateProvider<List<int>>((ref) => []);
+
 class TableNotifier extends StateNotifier<List<int>> {
   TableNotifier() : super(List.generate(10, (index) => index + 1));
 
