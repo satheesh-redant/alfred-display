@@ -15,6 +15,7 @@ class OperationViewModel extends StateNotifier<String> {
     _topicCurrentMode = _rosService.createTopic(
       ROSConstants.topicCurrentMode,
       ROSConstants.msgString,
+      throttleRate: 1000,
     );
     _topicCurrentMode!.subscribe(_handler);
   }
@@ -24,30 +25,25 @@ class OperationViewModel extends StateNotifier<String> {
     state = message['data'];
   }
 
-  void unSubscribe() {
+  void unsubscribe() {
     _topicCurrentMode!.unsubscribe();
+    state = "";
   }
 
   Future<void> sendOpsMode({required String mode}) async {
-    print('re-initiating boot check topic...');
+    print('re-initiating send ops mode topic...');
     _topicSetOpsMode = _rosService.createTopic(
       ROSConstants.topicSetOpsMode,
       ROSConstants.msgString,
     );
-
-    // Subscribe to the topic to check for your published message (for confirmation).
-    // Note: In a production scenario, this echo should ideally be part of the ROS system or another node.
     _topicSetOpsMode!.subscribe((msg) async {
-      Map<String, dynamic> response = {};
       print("Received echo on trigger topic: $msg");
-      // Optionally, cancel the subscription after receiving the echo once.
       _topicSetOpsMode!.unsubscribe();
     });
 
     Map<String, dynamic> json = {"data": mode};
     await _topicSetOpsMode!.publish(json);
   }
-
 }
 
 final opsVMProvider = StateNotifierProvider<OperationViewModel, String>((ref) {

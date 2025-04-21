@@ -1,0 +1,89 @@
+import 'package:alfred/config/ros_constants.dart';
+import 'package:alfred/providers/ros_service_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rosbridge/core/topic.dart';
+
+class BasePointViewModel extends StateNotifier<String> {
+  final ROSService _rosService;
+  late Topic _topicReturn, _topicReset, _topicResetAck, _topicReturnAck;
+
+  Map<String, dynamic> requestData = {};
+
+  BasePointViewModel(this._rosService) : super("");
+
+  Future<void> triggerReturnToBase() async {
+    print('initiating return to base...');
+    _topicReturn = _rosService.createTopic(
+      ROSConstants.topicReturnToBase,
+      ROSConstants.msgEmpty,
+    );
+
+    _topicReturn.subscribe((msg) async {
+      print("Received echo on trigger topic: $msg");
+      _topicReturn.unsubscribe();
+    });
+
+    await _topicReturn.publish({});
+  }
+
+  void getReturnToBaseAck() {
+    print('Subscribing return to base ack topic...');
+    _topicReturnAck = _rosService.createTopic(
+      ROSConstants.topicReturnToBaseAck,
+      ROSConstants.msgString,
+      throttleRate: 1000,
+    );
+    _topicReturnAck.subscribe(_handler);
+  }
+
+  Future<void> resetBaseLoc() async {
+    print('initiating reset base location...');
+    _topicReset = _rosService.createTopic(
+      ROSConstants.topicResetBaseLoc,
+      ROSConstants.msgEmpty,
+    );
+
+    _topicReset.subscribe((msg) async {
+      print("Received echo on trigger topic: $msg");
+      _topicReset.unsubscribe();
+    });
+
+    await _topicReset.publish({});
+  }
+
+  void getResetBaseLocAck() {
+    print('Subscribing reset base location ack topic...');
+    _topicResetAck = _rosService.createTopic(
+      ROSConstants.topicResetBaseLocAck,
+      ROSConstants.msgString,
+      throttleRate: 1000,
+    );
+    _topicResetAck.subscribe(_handler);
+  }
+
+  Future<void> _handler(Map<String, dynamic> message) async {
+    print(message);
+    state = message['data'];
+  }
+
+  void removeResetBaseListener() {
+    _topicResetAck.unsubscribe();
+    state = "";
+  }
+
+  void removeReturnToBaseListener() {
+    _topicReturnAck.unsubscribe();
+    state = "";
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+}
+
+final basePointVMProvider =
+    StateNotifierProvider<BasePointViewModel, String>((ref) {
+  final rosService = ref.watch(rosServiceProvider);
+  return BasePointViewModel(rosService);
+});

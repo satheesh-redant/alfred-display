@@ -35,6 +35,7 @@ dependencies:
   flutter_svg: ^2.0.7
   responsive_framework: ^1.5.1
   toastification: ^3.0.2
+  loader_overlay: ^5.0.0
 
   intl: any
 dev_dependencies:

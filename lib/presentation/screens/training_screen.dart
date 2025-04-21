@@ -1,3 +1,5 @@
+import 'package:alfred/view_models/add_table_view_model.dart';
+import 'package:alfred/view_models/base_point_view_model.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:alfred/view_models/table_view_model.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/providers/table_providers.dart';
 import 'package:go_router/go_router.dart';
-import 'package:toastification/toastification.dart'; // keep this import
+import 'package:loader_overlay/loader_overlay.dart';
+import '../../core/toast_utils.dart';
 import '../widgets/appbar_widget.dart';
 import '../widgets/table_grid_button_widget.dart';
 import '../widgets/animated_add_button_widget.dart';
@@ -21,16 +24,68 @@ class TrainingScreen extends ConsumerStatefulWidget {
 
 class _TrainingScreenState extends ConsumerState<TrainingScreen> {
   final scrollController = ScrollController();
-  List<int> markedTables = [];
   int? currentlyMarkedTable;
   bool showBasePointMessage = false;
 
   @override
   Widget build(BuildContext context) {
-
     final tables = ref.watch(tableProvider);
     final selectedTable = ref.watch(selectedTableProvider);
     final isMarkingComplete = ref.watch(isMarkingCompleteProvider);
+    final markedTables = ref.watch(markedTablesProvider);
+
+    ref.listen(
+      addTableVMProvider,
+          (previous, next) {
+        if (next.isNotEmpty) {
+          if (next == "Success") {
+            ref.context.loaderOverlay.hide();
+            ref.read(addTableVMProvider.notifier).unsubscribe();
+            showSuccessToast(
+                context: context,
+                description: "Table $selectedTable marked successfully");
+            setState(() {
+              ref.read(markedTablesProvider.notifier).state = [
+                ...markedTables,
+                selectedTable!
+              ];
+              currentlyMarkedTable = selectedTable;
+              showBasePointMessage = true;
+            });
+            ref.read(isMarkingCompleteProvider.notifier).state = true;
+            ref.read(selectedTableProvider.notifier).state = null;
+          } else {
+            // showErrorToast(context: context, description: next);
+          }
+        }
+      },
+    );
+
+    ref.listen(
+      basePointVMProvider,
+          (previous, next) {
+        if (next.isNotEmpty) {
+          if (next == "Success") {
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
+            ref.read(opsVMProvider.notifier).getCurrentOp();
+            ref.read(opsVMProvider.notifier).sendOpsMode(mode: 'delivery');
+          } else {
+            ref.context.loaderOverlay.hide();
+          }
+        }
+      },
+    );
+
+    ref.listen(
+      opsVMProvider,
+          (previous, next) {
+        if (next == 'delivery') {
+          ref.context.loaderOverlay.hide();
+          ref.read(opsVMProvider.notifier).unsubscribe();
+          context.go(AlfredConstants.routeDeliveryMainScreen);
+        }
+      },
+    );
 
     return Scaffold(
       appBar: AppBarWidget(),
@@ -58,7 +113,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                 Container(
                                   width: 355,
                                   height: 49,
-                                  margin: const EdgeInsets.only(top: 50, left: 63),
+                                  margin:
+                                  const EdgeInsets.only(top: 50, left: 63),
                                   alignment: Alignment.center,
                                   //todo: Dynamic text that changes based on marking state
                                   child: Text(
@@ -111,8 +167,10 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                     child: GridView.builder(
                                       controller: scrollController,
                                       shrinkWrap: true,
-                                      padding: const EdgeInsets.only(right: 60, bottom: 20),
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      padding: const EdgeInsets.only(
+                                          right: 60, bottom: 20),
+                                      gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
                                         crossAxisSpacing: 49,
                                         mainAxisSpacing: 26,
@@ -122,9 +180,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                       itemBuilder: (context, index) {
                                         if (index < tables.length) {
                                           final table = tables[index];
-                                          final isMarked = markedTables.contains(table);
-                                          final isSelected = currentlyMarkedTable == table;
-                                          final isDisabled = isMarkingComplete && !isSelected;
+                                          final isMarked =
+                                          markedTables.contains(table);
+                                          final isSelected =
+                                              currentlyMarkedTable == table;
+                                          final isDisabled =
+                                              isMarkingComplete && !isSelected;
 
                                           return TableGridButtonWidget(
                                             label: table.toString(),
@@ -135,22 +196,20 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                             onPressed: isDisabled || isMarked
                                                 ? null
                                                 : () {
-                                              //todo: Show selection feedback
-                                              // ScaffoldMessenger.of(context).showSnackBar(
-                                              //   SnackBar(
-                                              //     content: Text('Table $table selected'),
-                                              //     duration: Duration(seconds: 1),
-                                              //   ),
-                                              // );
-                                              //todo: Update selected table state
-                                              ref.read(selectedTableProvider.notifier).state = table;
+                                              ref
+                                                  .read(
+                                                  selectedTableProvider
+                                                      .notifier)
+                                                  .state = table;
                                             },
                                           );
                                         } else {
                                           return AnimatedAddButtonWidget(
                                             isTraining: false,
                                             isDisabled: isMarkingComplete,
-                                            onPressed: () => ref.read(tableProvider.notifier).addTable(),
+                                            onPressed: () => ref
+                                                .read(tableProvider.notifier)
+                                                .addTable(),
                                           );
                                         }
                                       },
@@ -174,41 +233,14 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
               children: [
                 const Expanded(flex: 2, child: SizedBox()),
                 const SizedBox(width: 20),
-                //todo: Show Confirm button when not in marking complete state
                 if (!isMarkingComplete)
                   ButtonWidget(
                     text: "Confirm",
-                    // todo: Confirm button action
                     onPressed: selectedTable != null
                         ? () {
-                      //todo: Mark table as completed
-                      setState(() {
-                        markedTables.add(selectedTable);
-                        currentlyMarkedTable = selectedTable;
-                        showBasePointMessage = true;
-                      });
-
-                      // ✅ Only toast shown
-                      toastification.show(
-                        context: context,
-                        type: ToastificationType.success,
-                        style: ToastificationStyle.fillColored,
-                        title: Text("Success!"),
-                        description: Text("Table $selectedTable marked successfully!"),
-                        alignment: Alignment.bottomCenter,
-                        autoCloseDuration: const Duration(seconds: 2),
-                        animationBuilder: (context, animation, alignment, child) {
-                          return ScaleTransition(scale: animation, child: child);
-                        },
-                        borderRadius: BorderRadius.circular(12.0),
-                        boxShadow: highModeShadow,
-                        showProgressBar: true,
-                        pauseOnHover: false,
-                      );
-                      ref.read(isMarkingCompleteProvider.notifier).state = true;
-                      ref.read(selectedTableProvider.notifier).state = null;
-
-                      ref.read(tableVMProvider.notifier).addTable(table: selectedTable);
+                      ref.context.loaderOverlay.show();
+                      ref.read(addTableVMProvider.notifier).addTableAck();
+                      ref.read(addTableVMProvider.notifier).addTable(table: selectedTable);
                     }
                         : null,
                     isActive: selectedTable != null,
@@ -219,15 +251,14 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                   Row(
                     children: [
                       ButtonWidget(
-                        //todo: Button to mark next table
                         text: "Mark Next Table",
                         onPressed: () {
                           setState(() {
                             showBasePointMessage = false;
                             currentlyMarkedTable = null;
                           });
-                          //todo: Reset marking complete state
-                          ref.read(isMarkingCompleteProvider.notifier).state = false;
+                          ref.read(isMarkingCompleteProvider.notifier).state =
+                          false;
                         },
                         isActive: true,
                         width: MediaQuery.of(context).size.width * 0.25,
@@ -237,9 +268,9 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                         //todo: Button to return to base screen
                         text: "Return to Base",
                         onPressed: () {
-                          ref.read(tableVMProvider.notifier).returnToBase();
-                          ref.read(opsVMProvider.notifier).sendOpsMode(mode: 'delivery');
-                          context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+                          ref.context.loaderOverlay.show();
+                          ref.read(basePointVMProvider.notifier).getReturnToBaseAck();
+                          ref.read(basePointVMProvider.notifier).triggerReturnToBase();
                         },
                         isActive: true,
                         width: MediaQuery.of(context).size.width * 0.25,
@@ -254,6 +285,4 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     );
   }
 }
-
-
 

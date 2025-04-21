@@ -1,8 +1,7 @@
 class ROSConstants {
   // static const String rosUrl = 'ws://127.0.0.1:9090';
-  static const String rosUrl = 'ws://10.0.2.2:9090'; //emulator
-
-  // static const String rosUrl = 'ws://192.168.1.7:9090'; //emulator
+  // static const String rosUrl = 'ws://10.0.2.2:9090'; //emulator
+  static const String rosUrl = 'ws://192.168.0.106:9090';
 
   /*  GENERIC */
   static const String msgString = 'std_msgs/String';
@@ -18,8 +17,6 @@ class ROSConstants {
 
   /*  BOOT STATUS CHECK */
   static const String topicBootCheck = '/boot_check';
-  // static const String bootCheckMsg = 'std_msgs/msg/String';
-  static const String topicTriggerBootCheck = '/trigger_boot_check';
 
   /*  BATTERY */
   static const String topicBattery = '/battery_status';
@@ -30,16 +27,15 @@ class ROSConstants {
 
   /*  TABLES  */
   static const String topicAddTable = '/add_table';
+  static const String topicAddTableAck = '/add_table_ack';
   static const String topicGetTables = '/table_list';
   static const String topicMoveTable = '/move_to_table';
-  static const String topicReturnToBase = '/return_to_base';
 
-  static const String cmdVelTopic = '/cmd_vel';
+  /*  BASE POINT  */
+  static const String topicResetBaseLoc = '/reset_base_loc';
+  static const String topicResetBaseLocAck = '/reset_base_loc_ack';
 
-  /*  SERVICE */
-  static const String triggerServiceMsg = 'std_srvs/Trigger';
-  static const String bootStatusService = '/check_boot_status';
-  static const String baseResetService = '/reset_base_location';
-
+  static const String topicReturnToBase = '/return_base';
+  static const String topicReturnToBaseAck = '/return_base_ack';
 
 }

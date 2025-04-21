@@ -8,9 +8,8 @@ import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/table_grid_button_widget.dart';
-import '../../widgets/button_widget.dart';  // Import the BottomActionButton widget
+import '../../widgets/button_widget.dart';
 
-// Screen-specific provider
 final deliveryScreenTableProvider = StateProvider<int?>((ref) => null);
 
 class DeliveryMainScreen extends ConsumerStatefulWidget {
@@ -22,7 +21,6 @@ class DeliveryMainScreen extends ConsumerStatefulWidget {
 }
 
 class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -31,9 +29,11 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tables = ref.watch(tableProvider);
-    // Use screen-specific provider
+    final allTables = ref.watch(tableProvider);
+    final markedTables = ref.watch(markedTablesProvider);
     final selectedTable = ref.watch(deliveryScreenTableProvider);
+
+    final tablesToShow = allTables.where((table) => markedTables.contains(table)).toList();
 
     return Scaffold(
       body: Stack(
@@ -45,7 +45,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Sidebar (unchanged)
                     Padding(
                       padding: const EdgeInsets.only(left: 0, top: 70),
                       child: Container(
@@ -104,7 +103,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                         ),
                       ),
                     ),
-                    // Left Section (unchanged)
                     Expanded(
                       flex: 2,
                       child: Stack(
@@ -148,7 +146,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    // Right Section (only changed provider reference)
                     Expanded(
                       flex: 3,
                       child: Container(
@@ -167,7 +164,18 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.only(right: 40),
-                              child: GridView.builder(
+                              child: tablesToShow.isEmpty
+                                  ? Center(
+                                child: Text(
+                                  "No tables marked yet\nPlease mark tables in Training Mode first",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              )
+                                  : GridView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -176,20 +184,20 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                   mainAxisSpacing: 26,
                                   childAspectRatio: 138 / 60,
                                 ),
-                                itemCount: tables.length,
+                                itemCount: tablesToShow.length,
                                 itemBuilder: (context, index) {
-                                  final isSelected = selectedTable == tables[index];
+                                  final isSelected = selectedTable == tablesToShow[index];
                                   return Padding(
                                     padding: EdgeInsets.only(
                                       right: index % 4 == 3 ? 0 : 0,
                                     ),
                                     child: TableGridButtonWidget(
-                                      label: tables[index].toString(),
-                                      tableNumber: tables[index],
+                                      label: tablesToShow[index].toString(),
+                                      tableNumber: tablesToShow[index],
                                       isSelected: isSelected,
                                       onPressed: () {
                                         ref.read(deliveryScreenTableProvider.notifier).state =
-                                        isSelected ? null : tables[index];
+                                        isSelected ? null : tablesToShow[index];
                                       },
                                     ),
                                   );
@@ -205,8 +213,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
               ),
             ],
           ),
-          // "Go to Table" Button (replaced with BottomActionButton)
-
           Positioned(
             left: 0,
             right: 40,
@@ -224,18 +230,12 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                     text: "Go to Table",
                     onPressed: selectedTable != null
                         ? () {
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   SnackBar(
-                      //     content: Text('Going to Table $selectedTable'),
-                      //     duration: const Duration(seconds: 2),
-                      //   ),
-                      // );
                       ref.read(tableVMProvider.notifier).moveTable(table: selectedTable);
                       context.go(
                         '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
                       );
                     }
-                        : () {},  // Fallback empty function when no table is selected
+                        : null,
                     isActive: selectedTable != null,
                     width: MediaQuery.of(context).size.width * 0.53,
                   ),
@@ -247,5 +247,4 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       ),
     );
   }
-
 }
