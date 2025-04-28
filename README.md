@@ -14,11 +14,12 @@ Developers can quickly set up, generate build files, and start working on the pr
 - [2. Environment Setup](#2-environment-setup)
 - [3. Running the App](#3-running-the-app)
 - [4. Project Structure Overview](#4-project-structure-overview)
-- [5. Common Commands](#5-common-commands)
-- [6. Debugging & Troubleshooting](#6-debugging--troubleshooting)
-- [7. Coding Guidelines](#7-coding-guidelines)
-- [8. Branching & Contribution Workflow](#8-branching--contribution-workflow)
-- [9. Additional Resources](#9-additional-resources)
+- [5. ROS Connection](#5-ros-connection)
+- [6. Common Commands](#6-common-commands)
+- [7. Debugging & Troubleshooting](#7-debugging--troubleshooting)
+- [8. Coding Guidelines](#8-coding-guidelines)
+- [9. Branching & Contribution Workflow](#9-branching--contribution-workflow)
+- [10. Additional Resources](#10-additional-resources)
 
 ---
 
@@ -30,14 +31,14 @@ Before you begin, ensure you have the following installed on your machine:
 - **Git**: Version control [Download & Install](https://git-scm.com/downloads)
 - **Flutter SDK**: Latest stable release [Install Guide](https://flutter.dev/docs/get-started/install) (follow the OS-specific instructions)
 - **IDE (choose one)**:
-  - **VS Code**:
-    - Install the [Flutter](https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter) and [Dart](https://marketplace.visualstudio.com/items?itemName=Dart-Code.dart-code) extensions
-    - Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) for Flutter commands
-  - **Android Studio**:
-    - Install via [JetBrains Toolbox](https://www.jetbrains.com/toolbox-app/)
-    - From Toolbox, install **Android Studio** and launch it
-    - Within Android Studio, install the Flutter and Dart plugins via **Settings → Plugins**
-    - Use the AVD Manager (**Tools → AVD Manager**) to create and manage emulators
+    - **VS Code**:
+        - Install the [Flutter](https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter) and [Dart](https://marketplace.visualstudio.com/items?itemName=Dart-Code.dart-code) extensions
+        - Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) for Flutter commands
+    - **Android Studio**:
+        - Install via [JetBrains Toolbox](https://www.jetbrains.com/toolbox-app/)
+        - From Toolbox, install **Android Studio** and launch it
+        - Within Android Studio, install the Flutter and Dart plugins via **Settings → Plugins**
+        - Use the AVD Manager (**Tools → AVD Manager**) to create and manage emulators
 - **JetBrains Runtime (JBR) 21** *(optional for Android Studio users)*:
     - Download from the official [GitHub releases](https://github.com/JetBrains/JetBrainsRuntime/releases)
     - **Windows**:
@@ -110,6 +111,7 @@ Before you begin, ensure you have the following installed on your machine:
                 sudo udevadm control --reload-rules
                 ```
             4. Connect via USB, grant permissions, and select the device in VS Code's status bar.
+
 ---
 
 ## 3. Running the App
@@ -166,8 +168,42 @@ alfred-display/
 ├── analysis_options.yaml          # Linter and analyzer rules
 └── README.md                      # Project documentation
 ```
+---
 
-## 5. Common Commands
+## 5. ROS Connection
+
+To connect the app to your ROS Bridge server, follow these steps:
+
+1. **Open the constants file**:
+   ```
+   lib/config/ros_constants.dart
+   ```
+2. **Locate the `rosUrl` constant** and update it based on your setup:
+    - **Android emulator (same machine)**:
+        ```dart
+        const String rosUrl = 'ws://10.0.2.2:9090';
+        ```
+    - **Physical device or different machines on the same network**: 
+    use the ROS host machine’s IP address:
+        ```dart
+        const String rosUrl = 'ws://<HOST_IP>:9090';
+        ```
+3. **Ensure ROS Bridge is running** on the host:
+   ```bash
+   ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+   ```
+4. **Restart the app**:
+   ```bash
+   flutter run
+   ```
+5. **Verify the connection** by checking the app logs:
+   ```bash
+   flutter logs
+   ```
+   Look for a successful WebSocket connection message.
+
+---
+## 6. Common Commands
 
 | Command               | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -180,7 +216,7 @@ alfred-display/
 
 ---
 
-## 6. Debugging & Troubleshooting
+## 7. Debugging & Troubleshooting
 
 - **Logs**: Use `flutter logs` to view runtime logs.
 - **DevTools**: Run `flutter pub global run devtools` and open the URL.
@@ -190,7 +226,7 @@ alfred-display/
 
 ---
 
-## 7. Coding Guidelines
+## 8. Coding Guidelines
 
 - **Dart Style**: Follow the official [Dart Style Guide](https://dart.dev/guides/language/effective-dart).
 - **Naming Conventions**:
@@ -202,7 +238,7 @@ alfred-display/
 
 ---
 
-## 8. Branching & Contribution Workflow
+## 9. Branching & Contribution Workflow
 
 1. **Create a branch** from `develop`:
    ```bash
@@ -221,7 +257,7 @@ alfred-display/
 
 ---
 
-## 9. Additional Resources
+## 10. Additional Resources
 
 - **Flutter Documentation**: [flutter.dev/docs](https://flutter.dev/docs)
 - **Dart Language Tour**: [dart.dev/guides/language/language-tour](https://dart.dev/guides/language/language-tour)
