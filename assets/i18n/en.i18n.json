@@ -1,0 +1,28 @@
+{
+  "title": "Alfred",
+  "loading": {
+    "title": "Initializing System",
+    "connecting": "Connecting to ROS...",
+    "connected": "Connected successfully!",
+    "failed": "Connection failed. Retrying..."
+  },
+  "ros_connection": {
+    "title": "ROS Connection",
+    "status": "Connection Status:",
+    "connected": "Connected",
+    "disconnected": "Disconnected"
+  },
+  "table_mapping": {
+    "title": "Table Mapping",
+    "instruction": "Move the robot to the table location",
+    "pose": "Pose:",
+    "orientation": "Orientation:"
+  },
+  "order_delivery": {
+    "title": "Order Delivery",
+    "no_tables": "No tables mapped yet"
+  },
+  "save": "Save",
+  "next": "Next",
+  "send": "Send"
+}
