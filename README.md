@@ -4,7 +4,7 @@
 
 A Flutter project built using Clean Architecture with MVVM, Riverpod for state management and dependency injection, Hive for local storage, and rosbridge for ROS connectivity. All user interface text is localized using slang with support for English (default) and Hindi.
 
-Developers can quickly set up, generate build files, and start working on the project without any issues.
+    Developers can quickly set up, generate build files, and start working on the project without any issues.
 ---
 ## Table of Contents
 
