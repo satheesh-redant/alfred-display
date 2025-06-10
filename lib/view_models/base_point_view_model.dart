@@ -26,7 +26,8 @@ class BasePointViewModel extends StateNotifier<String> {
 
     Map<String, dynamic> json = {"data": "Base"};
     if(timer == null) {
-      timer = Timer(Duration(milliseconds: 500), () {
+      timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
+        print("publishing return to base...");
         _topicReturn.publish(json);
       },);
     }
