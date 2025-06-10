@@ -24,8 +24,6 @@ class DeliveryMainScreen extends ConsumerStatefulWidget {
 
 class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
-  // List<int>? tablesToShow = [];
-
   @override
   void initState() {
     super.initState();

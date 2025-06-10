@@ -87,7 +87,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
           (previous, next) {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
-            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
+            ref.read(basePointVMProvider.notifier).removeResetBaseListener();
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseAckListener();
             ref.read(opsVMProvider.notifier).getCurrentOp();
           } else {
             ref.context.loaderOverlay.hide();
