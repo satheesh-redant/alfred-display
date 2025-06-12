@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ButtonWidget extends StatelessWidget {
@@ -7,6 +8,9 @@ class ButtonWidget extends StatelessWidget {
   final bool isActive;
   final double? width;
   final double? height;
+  final Color? backgroundColor;
+  final BorderSide? borderSide;
+  final TextStyle? textStyle;
 
   const ButtonWidget({
     super.key,
@@ -15,35 +19,38 @@ class ButtonWidget extends StatelessWidget {
     required this.isActive,
     this.width,
     this.height,
+    this.backgroundColor,
+    this.borderSide,
+    this.textStyle,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    final defaultWidth = screenWidth >= 1024 ? 697.0 : screenWidth * 0.55;
-    final defaultHeight = 80.0;
+    final defaultWidth = 697.w; // Matches 697 pixels in 1280x800 design
+    final defaultHeight = 80.h; // Matches 100 pixels in 1280x800 design
 
     return SizedBox(
-      width: width ?? defaultWidth,
-      height: height ?? defaultHeight,
+      width: width?.w ?? defaultWidth,
+      height: height?.h ?? defaultHeight,
       child: ElevatedButton(
         onPressed: isActive ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isActive ? Colors.black : Colors.grey.shade400,
+          backgroundColor: backgroundColor ?? (isActive ? Colors.black : Colors.grey.shade400),
+          side: borderSide ?? BorderSide.none,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           elevation: isActive ? 6 : 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
         ),
         child: Text(
           text,
-          style: GoogleFonts.inter(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
+          style: textStyle ??
+              GoogleFonts.inter(
+                fontSize: 22.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
         ),
       ),
     );

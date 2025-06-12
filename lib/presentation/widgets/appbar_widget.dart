@@ -1,11 +1,12 @@
+
 import 'dart:async';
 import 'package:alfred/config/assets_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:responsive_framework/responsive_framework.dart';
+import 'package:intl/intl.dart';
 
 // State class
 class AppBarWidgetState {
@@ -55,108 +56,102 @@ class AppBarWidgetStateNotifier extends StateNotifier<AppBarWidgetState> {
   }
 }
 
-// Provider (make sure this is declared as final and globally accessible)
+// Provider
 final appBarWidgetProvider =
-    StateNotifierProvider<AppBarWidgetStateNotifier, AppBarWidgetState>(
-  (ref) => AppBarWidgetStateNotifier(),
+StateNotifierProvider<AppBarWidgetStateNotifier, AppBarWidgetState>(
+      (ref) => AppBarWidgetStateNotifier(),
 );
 
 // Widget
 class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
   @override
-  final Size preferredSize = const Size.fromHeight(40.0);
+  final Size preferredSize = Size.fromHeight(40.h); // Scaled height
 
-  const AppBarWidget({super.key});
+  AppBarWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(appBarWidgetProvider);
     return Container(
       color: const Color(0xFFFFFFFF),
-      child: ResponsiveRowColumn(
-        layout: ResponsiveRowColumnType.COLUMN,
-        columnMainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ResponsiveRowColumnItem(
-              child: ResponsiveRowColumn(
-            layout: ResponsiveRowColumnType.ROW,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ResponsiveRowColumnItem(
-                  child: ResponsiveRowColumn(
-                layout: ResponsiveRowColumnType.ROW,
-                rowMainAxisAlignment: MainAxisAlignment.start,
+              Row(
                 children: [
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(left: 20, top: 5, bottom: 5),
+                  Padding(
+                    padding: EdgeInsets.only(left: 20.w, top: 5.h, bottom: 5.h),
                     child: Image.asset(
                       AlfredConstants.companyLogo,
-                      width: 15,
-                      height: 20,
-                      fit: BoxFit.cover,
+                      width: 15.w,
+                      height: 20.h,
+                      fit: BoxFit.contain,
                     ),
-                  )),
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(left: 27, top: 9, bottom: 9),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 27.w, top: 9.h, bottom: 9.h),
                     child: Text(
                       state.currentTime,
                       style: GoogleFonts.inter(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF101828),
                       ),
                     ),
-                  ))
+                  ),
                 ],
-              )),
-              ResponsiveRowColumnItem(child: Spacer()),
-              ResponsiveRowColumnItem(
-                  child: ResponsiveRowColumn(
-                layout: ResponsiveRowColumnType.ROW,
+              ),
+              Row(
                 children: [
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(right: 18),
+                  Padding(
+                    padding: EdgeInsets.only(right: 18.w),
                     child: InkWell(
                       onTap: () {},
                       child: SvgPicture.asset(
                         AlfredConstants.iconWifi,
+                        width: 24.w,
+                        height: 24.h,
                         fit: BoxFit.contain,
                       ),
                     ),
-                  )),
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(right: 5),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(right: 5.w),
                     child: InkWell(
                       onTap: () {},
                       child: SvgPicture.asset(
                         AlfredConstants.iconBattery,
-                        // width: 24,
-                        // height: 12,
+                        width: 24.w,
+                        height: 12.h,
                         fit: BoxFit.contain,
                       ),
                     ),
-                  )),
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(right: 27, top: 9, bottom: 9),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(right: 27.w, top: 9.h, bottom: 9.h),
                     child: Text(
-                      '92%', //TODO battery value hardcoded
+                      '92%', // TODO: Replace with dynamic battery value
                       style: GoogleFonts.inter(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF757575),
                       ),
                     ),
-                  ))
+                  ),
                 ],
-              )),
+              ),
             ],
-          )),
+          ),
         ],
       ),
     );
   }
 }
+
+
+
+
+
