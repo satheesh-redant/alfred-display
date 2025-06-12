@@ -1,127 +1,108 @@
 
 import 'dart:math';
-import 'package:alfred/view_models/delivery_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:alfred/config/alfred_constants.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 class DeliveryInProgressScreen extends ConsumerStatefulWidget {
   const DeliveryInProgressScreen({super.key});
 
   @override
-  ConsumerState<DeliveryInProgressScreen> createState() => _DeliveryInProgressScreenState();
+  ConsumerState<DeliveryInProgressScreen> createState() =>
+      _DeliveryInProgressScreenState();
 }
 
-class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScreen> {
+class _DeliveryInProgressScreenState
+    extends ConsumerState<DeliveryInProgressScreen> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        context.replace(AlfredConstants.routeDeliveryCompleteScreen);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final tableNumber = GoRouterState.of(context).pathParameters['tableNumber'] ?? '0';
-    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    ref.listen(
-      deliveryVMProvider,
-          (previous, next) {
-        if (next == "delivered") {
-          ref.read(deliveryVMProvider.notifier).unsubscribe();
-          context.replace(AlfredConstants.routeDeliveryCompleteScreen);
-        }
-      },
-    );
+    final tableNumber =
+        GoRouterState.of(context).pathParameters['tableNumber'] ?? '0';
 
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Calculate scale factor while maintaining original dimensions
-          final scaleFactor = isMobile
-              ? min(screenWidth / 375, 1.0) // Now using the imported min() function
-              : 1.0;
-
-          return Stack(
-            children: [
-              // Background content
-              Column(
+      body: Column(
+        children: [
+          AppBarWidget(),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 48.h),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  AppBarWidget(),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 114.w,
+                      maxHeight: 38.h,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Table $tableNumber",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.nunito(
+                          fontSize: 32.sp,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2, // Line height multiplier, not scaled
+                          letterSpacing: 0.02.w,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 217.w,
+                      maxHeight: 29.h,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Alfred is on move...",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.nunito(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2, // Line height multiplier, not scaled
+                          letterSpacing: 0.02.w,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 64.h),
                   Expanded(
-                    child: Container(), // Empty expanded to push content down
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: 209.w,
+                        maxHeight: 439.h,
+                      ),
+                      child: Image.asset(
+                        "assets/images/alfred_moving.png",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
                 ],
               ),
-
-              // Centered Content with scaled dimensions
-              Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 50),
-                  child: Transform.scale(
-                    scale: scaleFactor,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Table Number Text
-                        SizedBox(
-                          width: 114,
-                          height: 28,
-                          child: Text(
-                            "Table $tableNumber",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.nunito(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w700,
-                              height: 1.2,
-                              letterSpacing: 0.02,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-
-                        // "Alfred is on the move..." Text
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: 217,
-                          height: 29,
-                          child: Text(
-                            "Alfred is on move...",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.nunito(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              height: 1.2,
-                              letterSpacing: 0.02,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
-
-                        // Alfred Moving Image
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: 209,
-                          height: 400,
-                          child: Image.asset(
-                            "assets/images/alfred_moving.png",
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
