@@ -1,11 +1,12 @@
+
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/view_models/boot_check_view_model.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../models/boot_check_state.dart';
 import '../../view_models/ros_connection_view_model.dart';
@@ -24,6 +25,9 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     // Trigger ROS connection.
     Future.delayed(const Duration(seconds: 2), () {
       ref.read(rosConnectionVMProvider.notifier).connect();
+      if (ref.context.mounted) {
+        context.go(AlfredConstants.routeChecklistScreen);
+      }
     });
   }
 
@@ -41,7 +45,9 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         ref.read(opsVMProvider.notifier).getCurrentOp();
       }
     });
-    ref.listen(opsVMProvider, (previous, next) {
+    ref.listen(
+      opsVMProvider,
+          (previous, next) {
         ref.read(opsVMProvider.notifier).unsubscribe();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Future.delayed(const Duration(seconds: 2), () {
@@ -60,40 +66,33 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: ResponsiveRowColumn(
-          layout: ResponsiveRowColumnType.COLUMN,
-          columnMainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ResponsiveRowColumnItem(
-                child: SizedBox(
-                  height: 136,
-                )),
-            ResponsiveRowColumnItem(
-                child: Expanded(
-                    child: Image.asset(
-                      'assets/images/loading.png',
-                      fit: BoxFit.cover,
-                    ))),
-            ResponsiveRowColumnItem(
-                child: SizedBox(
-                  height: 64,
-                )),
-            ResponsiveRowColumnItem(
-                child: Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildStatusWidget(
-                            context,
-                            ref.watch(rosConnectionVMProvider),
-                            ref.watch(bootCheckVMProvider)),
-                      ],
-                    ))),
-            ResponsiveRowColumnItem(
-                child: SizedBox(
-                  height: 87,
-                )),
+            SizedBox(height: 136.h), // Scaled spacing
+            Expanded(
+              child: Image.asset(
+                'assets/images/loading.png',
+                fit: BoxFit.contain, // Changed to contain for consistent scaling
+                height: 488.h, // Scaled height (adjust to match design)
+                width: 953.w, // Scaled width (adjust to match design)
+              ),
+            ),
+            SizedBox(height: 64.h), // Scaled spacing
+            Padding(
+              padding: EdgeInsets.only(top: 10.h), // Scaled padding
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildStatusWidget(
+                    context,
+                    ref.watch(rosConnectionVMProvider),
+                    ref.watch(bootCheckVMProvider),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 87.h), // Scaled spacing
           ],
         ),
       ),
@@ -113,22 +112,24 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           Text(
             'Communication Failed',
             style: GoogleFonts.inter(
-                textStyle: Theme.of(context).textTheme.titleMedium,
-                fontSize: 24,
-                color: Colors.red),
+              textStyle: Theme.of(context).textTheme.titleMedium,
+              fontSize: 24.sp, // Scaled font size
+              color: Colors.red,
+            ),
           ),
         ],
       );
     } else if (connectionStatus == ConnectionStatus.connected) {
-      /*if (bootStatus.overallStatus?.toUpperCase() == 'OK') {
+      if (bootStatus.overallStatus == 'OK') {
         return Text(
           'All systems are good to go',
           style: GoogleFonts.inter(
-              textStyle: Theme.of(context).textTheme.titleMedium,
-              fontSize: 24,
-              color: Colors.green),
+            textStyle: Theme.of(context).textTheme.titleMedium,
+            fontSize: 24.sp, // Scaled font size
+            color: Colors.green,
+          ),
         );
-      } else */if (bootStatus.overallStatus?.toUpperCase() == 'FAIL') {
+      } else if (bootStatus.overallStatus == 'FAIL') {
         String msg = bootStatus.message;
         for (var check in bootStatus.checks!) {
           if (check.status == 'FAIL') {
@@ -140,9 +141,10 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
             Text(
               msg,
               style: GoogleFonts.inter(
-                  textStyle: Theme.of(context).textTheme.titleMedium,
-                  fontSize: 24,
-                  color: Colors.red),
+                textStyle: Theme.of(context).textTheme.titleMedium,
+                fontSize: 24.sp, // Scaled font size
+                color: Colors.red,
+              ),
             ),
           ],
         );
@@ -153,16 +155,19 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       return Text(
         'Connection closed',
         style: GoogleFonts.inter(
-            textStyle: Theme.of(context).textTheme.titleMedium,
-            fontSize: 24,
-            color: Colors.red),
+          textStyle: Theme.of(context).textTheme.titleMedium,
+          fontSize: 24.sp, // Scaled font size
+          color: Colors.red,
+        ),
       );
     }
     return Text(
       'Checking System Status...',
       style: GoogleFonts.inter(
-          textStyle: Theme.of(context).textTheme.titleMedium, fontSize: 24),
+        textStyle: Theme.of(context).textTheme.titleMedium,
+        fontSize: 24.sp, // Scaled font size
+      ),
     );
-    return Container();
   }
 }
+
