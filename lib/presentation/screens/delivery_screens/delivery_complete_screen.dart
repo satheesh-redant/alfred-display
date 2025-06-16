@@ -1,11 +1,12 @@
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../../../config/alfred_constants.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import '../../../config/ros_constants.dart';
+import '../../../view_models/base_point_view_model.dart';
 import '../../widgets/appbar_widget.dart';
 import '../../widgets/button_widget.dart';
 
@@ -14,6 +15,19 @@ class DeliveryCompleteScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(
+      basePointVMProvider,
+          (previous, next) {
+        if (next.isNotEmpty) {
+          if (next.toUpperCase() == ROSConstants.success) {
+            ref.context.loaderOverlay.hide();
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
+            context.pop();
+          }
+        }
+      },
+    );
+
     return Scaffold(
       body: Column(
         children: [
@@ -38,7 +52,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                         style: GoogleFonts.nunito(
                           fontSize: 36.sp,
                           fontWeight: FontWeight.w900,
-                          height: 1.2, // Line height multiplier, not scaled
+                          height: 1.2,
                           letterSpacing: 0.02.w,
                           color: Colors.black,
                         ),
@@ -58,7 +72,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                         style: GoogleFonts.nunito(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.w700,
-                          height: 1.2, // Line height multiplier, not scaled
+                          height: 1.2,
                           letterSpacing: 0.02.w,
                           color: const Color(0xFF797977),
                         ),
@@ -84,7 +98,9 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                     child: ButtonWidget(
                       text: "Go to Base",
                       onPressed: () {
-                        context.replace(AlfredConstants.routeDeliveryReturningBaseScreen);
+                        ref.context.loaderOverlay.show();
+                        ref.read(basePointVMProvider.notifier).getReturnToBaseAck();
+                        ref.read(basePointVMProvider.notifier).triggerReturnToBase();
                       },
                       isActive: true,
                     ),
@@ -99,4 +115,3 @@ class DeliveryCompleteScreen extends ConsumerWidget {
     );
   }
 }
-
