@@ -1,5 +1,6 @@
 
 import 'dart:math';
+import 'package:alfred/view_models/delivery_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,17 +22,22 @@ class _DeliveryInProgressScreenState
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
-      if (mounted) {
-        context.replace(AlfredConstants.routeDeliveryCompleteScreen);
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final tableNumber =
         GoRouterState.of(context).pathParameters['tableNumber'] ?? '0';
+
+    ref.listen(
+      deliveryVMProvider,
+          (previous, next) {
+        if (next == "delivered") {
+          ref.read(deliveryVMProvider.notifier).unsubscribe();
+          context.replace(AlfredConstants.routeDeliveryCompleteScreen);
+        }
+      },
+    );
 
     return Scaffold(
       body: Column(
@@ -57,7 +63,7 @@ class _DeliveryInProgressScreenState
                         style: GoogleFonts.nunito(
                           fontSize: 32.sp,
                           fontWeight: FontWeight.w700,
-                          height: 1.2, // Line height multiplier, not scaled
+                          height: 1.2,
                           letterSpacing: 0.02.w,
                           color: Colors.black,
                         ),
@@ -78,7 +84,7 @@ class _DeliveryInProgressScreenState
                         style: GoogleFonts.nunito(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.w700,
-                          height: 1.2, // Line height multiplier, not scaled
+                          height: 1.2,
                           letterSpacing: 0.02.w,
                           color: Colors.black54,
                         ),
