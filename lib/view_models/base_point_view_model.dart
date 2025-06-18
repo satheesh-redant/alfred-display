@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +9,7 @@ class BasePointViewModel extends StateNotifier<String> {
   final ROSService _rosService;
   late Topic _topicReturn, _topicReset, _topicResetAck, _topicReturnAck;
 
-  Map<String, dynamic> requestData = {};
+  Timer? timer;
 
   BasePointViewModel(this._rosService) : super("");
 
@@ -20,11 +22,15 @@ class BasePointViewModel extends StateNotifier<String> {
 
     _topicReturn.subscribe((msg) async {
       print("Received echo on trigger topic: $msg");
-      _topicReturn.unsubscribe();
     });
 
     Map<String, dynamic> json = {"data": "Base"};
-    await _topicReturn.publish(json);
+    if(timer == null) {
+      timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
+        print("publishing return to base...");
+        _topicReturn.publish(json);
+      },);
+    }
   }
 
   void getReturnToBaseAck() {
@@ -74,6 +80,11 @@ class BasePointViewModel extends StateNotifier<String> {
   }
 
   void removeReturnToBaseListener() {
+    _topicReturn.unsubscribe();
+    timer?.cancel();
+  }
+
+  void removeReturnToBaseAckListener() {
     _topicReturnAck.unsubscribe();
     state = "";
   }
