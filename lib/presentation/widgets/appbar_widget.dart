@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:alfred/config/assets_constants.dart';
+import 'package:alfred/presentation/widgets/widget_battery.dart';
 import 'package:alfred/view_models/battery_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,7 +93,7 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
                       child: Padding(
                     padding: EdgeInsets.only(left: 20, top: 5, bottom: 5),
                     child: Image.asset(
-                      AlfredConstants.companyLogo,
+                      AssetsConstants.companyLogo,
                       width: 15,
                       height: 20,
                       fit: BoxFit.cover,
@@ -123,40 +124,14 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
                     child: InkWell(
                       onTap: () {},
                       child: SvgPicture.asset(
-                        AlfredConstants.iconWifi,
+                        AssetsConstants.iconWifi,
                         fit: BoxFit.contain,
                       ),
                     ),
                   )),
                   ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: InkWell(
-                      onTap: () {},
-                      child: SvgPicture.asset(
-                        AlfredConstants.iconBattery,
-                        // width: 24,
-                        // height: 12,
-                        fit: BoxFit.contain,
-                        colorFilter: ColorFilter.mode(
-                          getBatteryColor(batteryState.percentage),
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
-                  )),
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(right: 27, top: 9, bottom: 9),
-                    child: Text(
-                      batteryState.percentage.toString() + " %",
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF757575),
-                      ),
-                    ),
-                  ))
+                      child: WidgetBattery(batteryStatus: batteryState)
+                  ),
                 ],
               )),
             ],
@@ -164,13 +139,5 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
         ],
       ),
     );
-  }
-
-  // Determine color based on battery level
-  Color getBatteryColor(int? level) {
-    if(level == null) return const Color(0xFF757575); // Default
-    if (level >= 80) return const Color(0xFF4CAF50); // Green
-    if (level >= 30) return const Color(0xFFFFC107); // Yellow
-    return const Color(0xFFF44336); // Red
   }
 }
