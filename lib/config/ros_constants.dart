@@ -1,7 +1,7 @@
 class ROSConstants {
   // static const String rosUrl = 'ws://127.0.0.1:9090';
   // static const String rosUrl = 'ws://10.0.2.2:9090'; //emulator
-  static const String rosUrl = 'ws://192.168.0.177:9090';
+  static const String rosUrl = 'ws://192.168.0.143:9090';
 
   /*  GENERIC */
   static const String msgString = 'std_msgs/String';
@@ -32,6 +32,12 @@ class ROSConstants {
   static const String topicGetTables = '/get_table_list';
   static const String topicTablesList = '/table_list';
 
+  // static const String topicAddTable = '/add_table';
+  // static const String topicMoveTable = '/move_to_table';
+
+  // static const String topicRemoveTable = '/remove_table';
+  // static const String topicRemoveTableAck = '/remove_table_ack';
+
   /*  BASE POINT  */
   static const String topicResetBaseLoc = '/reset_base_loc';
   static const String topicResetBaseLocAck = '/reset_base_loc_ack';
@@ -40,9 +46,11 @@ class ROSConstants {
   static const String topicReturnToBaseAck = '/return_base_ack';
 
   /*  DELIVERY  */
-  // static const String topicMoveTable = '/move_to_table';
+  //static const String topicMoveTable = '/move_to_table';
   static const String topicMoveTable = '/goto_point';
   static const String topicDeliveryStatus = '/delivery_status';
 
   static const String success = 'SUCCESS';
+
 }
+

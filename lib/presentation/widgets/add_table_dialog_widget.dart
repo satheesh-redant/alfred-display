@@ -14,7 +14,13 @@ class AddTableDialogWidget extends StatelessWidget {
     required BuildContext context,
     required TextEditingController tableNumberController,
     required WidgetRef ref,
+    // Add the callback function as a required parameter.
+    required Function(int) onTableAdded,
+    required List<int> tablesFromROS,
+
   }) {
+    tableNumberController.clear();
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -165,19 +171,21 @@ class AddTableDialogWidget extends StatelessWidget {
                                           );
                                           return;
                                         }
+                                        // Read the list of marked tables (List<int>) from the new provider.
                                         final currentTables = ref.read(tableVMProvider);
-                                        if (currentTables.any(
-                                                (table) => table.table == tableNumber)) {
+                                        // Update the check to use .contains() on a List<int>.
+                                        if (currentTables.contains(tableNumber)) {
                                           showErrorToast(
                                             context: context,
-                                            description:
-                                            "Table $tableNumber already exists",
+                                            description: "Table $tableNumber is already marked",
                                           );
                                           return;
                                         }
-                                        ref
-                                            .read(tableVMProvider.notifier)
-                                            .addCustomTable(tableNumber);
+                                        // Call the callback to pass the new number back to the TrainingScreen.
+                                        onTableAdded(tableNumber);
+
+                                        // ref.read(tableVMProvider.notifier).addCustomTable(tableNumber);
+
                                         Navigator.of(dialogContext).pop();
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -272,7 +280,10 @@ class AddTableDialogWidget extends StatelessWidget {
       height: 48.h,
       child: ElevatedButton(
         onPressed: () {
-          controller.text += number.toString();
+          // Prevent leading zeros and limit length if desired
+          if (controller.text.length < 3) { // Example limit
+            controller.text += number.toString();
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
