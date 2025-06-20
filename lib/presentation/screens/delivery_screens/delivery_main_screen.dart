@@ -1,13 +1,16 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/view_models/table_view_model.dart';
+import 'package:alfred/view_models/delivery_view_model.dart';
+import 'package:alfred/view_models/operation_view_model.dart';
 import '../../../config/alfred_constants.dart';
-import '../../../models/table_data.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import '../../widgets/table_grid_button_widget.dart';
 import '../../widgets/button_widget.dart';
 
@@ -21,10 +24,14 @@ class DeliveryMainScreen extends ConsumerStatefulWidget {
 class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
   final ScrollController _gridScrollController = ScrollController();
 
+  // We manage the selected table ID locally in the screen's state.
+  int? _selectedTableNumber;
+
   @override
   void initState() {
     super.initState();
-    ref.read(tableVMProvider.notifier).getTableList();
+    // Request the latest list of tables from ROS when the screen loads.
+    ref.read(tableVMProvider.notifier).requestTableList();
   }
 
   @override
@@ -35,9 +42,34 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tables = ref.watch(tableVMProvider);
-    final markedTables = tables.where((table) => table.isMarked).toList();
+    // Watch the provider to get the list of marked table IDs (List<int>).
+    final markedTableIds = ref.watch(tableVMProvider);
 
+    ref.listen(
+      deliveryVMProvider,
+          (previous, next) {
+        context.loaderOverlay.hide();
+        if (next == "moving") {
+          // Use the locally selected table number for navigation.
+          if (_selectedTableNumber != null) {
+            context.push(
+              '${AlfredConstants.routeDeliveryInProgressScreen}/$_selectedTableNumber',
+            );
+          }
+        } else {
+          print(next);
+        }
+      },
+    );
+
+    // Listener to switch to training mode
+    ref.listen(opsVMProvider, (previous, next) {
+      if (next.toLowerCase() == 'training') {
+        ref.context.loaderOverlay.hide();
+        ref.read(opsVMProvider.notifier).unsubscribe();
+        context.go(AlfredConstants.routeTrainingScreen);
+      }
+    });
     return Scaffold(
       body: Column(
         children: [
@@ -46,7 +78,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Sidebar
+                // Sidebar (Unchanged)
                 Padding(
                   padding: EdgeInsets.only(left: 0.w, top: 70.h),
                   child: SizedBox(
@@ -54,7 +86,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                     height: 240.h,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[150],
+                        color: Colors.grey[300],
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -68,7 +100,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               height: 31.h,
                             ),
                             onPressed: () {
-                              context.go(AlfredConstants.routeTrainingScreen);
+                              context.loaderOverlay.show();
+                              ref.read(opsVMProvider.notifier).sendOpsMode(mode: 'training');
                             },
                           ),
                           Center(
@@ -79,7 +112,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                 color: Colors.black,
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
-                                height: 1.20, // Line height multiplier, not scaled
+                                height: 1.20,
                                 letterSpacing: 0.24.w,
                               ),
                             ),
@@ -100,7 +133,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               color: Colors.black,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
-                              height: 1.20, // Line height multiplier, not scaled
+                              height: 1.20,
                               letterSpacing: 0.24.w,
                             ),
                           ),
@@ -109,7 +142,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                     ),
                   ),
                 ),
-                // Middle Section (Alfred at Base)
+                // Middle Section (Unchanged)
                 Expanded(
                   flex: 2,
                   child: Stack(
@@ -164,7 +197,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                   ),
                 ),
                 SizedBox(width: 20.w, height: 36.h),
-                // Table Selection Section
+                // Table Selection Section (Modified)
                 Expanded(
                   flex: 3,
                   child: Padding(
@@ -184,7 +217,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                         Expanded(
                           child: Container(
                             width: double.infinity,
-                            child: markedTables.isEmpty
+                            child: markedTableIds.isEmpty
                                 ? Center(
                               child: Text(
                                 "No tables marked yet\nPlease mark tables in Training Mode first",
@@ -205,26 +238,32 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 4,
-                                  crossAxisSpacing: 49.w,
-                                  mainAxisSpacing: 26.h,
-                                  childAspectRatio: 138.w / 60.h,
+                                  crossAxisSpacing: 49.w.toDouble(),
+                                  mainAxisSpacing: 26.h.toDouble(),
+                                  childAspectRatio: (138.w / 60.h),
                                 ),
-                                itemCount: markedTables.length,
+                                itemCount: markedTableIds.length,
                                 itemBuilder: (context, index) {
-                                  final table = markedTables[index];
+                                  final tableId = markedTableIds[index];
+                                  final isSelected = tableId == _selectedTableNumber;
+
                                   return Padding(
                                     padding: EdgeInsets.only(right: 0.w),
                                     child: TableGridButtonWidget(
-                                      label: table.table.toString(),
-                                      tableNumber: table.table,
-                                      isSelected: table.isSelected,
-                                      isMarked: table.isMarked,
-                                      isDisabled: false,
+                                      label: tableId.toString(),
+                                      tableNumber: tableId,
+                                      isSelected: isSelected,
+                                      isMarked: true, // All tables here are marked
+                                      isDisabled: false, // All are selectable
                                       ignoreMarkedBackground: true,
                                       onPressed: () {
-                                        ref.read(tableVMProvider.notifier).selectTable(
-                                          table.isSelected ? null : table.table,
-                                        );
+                                        setState(() {
+                                          if (isSelected) {
+                                            _selectedTableNumber = null;
+                                          } else {
+                                            _selectedTableNumber = tableId;
+                                          }
+                                        });
                                       },
                                     ),
                                   );
@@ -244,33 +283,21 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               final buttonWidth = (desiredButtonWidth < availableWidth - 55.w)
                                   ? desiredButtonWidth
                                   : availableWidth - 55.w;
-
-                              final selectedTable = markedTables.firstWhere(
-                                    (table) => table.isSelected,
-                                orElse: () => TableData(
-                                  table: -1,
-                                  isMarked: false,
-                                  isSelected: false,
-                                ),
-                              );
-
+                              final isTableSelected = _selectedTableNumber != null;
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Flexible(
                                     child: ButtonWidget(
                                       text: "Go to Table",
-                                      onPressed: selectedTable.table != -1
+                                      onPressed: isTableSelected
                                           ? () {
-                                        ref.read(tableVMProvider.notifier).moveTable(
-                                          table: selectedTable.table,
-                                        );
-                                        context.go(
-                                          '${AlfredConstants.routeDeliveryInProgressScreen}/${selectedTable.table}',
-                                        );
+                                        context.loaderOverlay.show();
+                                        ref.read(deliveryVMProvider.notifier).moveTable(table: _selectedTableNumber!);
+                                        ref.read(deliveryVMProvider.notifier).deliveryStatus();
                                       }
                                           : null,
-                                      isActive: selectedTable.table != -1,
+                                      isActive: isTableSelected,
                                       width: buttonWidth,
                                     ),
                                   ),
