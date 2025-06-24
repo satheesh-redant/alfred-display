@@ -27,9 +27,9 @@ class DeliveryCompleteScreen extends ConsumerWidget {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.context.loaderOverlay.hide();
-            ref.read(basePointVMProvider.notifier).removeResetBaseListener();
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
             ref.read(basePointVMProvider.notifier).removeReturnToBaseAckListener();
-            context.pop();
+            context.replace(AlfredConstants.routeDeliveryMainScreen);
           }
         }
       },
