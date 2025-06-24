@@ -9,7 +9,7 @@ class BasePointViewModel extends StateNotifier<String> {
   final ROSService _rosService;
   late Topic _topicReturn, _topicReset, _topicResetAck, _topicReturnAck;
 
-  Timer? timer;
+  late Timer timer;
 
   BasePointViewModel(this._rosService) : super("");
 
@@ -25,7 +25,7 @@ class BasePointViewModel extends StateNotifier<String> {
     });
 
     Map<String, dynamic> json = {"data": "Base"};
-    if(timer == null) {
+    if(!timer.isActive) {
       timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
         print("publishing return to base...");
         _topicReturn.publish(json);
@@ -81,7 +81,7 @@ class BasePointViewModel extends StateNotifier<String> {
 
   void removeReturnToBaseListener() {
     _topicReturn.unsubscribe();
-    timer?.cancel();
+    timer.cancel();
   }
 
   void removeReturnToBaseAckListener() {
