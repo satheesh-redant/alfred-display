@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/view_models/boot_check_view_model.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
@@ -22,8 +24,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   void initState() {
     super.initState();
     // Trigger ROS connection.
-    Future.delayed(const Duration(seconds: 2), () {
-      ref.read(rosConnectionVMProvider.notifier).connect();
+    // Future.delayed(const Duration(seconds: 2), () {
+    //   ref.read(rosConnectionVMProvider.notifier).connect();
+    // });
+
+    Timer(const Duration(seconds: 2), () {
+      context.go(AlfredConstants.routeChecklistScreen);
     });
   }
 

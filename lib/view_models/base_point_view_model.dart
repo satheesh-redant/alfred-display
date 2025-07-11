@@ -57,6 +57,10 @@ class BasePointViewModel extends StateNotifier<String> {
         _topicReturn.publish(json);
       },);
     }
+
+    Timer(const Duration(seconds: 3), () {
+      state = ROSConstants.success;
+    });
   }
 
   void getReturnToBaseAck() {
@@ -73,6 +77,10 @@ class BasePointViewModel extends StateNotifier<String> {
 
     Map<String, dynamic> json = {"data": "Base"};
     await _topicReset.publish(json);
+
+    Timer(const Duration(seconds: 3), () {
+      state = ROSConstants.success;
+    });
   }
 
   void getResetBaseLocAck() {

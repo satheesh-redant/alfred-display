@@ -37,6 +37,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
     final markedTables = ref.watch(markedTablesProvider);
     final selectedTable = ref.watch(deliveryScreenTableProvider);
 
+    // final markedTables = ref.watch(tableVMProvider);
+
     ref.listen(
       deliveryVMProvider,
       (previous, next) {
@@ -91,8 +93,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                 height: 31,
                               ),
                               onPressed: () {
-                                context.loaderOverlay.show();
-                                ref.read(opsVMProvider.notifier).sendOpsMode(mode: 'training');
+                                // context.loaderOverlay.show();
+                                // ref.read(opsVMProvider.notifier).sendOpsMode(mode: 'training');
+                                context.go(AlfredConstants.routeChecklistScreen);
                               },
                             ),
                             Center(
@@ -193,7 +196,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.only(right: 40),
-                              child: ref.watch(tableVMProvider).isEmpty
+                              child: markedTables.isEmpty
                                   ? Center(
                                       child: Text(
                                         "No tables marked yet\nPlease mark tables in Training Mode first",
@@ -213,9 +216,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                         mainAxisSpacing: 26,
                                         childAspectRatio: 138 / 60,
                                       ),
-                                      itemCount: ref.watch(tableVMProvider).length,
+                                      itemCount: markedTables.length,
                                       itemBuilder: (context, index) {
-                                        final data = ref.watch(tableVMProvider);
+                                        final data = markedTables;
                                         print(data);
                                         final isSelected = selectedTable == data[index];
                                         return Padding(

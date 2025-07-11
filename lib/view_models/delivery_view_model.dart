@@ -25,6 +25,14 @@ class DeliveryViewModel extends StateNotifier<String> {
 
     Map<String, dynamic> json = {"data": table.toString()};
     await _topicMoveTable!.publish(json);
+
+    Timer(const Duration(seconds: 1), () {
+      state = "moving";
+    });
+
+    Timer(const Duration(seconds: 5), () {
+      state = "delivered";
+    });
   }
 
   Future<void> deliveryStatus() async {

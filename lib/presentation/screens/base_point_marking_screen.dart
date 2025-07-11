@@ -35,8 +35,8 @@ class _BasePointMarkingScreenState
           if (next.toUpperCase() == ROSConstants.success) {
             context.loaderOverlay.hide();
             ref.read(basePointVMProvider.notifier).removeResetBaseListener();
-            showSuccessToast(
-                context: context, description: "Base Point saved successfully");
+            // showSuccessToast(
+            //     context: context, description: "Base Point saved successfully");
             setState(() {
               _showMarkerScreen = true;
               print('Setting _showMarkerScreen to true');
@@ -142,6 +142,9 @@ class _BasePointMarkingScreenState
                                     ref.context.loaderOverlay.show();
                                     ref.read(basePointVMProvider.notifier).getResetBaseLocAck();
                                     ref.read(basePointVMProvider.notifier).resetBaseLoc();
+                                    // setState(() {
+                                    //   _showMarkerScreen = true;
+                                    // });
                                   },
                                 ),
                               );

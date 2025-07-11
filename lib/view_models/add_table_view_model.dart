@@ -36,6 +36,11 @@ class AddTableViewModel extends StateNotifier<String> {
     );
 
     _topicAddTableAck!.subscribe(_handlerAck);
+
+    Timer(const Duration(seconds: 3), () {
+      state = ROSConstants.success;
+    });
+
   }
 
   Future<void> _handlerAck(Map<String, dynamic> message) async {

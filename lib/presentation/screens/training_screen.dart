@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:alfred/view_models/add_table_view_model.dart';
 import 'package:alfred/view_models/base_point_view_model.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
@@ -89,7 +91,11 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
             ref.read(basePointVMProvider.notifier).removeReturnToBaseAckListener();
-            ref.read(opsVMProvider.notifier).getCurrentOp();
+            /*ref.read(opsVMProvider.notifier).getCurrentOp();*/
+            Timer(const Duration(seconds: 3), () {
+              ref.context.loaderOverlay.hide();
+              context.go(AlfredConstants.routeDeliveryMainScreen);
+            });
           } else {
             ref.context.loaderOverlay.hide();
           }
