@@ -1,5 +1,5 @@
 class ROSConstants {
-  static const String rosUrl = 'ws://192.168.1.100:9090';
+  static const String rosUrl = 'ws://127.0.0.1:9090';
 
   /*  GENERIC */
   static const String msgString = 'std_msgs/String';
