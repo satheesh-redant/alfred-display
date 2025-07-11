@@ -11,17 +11,43 @@ class BasePointViewModel extends StateNotifier<String> {
 
   Timer? timer;
 
-  BasePointViewModel(this._rosService) : super("");
+  BasePointViewModel(this._rosService) : super("") {
+    _initializeTopics();
+  }
 
-  Future<void> triggerReturnToBase() async {
-    print('initiating return to base...');
+  void _initializeTopics() {
+    print('initiating topics...');
+
     _topicReturn = _rosService.createTopic(
       ROSConstants.topicReturnToBase,
       ROSConstants.msgString,
     );
+    print('Return To Base topic created...');
 
+    _topicReturnAck = _rosService.createTopic(
+      ROSConstants.topicReturnToBaseAck,
+      ROSConstants.msgString,
+      throttleRate: 1000,
+    );
+    print('Return To Base Ack topic created...');
+
+    _topicReset = _rosService.createTopic(
+      ROSConstants.topicResetBaseLoc,
+      ROSConstants.msgString,
+    );
+    print('Reset Base topic created...');
+
+    _topicResetAck = _rosService.createTopic(
+      ROSConstants.topicResetBaseLocAck,
+      ROSConstants.msgString,
+      throttleRate: 1000,
+    );
+    print('Reset Base Ack topic created...');
+  }
+
+  Future<void> triggerReturnToBase() async {
     _topicReturn.subscribe((msg) async {
-      print("Received echo on trigger topic: $msg");
+      print("Return to Base topic echo: $msg");
     });
 
     Map<String, dynamic> json = {"data": "Base"};
@@ -35,23 +61,13 @@ class BasePointViewModel extends StateNotifier<String> {
 
   void getReturnToBaseAck() {
     print('Subscribing return to base ack topic...');
-    _topicReturnAck = _rosService.createTopic(
-      ROSConstants.topicReturnToBaseAck,
-      ROSConstants.msgString,
-      throttleRate: 1000,
-    );
     _topicReturnAck.subscribe(_handler);
   }
 
   Future<void> resetBaseLoc() async {
     print('initiating reset base location...');
-    _topicReset = _rosService.createTopic(
-      ROSConstants.topicResetBaseLoc,
-      ROSConstants.msgString,
-    );
-
     _topicReset.subscribe((msg) async {
-      print("Received echo on trigger topic: $msg");
+      print("Reset Base echo: $msg");
       _topicReset.unsubscribe();
     });
 
@@ -61,11 +77,6 @@ class BasePointViewModel extends StateNotifier<String> {
 
   void getResetBaseLocAck() {
     print('Subscribing reset base location ack topic...');
-    _topicResetAck = _rosService.createTopic(
-      ROSConstants.topicResetBaseLocAck,
-      ROSConstants.msgString,
-      throttleRate: 1000,
-    );
     _topicResetAck.subscribe(_handler);
   }
 
@@ -82,6 +93,7 @@ class BasePointViewModel extends StateNotifier<String> {
   void removeReturnToBaseListener() {
     _topicReturn.unsubscribe();
     timer?.cancel();
+    timer = null;
   }
 
   void removeReturnToBaseAckListener() {
@@ -89,10 +101,6 @@ class BasePointViewModel extends StateNotifier<String> {
     state = "";
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 final basePointVMProvider =
