@@ -1,4 +1,3 @@
-
 // lib/presentation/screens/training_screen.dart
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/view_models/base_point_view_model.dart';
@@ -11,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import '../../config/ros_constants.dart';
 import '../../core/toast_utils.dart';
 import '../../models/table_state.dart';
 import '../widgets/add_table_dialog_widget.dart';
@@ -36,12 +36,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
   @override
   void initState() {
     super.initState();
-    ref.read(opsVMProvider.notifier).getCurrentOp();
     ref.read(addTableVMProvider.notifier).addTableAck();
     ref.read(tableVMProvider.notifier).requestTableList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (ref.read(tableVMProvider.notifier).hasMarkedTables && ref.read(opsVMProvider).toLowerCase() == 'delivery') {
+      if (ref.read(tableVMProvider.notifier).hasMarkedTables &&
+          ref.read(opsVMProvider).toLowerCase() == 'delivery') {
         ref.read(opsVMProvider.notifier).unsubscribe();
         context.go(AlfredConstants.routeDeliveryMainScreen);
       }
@@ -50,9 +50,18 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tables = ref.watch(tableVMProvider).map((id) => TableState(tableNumber: id, isMarked: true, isEnabled: false)).toList();
-    final newTable = ref.watch(tableVMProvider.notifier).getTableStates().firstWhere((t) => t.isNewlyAdded, orElse: () => TableState(tableNumber: -1));
-    if (newTable.tableNumber != -1 && !tables.any((t) => t.tableNumber == newTable.tableNumber)) {
+    final tables = ref
+        .watch(tableVMProvider)
+        .map((id) =>
+            TableState(tableNumber: id, isMarked: true, isEnabled: false))
+        .toList();
+    final newTable = ref
+        .watch(tableVMProvider.notifier)
+        .getTableStates()
+        .firstWhere((t) => t.isNewlyAdded,
+            orElse: () => TableState(tableNumber: -1));
+    if (newTable.tableNumber != -1 &&
+        !tables.any((t) => t.tableNumber == newTable.tableNumber)) {
       tables.add(newTable);
       tables.sort((a, b) => a.tableNumber.compareTo(b.tableNumber));
     }
@@ -62,18 +71,14 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
       color: Colors.black,
     );
 
-    ref.listen(opsVMProvider, (previous, next) {
-      if (next.toLowerCase() == 'delivery' && ref.read(tableVMProvider.notifier).hasMarkedTables) {
-        ref.read(opsVMProvider.notifier).unsubscribe();
-        ref.context.loaderOverlay.hide(); // Hide loader before navigation
-        context.go(AlfredConstants.routeDeliveryMainScreen);
-      }
-    });
-
     ref.listen(addTableVMProvider, (previous, next) {
-      final selectedTable = ref.read(tableVMProvider.notifier).selectedTableNumber;
-      if (next == 'Success' && selectedTable != null && !_isDialogShowing) {
+      final selectedTable =
+          ref.read(tableVMProvider.notifier).selectedTableNumber;
+      if (next.toUpperCase() == ROSConstants.success &&
+          selectedTable != null &&
+          !_isDialogShowing) {
         ref.context.loaderOverlay.hide();
+        ref.read(addTableVMProvider.notifier).unsubscribe();
         setState(() {
           _isDialogShowing = true;
         });
@@ -86,16 +91,35 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
               showBasePointMessage = true;
             });
             ref.read(tableVMProvider.notifier).confirmTable(selectedTable);
+            //todo why are we requesting table again
             ref.read(tableVMProvider.notifier).requestTableList();
           },
         );
       }
     });
 
-    ref.listen(basePointVMProvider, (previous, next) {
-      if (next == 'Success') {
-        ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
-        ref.read(tableVMProvider.notifier).resetMarking();
+    ref.listen(
+      basePointVMProvider,
+      (previous, next) {
+        if (next.isNotEmpty) {
+          if (next.toUpperCase() == ROSConstants.success) {
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseAckListener();
+            ref.read(tableVMProvider.notifier).resetMarking();
+            ref.read(opsVMProvider.notifier).getCurrentOp();
+          } else {
+            ref.context.loaderOverlay.hide();
+          }
+        }
+      },
+    );
+
+    ref.listen(opsVMProvider, (previous, next) {
+      if (next.toLowerCase() == 'delivery' &&
+          ref.read(tableVMProvider.notifier).hasMarkedTables) {
+        ref.read(opsVMProvider.notifier).unsubscribe();
+        ref.context.loaderOverlay.hide();
+        context.go(AlfredConstants.routeDeliveryMainScreen);
       }
     });
 
@@ -174,13 +198,15 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                   child: GridView.builder(
                                     controller: scrollController,
                                     padding: EdgeInsets.all(10.w),
-                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 6,
                                       crossAxisSpacing: 20.w,
                                       mainAxisSpacing: 20.h,
                                       childAspectRatio: 138 / 60,
                                     ),
-                                    itemCount: tables.isEmpty ? 1 : tables.length + 1,
+                                    itemCount:
+                                        tables.isEmpty ? 1 : tables.length + 1,
                                     itemBuilder: (context, index) {
                                       if (index < tables.length) {
                                         final table = tables[index];
@@ -188,14 +214,19 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                           clipBehavior: Clip.none,
                                           children: [
                                             TableGridButtonWidget(
-                                              label: table.tableNumber.toString(),
+                                              label:
+                                                  table.tableNumber.toString(),
                                               tableNumber: table.tableNumber,
                                               isSelected: table.isSelected,
                                               isMarked: table.isMarked,
                                               isDisabled: table.isMarked,
                                               onPressed: () {
                                                 if (!table.isMarked) {
-                                                  ref.read(tableVMProvider.notifier).selectTable(table.tableNumber);
+                                                  ref
+                                                      .read(tableVMProvider
+                                                          .notifier)
+                                                      .selectTable(
+                                                          table.tableNumber);
                                                 }
                                               },
                                             ),
@@ -205,7 +236,11 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                                 right: 30.w,
                                                 child: RemoveTableButtonWidget(
                                                   onPressed: () {
-                                                    ref.read(tableVMProvider.notifier).removeTable(table.tableNumber);
+                                                    ref
+                                                        .read(tableVMProvider
+                                                            .notifier)
+                                                        .removeTable(
+                                                            table.tableNumber);
                                                   },
                                                 ),
                                               ),
@@ -220,13 +255,19 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                               isDashed: true,
                                               isDisabled: showBasePointMessage,
                                               onPressed: () {
-                                                AddTableDialogWidget.showAddTableDialog(
+                                                AddTableDialogWidget
+                                                    .showAddTableDialog(
                                                   context: context,
-                                                  tableNumberController: _tableNumberController,
+                                                  tableNumberController:
+                                                      _tableNumberController,
                                                   ref: ref,
-                                                  tablesFromROS: ref.read(tableVMProvider),
+                                                  tablesFromROS:
+                                                      ref.read(tableVMProvider),
                                                   onTableAdded: (newTableNum) {
-                                                    ref.read(tableVMProvider.notifier).addTable(newTableNum);
+                                                    ref
+                                                        .read(tableVMProvider
+                                                            .notifier)
+                                                        .addTable(newTableNum);
                                                   },
                                                 );
                                               },
@@ -244,54 +285,80 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                   alignment: Alignment.center,
                                   child: showBasePointMessage
                                       ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ButtonWidget(
-                                        text: "Mark Next Table",
-                                        onPressed: () {
-                                          setState(() {
-                                            showBasePointMessage = false;
-                                          });
-                                          ref.read(addTableVMProvider.notifier).addTableAck();
-                                          ref.read(tableVMProvider.notifier).resetMarking();
-                                        },
-                                        isActive: true,
-                                        width: 300.w,
-                                        height: 70.h,
-                                      ),
-                                      SizedBox(width: 100.w),
-                                      ButtonWidget(
-                                        text: "Return to Base",
-                                        onPressed: () {
-                                          ref.context.loaderOverlay.show();
-                                          ref.read(basePointVMProvider.notifier).getReturnToBaseAck();
-                                          ref.read(tableVMProvider.notifier).resetMarking();
-                                          ref.read(basePointVMProvider.notifier).triggerReturnToBase();
-                                        },
-                                        isActive: true,
-                                        width: 300.w,
-                                        height: 70.h,
-                                        backgroundColor: Colors.white,
-                                        borderSide: BorderSide(color: Colors.black, width: 1.5.w),
-                                        textStyle: buttonTextStyle,
-                                      ),
-                                    ],
-                                  )
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ButtonWidget(
+                                              text: "Mark Next Table",
+                                              onPressed: () {
+                                                setState(() {
+                                                  showBasePointMessage = false;
+                                                });
+                                                ref
+                                                    .read(addTableVMProvider
+                                                        .notifier)
+                                                    .addTableAck();
+                                                ref
+                                                    .read(tableVMProvider
+                                                        .notifier)
+                                                    .resetMarking();
+                                              },
+                                              isActive: true,
+                                              width: 300.w,
+                                              height: 70.h,
+                                            ),
+                                            SizedBox(width: 100.w),
+                                            ButtonWidget(
+                                              text: "Return to Base",
+                                              onPressed: () {
+                                                ref.context.loaderOverlay.show();
+                                                ref.read(basePointVMProvider.notifier).getReturnToBaseAck();
+                                                ref.read(tableVMProvider.notifier).resetMarking();
+                                                ref.read(basePointVMProvider.notifier).triggerReturnToBase();
+                                              },
+                                              isActive: true,
+                                              width: 300.w,
+                                              height: 70.h,
+                                              backgroundColor: Colors.white,
+                                              borderSide: BorderSide(
+                                                  color: Colors.black,
+                                                  width: 1.5.w),
+                                              textStyle: buttonTextStyle,
+                                            ),
+                                          ],
+                                        )
                                       : ConstrainedBox(
-                                    constraints: BoxConstraints(maxWidth: 600.w),
-                                    child: ButtonWidget(
-                                      text: "Confirm",
-                                      isActive: ref.read(tableVMProvider.notifier).selectedTableNumber != null,
-                                      onPressed: ref.read(tableVMProvider.notifier).selectedTableNumber != null
-                                          ? () {
-                                        final selectedTable = ref.read(tableVMProvider.notifier).selectedTableNumber!;
-                                        ref.context.loaderOverlay.show();
-                                        ref.read(addTableVMProvider.notifier).addTable(table: selectedTable);
-                                      }
-                                          : null,
-                                      width: 600.w,
-                                    ),
-                                  ),
+                                          constraints:
+                                              BoxConstraints(maxWidth: 600.w),
+                                          child: ButtonWidget(
+                                            text: "Confirm",
+                                            isActive: ref
+                                                    .read(tableVMProvider
+                                                        .notifier)
+                                                    .selectedTableNumber !=
+                                                null,
+                                            onPressed: ref
+                                                        .read(tableVMProvider
+                                                            .notifier)
+                                                        .selectedTableNumber !=
+                                                    null
+                                                ? () {
+                                                    final selectedTable = ref
+                                                        .read(tableVMProvider
+                                                            .notifier)
+                                                        .selectedTableNumber!;
+                                                    ref.context.loaderOverlay
+                                                        .show();
+                                                    ref
+                                                        .read(addTableVMProvider
+                                                            .notifier)
+                                                        .addTable(
+                                                            table:
+                                                                selectedTable);
+                                                  }
+                                                : null,
+                                            width: 600.w,
+                                          ),
+                                        ),
                                 ),
                               ),
                             ],

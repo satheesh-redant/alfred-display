@@ -23,11 +23,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   void initState() {
     super.initState();
     // Trigger ROS connection.
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 1), () {
       ref.read(rosConnectionVMProvider.notifier).connect();
-      if (ref.context.mounted) {
-        context.go(AlfredConstants.routeChecklistScreen);
-      }
     });
   }
 
@@ -120,16 +117,15 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         ],
       );
     } else if (connectionStatus == ConnectionStatus.connected) {
-      if (bootStatus.overallStatus == 'OK') {
+      /*if (bootStatus.overallStatus?.toUpperCase() == 'OK') {
         return Text(
           'All systems are good to go',
           style: GoogleFonts.inter(
             textStyle: Theme.of(context).textTheme.titleMedium,
-            fontSize: 24.sp, // Scaled font size
-            color: Colors.green,
-          ),
+              fontSize: 24,
+              color: Colors.green),
         );
-      } else if (bootStatus.overallStatus == 'FAIL') {
+      } else */if (bootStatus.overallStatus?.toUpperCase() == 'FAIL') {
         String msg = bootStatus.message;
         for (var check in bootStatus.checks!) {
           if (check.status == 'FAIL') {
@@ -168,6 +164,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         fontSize: 24.sp, // Scaled font size
       ),
     );
+    return Container();
   }
 }
 

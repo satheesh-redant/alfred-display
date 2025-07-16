@@ -1,4 +1,5 @@
 import 'package:alfred/config/alfred_constants.dart';
+import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/presentation/widgets/appbar_widget.dart';
 import 'package:alfred/presentation/widgets/button_widget.dart';
 import 'package:alfred/view_models/base_point_view_model.dart';
@@ -27,7 +28,7 @@ class _BasePointMarkingScreenState extends ConsumerState<BasePointMarkingScreen>
     ref.listen(
       basePointVMProvider,
           (previous, next) {
-        if (next == "Success") {
+        if (next.toUpperCase() == ROSConstants.success) {
           context.loaderOverlay.hide();
           ref.read(basePointVMProvider.notifier).removeResetBaseListener();
           setState(() {

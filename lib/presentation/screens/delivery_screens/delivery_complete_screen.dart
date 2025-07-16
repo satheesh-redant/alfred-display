@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import '../../../config/alfred_constants.dart';
 import '../../../config/ros_constants.dart';
 import '../../../view_models/base_point_view_model.dart';
 import '../../widgets/appbar_widget.dart';
@@ -22,7 +23,8 @@ class DeliveryCompleteScreen extends ConsumerWidget {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.context.loaderOverlay.hide();
             ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
-            context.pop();
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseAckListener();
+            context.replace(AlfredConstants.routeDeliveryMainScreen);
           }
         }
       },
