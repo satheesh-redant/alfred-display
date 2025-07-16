@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/battery_status.dart';
 
-class WidgetBattery extends ConsumerWidget {
-  WidgetBattery({
+class BatteryWidget extends ConsumerWidget {
+  BatteryWidget({
     super.key,
     this.trackHeight = 12.0, // design px
     this.trackAspectRatio = 2.0, // ratio

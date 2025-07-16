@@ -1,5 +1,5 @@
 import 'package:alfred/config/assets_constants.dart';
-import 'package:alfred/presentation/widgets/widget_battery.dart';
+import 'package:alfred/presentation/widgets/battery_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -63,7 +63,7 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
 
               SizedBox(width: 12.w),
 
-              WidgetBattery(batteryStatus: batteryState),
+              BatteryWidget(batteryStatus: batteryState),
             ],
           ),
         ],
