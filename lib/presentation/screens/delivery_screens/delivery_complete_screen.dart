@@ -88,7 +88,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                         minHeight: 200.h,
                       ),
                       child: Image.asset(
-                        "assets/images/alfred_ready.png",
+                        "assets/images/alfred_base_point.png",
                         fit: BoxFit.contain,
                       ),
                     ),

@@ -1,10 +1,12 @@
 
+// lib/presentation/widgets/add_table_dialog_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/view_models/table_view_model.dart';
+
 import '../../core/toast_utils.dart';
 
 class AddTableDialogWidget extends StatelessWidget {
@@ -14,10 +16,8 @@ class AddTableDialogWidget extends StatelessWidget {
     required BuildContext context,
     required TextEditingController tableNumberController,
     required WidgetRef ref,
-    // Add the callback function as a required parameter.
     required Function(int) onTableAdded,
     required List<int> tablesFromROS,
-
   }) {
     tableNumberController.clear();
 
@@ -171,9 +171,11 @@ class AddTableDialogWidget extends StatelessWidget {
                                           );
                                           return;
                                         }
-                                        // Read the list of marked tables (List<int>) from the new provider.
-                                        final currentTables = ref.read(tableVMProvider);
-                                        // Update the check to use .contains() on a List<int>.
+                                        final currentTables = ref
+                                            .read(tableVMProvider.notifier)
+                                            .getTableStates()
+                                            .map((t) => t.tableNumber)
+                                            .toList();
                                         if (currentTables.contains(tableNumber)) {
                                           showErrorToast(
                                             context: context,
@@ -181,11 +183,7 @@ class AddTableDialogWidget extends StatelessWidget {
                                           );
                                           return;
                                         }
-                                        // Call the callback to pass the new number back to the TrainingScreen.
                                         onTableAdded(tableNumber);
-
-                                        // ref.read(tableVMProvider.notifier).addCustomTable(tableNumber);
-
                                         Navigator.of(dialogContext).pop();
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -280,8 +278,7 @@ class AddTableDialogWidget extends StatelessWidget {
       height: 48.h,
       child: ElevatedButton(
         onPressed: () {
-          // Prevent leading zeros and limit length if desired
-          if (controller.text.length < 3) { // Example limit
+          if (controller.text.length < 3) {
             controller.text += number.toString();
           }
         },
@@ -311,3 +308,4 @@ class AddTableDialogWidget extends StatelessWidget {
     return Container();
   }
 }
+

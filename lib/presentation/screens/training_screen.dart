@@ -1,5 +1,5 @@
 
-import 'dart:async';
+// lib/presentation/screens/training_screen.dart
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/view_models/base_point_view_model.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../../core/toast_utils.dart';
-import '../../providers/removed_tables_provider.dart';
+import '../../models/table_state.dart';
 import '../widgets/add_table_dialog_widget.dart';
 import '../widgets/appbar_widget.dart';
 import '../widgets/button_widget.dart';
@@ -29,63 +29,63 @@ class TrainingScreen extends ConsumerStatefulWidget {
 
 class _TrainingScreenState extends ConsumerState<TrainingScreen> {
   final scrollController = ScrollController();
-  bool showBasePointMessage = false;
-  bool _isDialogShowing = false;
-  bool _isTableMarked = false;
-  int? _lastMarkedTable;
-  int? _selectedTableNumber;
-
-  final List<int> _pendingTableIds = [];
   final TextEditingController _tableNumberController = TextEditingController();
+  bool _isDialogShowing = false;
+  bool showBasePointMessage = false;
 
   @override
   void initState() {
     super.initState();
     ref.read(opsVMProvider.notifier).getCurrentOp();
     ref.read(addTableVMProvider.notifier).addTableAck();
-    ref.read(tableVMProvider.notifier).getTableList();
     ref.read(tableVMProvider.notifier).requestTableList();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(tableVMProvider.notifier).hasMarkedTables && ref.read(opsVMProvider).toLowerCase() == 'delivery') {
+        ref.read(opsVMProvider.notifier).unsubscribe();
+        context.go(AlfredConstants.routeDeliveryMainScreen);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final rosMarkedTableIds = ref.watch(tableVMProvider);
-    final sessionRemovedTableIds = ref.watch(removedTablesProvider);
+    final tables = ref.watch(tableVMProvider).map((id) => TableState(tableNumber: id, isMarked: true, isEnabled: false)).toList();
+    final newTable = ref.watch(tableVMProvider.notifier).getTableStates().firstWhere((t) => t.isNewlyAdded, orElse: () => TableState(tableNumber: -1));
+    if (newTable.tableNumber != -1 && !tables.any((t) => t.tableNumber == newTable.tableNumber)) {
+      tables.add(newTable);
+      tables.sort((a, b) => a.tableNumber.compareTo(b.tableNumber));
+    }
+    final buttonTextStyle = GoogleFonts.nunito(
+      fontSize: 16.sp,
+      fontWeight: FontWeight.w600,
+      color: Colors.black,
+    );
 
-    final markedTableIds = rosMarkedTableIds
-        .where((id) => !sessionRemovedTableIds.contains(id))
-        .toList();
-
-    final allDisplayTableIds = {
-      ...markedTableIds,
-      ..._pendingTableIds,
-    }.toList()
-      ..sort();
-
-    ref.watch(addTableVMProvider);
+    ref.listen(opsVMProvider, (previous, next) {
+      if (next.toLowerCase() == 'delivery' && ref.read(tableVMProvider.notifier).hasMarkedTables) {
+        ref.read(opsVMProvider.notifier).unsubscribe();
+        ref.context.loaderOverlay.hide(); // Hide loader before navigation
+        context.go(AlfredConstants.routeDeliveryMainScreen);
+      }
+    });
 
     ref.listen(addTableVMProvider, (previous, next) {
-      if (next == 'Success' && _selectedTableNumber != null) {
-        if (_isDialogShowing) return;
-
+      final selectedTable = ref.read(tableVMProvider.notifier).selectedTableNumber;
+      if (next == 'Success' && selectedTable != null && !_isDialogShowing) {
         ref.context.loaderOverlay.hide();
         setState(() {
           _isDialogShowing = true;
-          _lastMarkedTable = _selectedTableNumber;
         });
-
         DialogWidget.showMarkingDialog(
           context: context,
-          tableNumber: _selectedTableNumber!,
+          tableNumber: selectedTable,
           onDialogClosed: () {
             setState(() {
               _isDialogShowing = false;
-              _isTableMarked = true;
               showBasePointMessage = true;
-              _pendingTableIds.remove(_selectedTableNumber);
-              _selectedTableNumber = null;
             });
-
+            ref.read(tableVMProvider.notifier).confirmTable(selectedTable);
             ref.read(tableVMProvider.notifier).requestTableList();
           },
         );
@@ -93,24 +93,11 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     });
 
     ref.listen(basePointVMProvider, (previous, next) {
-      if (next == "Success") {
+      if (next == 'Success') {
         ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
+        ref.read(tableVMProvider.notifier).resetMarking();
       }
     });
-
-    ref.listen(opsVMProvider, (previous, next) {
-      if (next.toLowerCase() == 'delivery') {
-        ref.context.loaderOverlay.hide();
-        ref.read(opsVMProvider.notifier).unsubscribe();
-        context.go(AlfredConstants.routeDeliveryMainScreen);
-      }
-    });
-
-    final buttonTextStyle = GoogleFonts.nunito(
-      fontSize: 16.sp,
-      fontWeight: FontWeight.w600,
-      color: Colors.black,
-    );
 
     return Scaffold(
       appBar: AppBarWidget(),
@@ -141,9 +128,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                               margin: EdgeInsets.symmetric(horizontal: 63.w),
                               alignment: Alignment.center,
                               child: Text(
-                                _isTableMarked
-                                    ? 'You are at your Base Point, please move Alfred towards table to start marking'
-                                    : 'Move Alfred manually, place it towards the table and click on Table Number',
+                                'Move Alfred manually, place it towards the table and click on Table Number',
                                 style: GoogleFonts.inter(
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w400,
@@ -195,36 +180,32 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                       mainAxisSpacing: 20.h,
                                       childAspectRatio: 138 / 60,
                                     ),
-                                    itemCount: allDisplayTableIds.length + 1,
+                                    itemCount: tables.isEmpty ? 1 : tables.length + 1,
                                     itemBuilder: (context, index) {
-                                      if (index < allDisplayTableIds.length) {
-                                        final tableId = allDisplayTableIds[index];
-                                        final bool isMarked = markedTableIds.contains(tableId);
-                                        final bool isSelected = tableId == _selectedTableNumber;
-
+                                      if (index < tables.length) {
+                                        final table = tables[index];
                                         return Stack(
                                           clipBehavior: Clip.none,
                                           children: [
                                             TableGridButtonWidget(
-                                              label: tableId.toString(),
-                                              tableNumber: tableId,
-                                              isSelected: isSelected,
-                                              isMarked: isMarked,
-                                              isDisabled: isMarked,
+                                              label: table.tableNumber.toString(),
+                                              tableNumber: table.tableNumber,
+                                              isSelected: table.isSelected,
+                                              isMarked: table.isMarked,
+                                              isDisabled: table.isMarked,
                                               onPressed: () {
-                                                if (isMarked) return;
-                                                setState(() {
-                                                  _selectedTableNumber = isSelected ? null : tableId;
-                                                });
+                                                if (!table.isMarked) {
+                                                  ref.read(tableVMProvider.notifier).selectTable(table.tableNumber);
+                                                }
                                               },
                                             ),
-                                            if (isMarked)
+                                            if (table.isMarked)
                                               Positioned(
                                                 top: -10.h,
                                                 right: 30.w,
                                                 child: RemoveTableButtonWidget(
                                                   onPressed: () {
-                                                    ref.read(removedTablesProvider.notifier).add(tableId);
+                                                    ref.read(tableVMProvider.notifier).removeTable(table.tableNumber);
                                                   },
                                                 ),
                                               ),
@@ -237,20 +218,15 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                             TableGridButtonWidget(
                                               label: "Add Table",
                                               isDashed: true,
-                                              isDisabled: _isTableMarked,
+                                              isDisabled: showBasePointMessage,
                                               onPressed: () {
                                                 AddTableDialogWidget.showAddTableDialog(
                                                   context: context,
                                                   tableNumberController: _tableNumberController,
                                                   ref: ref,
-                                                  tablesFromROS: rosMarkedTableIds,
+                                                  tablesFromROS: ref.read(tableVMProvider),
                                                   onTableAdded: (newTableNum) {
-                                                    setState(() {
-                                                      ref.read(removedTablesProvider.notifier).remove(newTableNum);
-                                                      if (!allDisplayTableIds.contains(newTableNum)) {
-                                                        _pendingTableIds.add(newTableNum);
-                                                      }
-                                                    });
+                                                    ref.read(tableVMProvider.notifier).addTable(newTableNum);
                                                   },
                                                 );
                                               },
@@ -266,13 +242,19 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                 padding: EdgeInsets.only(bottom: 20.h),
                                 child: Align(
                                   alignment: Alignment.center,
-                                  child: _isTableMarked
+                                  child: showBasePointMessage
                                       ? Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       ButtonWidget(
                                         text: "Mark Next Table",
-                                        onPressed: () => setState(() => _isTableMarked = false),
+                                        onPressed: () {
+                                          setState(() {
+                                            showBasePointMessage = false;
+                                          });
+                                          ref.read(addTableVMProvider.notifier).addTableAck();
+                                          ref.read(tableVMProvider.notifier).resetMarking();
+                                        },
                                         isActive: true,
                                         width: 300.w,
                                         height: 70.h,
@@ -283,6 +265,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                         onPressed: () {
                                           ref.context.loaderOverlay.show();
                                           ref.read(basePointVMProvider.notifier).getReturnToBaseAck();
+                                          ref.read(tableVMProvider.notifier).resetMarking();
+                                          ref.read(basePointVMProvider.notifier).triggerReturnToBase();
                                         },
                                         isActive: true,
                                         width: 300.w,
@@ -297,13 +281,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                     constraints: BoxConstraints(maxWidth: 600.w),
                                     child: ButtonWidget(
                                       text: "Confirm",
-                                      isActive: _selectedTableNumber != null,
-                                      onPressed: _selectedTableNumber != null
+                                      isActive: ref.read(tableVMProvider.notifier).selectedTableNumber != null,
+                                      onPressed: ref.read(tableVMProvider.notifier).selectedTableNumber != null
                                           ? () {
+                                        final selectedTable = ref.read(tableVMProvider.notifier).selectedTableNumber!;
                                         ref.context.loaderOverlay.show();
-                                        ref
-                                            .read(addTableVMProvider.notifier)
-                                            .addTable(table: _selectedTableNumber!);
+                                        ref.read(addTableVMProvider.notifier).addTable(table: selectedTable);
                                       }
                                           : null,
                                       width: 600.w,
@@ -324,5 +307,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _tableNumberController.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 }

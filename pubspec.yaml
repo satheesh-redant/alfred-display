@@ -32,6 +32,7 @@ dependencies:
   intl: any
   window_manager: ^0.4.3
   flutter_screenutil: ^5.9.3
+  fluttertoast: ^8.2.8
 
 dev_dependencies:
   flutter_test:

@@ -95,11 +95,11 @@ class _DeliveryInProgressScreenState
                   Expanded(
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: 209.w,
-                        maxHeight: 439.h,
+                        maxWidth: 1050.w,
+                        maxHeight: 950.h,
                       ),
                       child: Image.asset(
-                        "assets/images/alfred_moving.png",
+                        "assets/images/alfred_base_moving_img.png",
                         fit: BoxFit.contain,
                       ),
                     ),

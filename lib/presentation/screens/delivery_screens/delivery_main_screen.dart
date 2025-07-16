@@ -174,7 +174,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                         ),
                       ),
                       Positioned(
-                        left: 122.w,
+                        left: 100.w,
+                        right: 190.w,
                         top: 218.h,
                         bottom: 55.h,
                         child: LayoutBuilder(
@@ -184,9 +185,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                 maxHeight: constraints.maxHeight - 223.h,
                               ),
                               child: Image.asset(
-                                "assets/images/alfred_base.png",
-                                width: 150.w,
-                                height: 814.h,
+                                "assets/images/alfred_base_point.png",
+                                width: 1050.w,
+                                height: 1054.h,
                                 fit: BoxFit.contain,
                               ),
                             );

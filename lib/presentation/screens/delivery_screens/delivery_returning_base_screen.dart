@@ -73,10 +73,10 @@ class _DeliveryReturningBaseScreenState extends ConsumerState<DeliveryReturningB
                 Expanded(
                   child: Center(
                     child: SizedBox(
-                      width: 209.w,
-                      height: 439.h,
+                      width: 1050.w,
+                      height: 950.h,
                       child: Image.asset(
-                        "assets/images/alfred_moving.png",
+                        "assets/images/alfred_base_moving_img.png",
                         fit: BoxFit.contain,
                       ),
                     ),

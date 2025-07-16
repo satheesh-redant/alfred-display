@@ -33,7 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const BasePointMarkingScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeTrainingScreen,  // New Route
+        path: AlfredConstants.routeTrainingScreen,
         builder: (context, state) => const TrainingScreen(),
       ),
       GoRoute(
