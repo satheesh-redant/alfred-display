@@ -5,12 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../view_models/timer_view_model.dart';
 
 class TimerWidget extends ConsumerWidget {
-  const TimerWidget({super.key});
+  const TimerWidget({
+    super.key,
+    required this.timerState,
+  });
+
+  final TimerState timerState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timerState = ref.watch(timerProvider);
-
     return Text(
       timerState.currentTime,
       style: GoogleFonts.inter(
