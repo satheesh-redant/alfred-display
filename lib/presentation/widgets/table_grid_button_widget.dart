@@ -65,21 +65,30 @@ class TableGridButtonWidget extends StatelessWidget {
     );
 
     if (isDashed) {
-      return DottedBorder(
-        borderType: BorderType.RRect,
-        radius: Radius.circular(8.r),
-        dashPattern: [4.w, 4.w],
-        color: borderColor,
-        strokeWidth: 1.w,
-        child: Material(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(8.r),
-          clipBehavior: Clip.hardEdge,
-          child: InkWell(
-            onTap: isDisabled ? null : onPressed,
-            borderRadius: BorderRadius.circular(8.r),
-            child: buttonContent,
-          ),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: SizedBox(
+          width: 138.w,
+          height: 60.h,
+          child: DottedBorder(
+            options: RoundedRectDottedBorderOptions(
+              padding: EdgeInsets.zero,
+              radius: Radius.circular(8.r),
+              dashPattern: [4.w, 4.w],
+              color: borderColor,
+              strokeWidth: 1.w,
+            ),
+            child: Material(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8.r),
+              clipBehavior: Clip.hardEdge,
+              child: InkWell(
+                onTap: isDisabled ? null : onPressed,
+                borderRadius: BorderRadius.circular(8.r),
+                child: buttonContent,
+              ),
+            ),
+          )
         ),
       );
     }
