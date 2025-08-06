@@ -70,24 +70,37 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
 
   List<TableState> _computeTables() {
     final tableIds = ref.watch(tableVMProvider);
-    final baseList = tableIds
+
+    // If no tables are marked, show the default 10 tables (1 to 10)
+    final baseList = (tableIds.isEmpty)
+        ? List.generate(
+      10,
+          (index) => TableState(
+        tableNumber: index + 1,
+        isMarked: false,
+        isEnabled: true, // assuming default enabled for initial tables
+      ),
+    )
+        : tableIds
         .map((id) =>
-            TableState(tableNumber: id, isMarked: true, isEnabled: false))
+        TableState(tableNumber: id, isMarked: true, isEnabled: false))
         .toList();
 
     final newTable = ref
         .read(tableVMProvider.notifier)
         .getTableStates()
         .firstWhere((t) => t.isNewlyAdded,
-            orElse: () => TableState(tableNumber: -1));
+        orElse: () => TableState(tableNumber: -1));
 
     if (newTable.tableNumber != -1 &&
         !baseList.any((t) => t.tableNumber == newTable.tableNumber)) {
       baseList.add(newTable);
       baseList.sort((a, b) => a.tableNumber.compareTo(b.tableNumber));
     }
+
     return baseList;
   }
+
 
   @override
   Widget build(BuildContext context) {
