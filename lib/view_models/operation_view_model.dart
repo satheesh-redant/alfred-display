@@ -17,8 +17,7 @@ class OperationViewModel extends StateNotifier<String> {
       ROSConstants.msgString,
       throttleRate: 500,
     );
-    // _topicCurrentMode!.subscribe(_handler);
-    state = 'delivery';
+    _topicCurrentMode!.subscribe(_handler);
   }
 
   Future<void> _handler(Map<String, dynamic> message) async {

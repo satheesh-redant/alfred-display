@@ -1,0 +1,201 @@
+import 'package:alfred/config/alfred_constants.dart';
+import 'package:alfred/config/ros_constants.dart';
+import 'package:alfred/core/routes.dart';
+import 'package:alfred/view_models/route_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+
+import '../../core/toast_utils.dart';
+import '../../view_models/table_view_model.dart';
+import '../widgets/button_widget.dart';
+import '../widgets/table_grid_button_widget.dart';
+
+class RoutingScreen extends ConsumerStatefulWidget {
+  const RoutingScreen({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _RoutingScreenState();
+}
+
+class _RoutingScreenState extends ConsumerState<RoutingScreen> {
+  int? selectedTable = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(tableVMProvider.notifier).requestTableList();
+    ref.read(tableVMProvider.notifier).getTableList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: EdgeInsets.all(30),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Text(
+                "Select a table and start planning the route",
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+              ),
+            ),
+            Expanded(
+                flex: 5,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(right: 40),
+                  child: ref.watch(tableVMProvider).isEmpty
+                      ? Center(
+                          child: Text(
+                            "No tables marked yet\nPlease mark tables in Training Mode first",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.nunito(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        )
+                      : GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 6,
+                            crossAxisSpacing: 49,
+                            mainAxisSpacing: 26,
+                            childAspectRatio: 138 / 60,
+                          ),
+                          itemCount: ref.watch(tableVMProvider).length,
+                          itemBuilder: (context, index) {
+                            final data = ref.watch(tableVMProvider);
+                            print(data);
+                            final isSelected = selectedTable == data[index];
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                right: index % 4 == 3 ? 0 : 0,
+                              ),
+                              child: TableGridButtonWidget(
+                                label: data[index].toString(),
+                                tableNumber: data[index],
+                                isSelected: isSelected,
+                                onPressed: () {
+                                  setState(() {
+                                    selectedTable = data[index];
+                                  });
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return CustomDialog(
+                                        tableNumber: data[index],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                )),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: ButtonWidget(
+                    text: "Finish",
+                    onPressed: () {
+                      context.go(AlfredConstants.routeDeliveryMainScreen);
+                    },
+                    isActive: true,
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomDialog extends ConsumerStatefulWidget {
+  final int? tableNumber;
+
+  const CustomDialog({super.key, this.tableNumber});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _CustomDialogState();
+}
+
+class _CustomDialogState extends ConsumerState<CustomDialog> {
+  int? _selectedValue = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(
+      routeVMProvider,
+      (previous, next) {
+        if (next == ROSConstants.success) {
+          context.loaderOverlay.hide();
+          ref.read(routeVMProvider.notifier).unsubscribe();
+          showSuccessToast(context: context, description: "Point added");
+        }
+      },
+    );
+    return AlertDialog(
+      title: const Text('Save Points'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          RadioListTile(
+            title: const Text('Base to Table'),
+            value: 0,
+            groupValue: _selectedValue,
+            onChanged: (value) {
+              setState(() {
+                _selectedValue = value;
+              });
+            },
+          ),
+          RadioListTile(
+            title: const Text('Table to Base'),
+            value: 1,
+            groupValue: _selectedValue,
+            onChanged: (value) {
+              setState(() {
+                _selectedValue = value;
+              });
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel')),
+        ElevatedButton(
+          onPressed: () {
+            context.loaderOverlay.show();
+            ref.read(routeVMProvider.notifier).routeAckStatus();
+            ref.read(routeVMProvider.notifier).sendRouteData(
+                table: widget.tableNumber!, route: _selectedValue!);
+          },
+          child: const Text('Save'),
+        )
+      ],
+    );
+  }
+}

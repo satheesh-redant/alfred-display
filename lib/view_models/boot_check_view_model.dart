@@ -23,12 +23,7 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
       ROSConstants.msgString,
       throttleRate: 500,
     );
-    // _topic!.subscribe(_responseHandler);
-    BootCheckResponse response = BootCheckResponse();
-    response.message = 'OK';
-    response.overallStatus = 'OK';
-    response.checks = [];
-    state = response;
+    _topic!.subscribe(_responseHandler);
   }
 
   Future<void> _responseHandler(Map<String, dynamic> message) async {

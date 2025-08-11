@@ -13,4 +13,6 @@ class AlfredConstants {
   static const String routeDeliveryCompleteScreen = '/task-complete';
   static const String routeDeliveryReturningBaseScreen = '/returning-base';
 
+  static const String routeRoutingScreen = '/routing';
+
 }

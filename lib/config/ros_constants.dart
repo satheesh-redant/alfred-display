@@ -1,5 +1,6 @@
 class ROSConstants {
-  static const String rosUrl = 'ws://192.168.133.56:9090'; //dynalog ethernet
+  // static const String rosUrl = 'ws://192.168.133.56:9090'; //dynalog ethernet
+  static const String rosUrl = 'ws://127.0.0.1:9090'; //dynalog ethernet
 
   /*  GENERIC */
   static const String msgString = 'std_msgs/String';
@@ -41,6 +42,10 @@ class ROSConstants {
   // static const String topicMoveTable = '/move_to_table';
   static const String topicMoveTable = '/goto_point';
   static const String topicDeliveryStatus = '/delivery_status';
+
+  /*  ROUTE */
+  static const String topicRoute = '/save_route';
+  static const String topicRouteAck = '/save_route_ack';
 
   static const String success = 'SUCCESS';
 }

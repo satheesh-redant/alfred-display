@@ -12,7 +12,7 @@ class TableViewModel extends StateNotifier<List<int>> {
   final ROSService _rosService;
   Topic? _topicTablesList, _topicRequestTables;
 
-  TableViewModel(this._rosService) : super([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  TableViewModel(this._rosService) : super([]);
 
   Future<void> requestTableList() async {
     print('initiating requestTableList...');

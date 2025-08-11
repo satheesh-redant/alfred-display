@@ -57,7 +57,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
 
     ref.listen(
       addTableVMProvider,
-          (previous, next) {
+      (previous, next) {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.context.loaderOverlay.hide();
@@ -84,11 +84,13 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
 
     ref.listen(
       basePointVMProvider,
-          (previous, next) {
+      (previous, next) {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
-            ref.read(basePointVMProvider.notifier).removeReturnToBaseAckListener();
+            ref
+                .read(basePointVMProvider.notifier)
+                .removeReturnToBaseAckListener();
             ref.read(opsVMProvider.notifier).getCurrentOp();
           } else {
             ref.context.loaderOverlay.hide();
@@ -99,11 +101,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
 
     ref.listen(
       opsVMProvider,
-          (previous, next) {
+      (previous, next) {
         if (next == 'delivery') {
           ref.context.loaderOverlay.hide();
           ref.read(opsVMProvider.notifier).unsubscribe();
-          context.go(AlfredConstants.routeDeliveryMainScreen);
+          // context.go(AlfredConstants.routeDeliveryMainScreen);
+          context.go(AlfredConstants.routeRoutingScreen);
         }
       },
     );
@@ -135,7 +138,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                   width: 355,
                                   height: 49,
                                   margin:
-                                  const EdgeInsets.only(top: 50, left: 63),
+                                      const EdgeInsets.only(top: 50, left: 63),
                                   alignment: Alignment.center,
                                   //todo: Dynamic text that changes based on marking state
                                   child: Text(
@@ -191,7 +194,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                       padding: const EdgeInsets.only(
                                           right: 60, bottom: 20),
                                       gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
                                         crossAxisSpacing: 49,
                                         mainAxisSpacing: 26,
@@ -202,7 +205,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                         if (index < tables.length) {
                                           final table = tables[index];
                                           final isMarked =
-                                          markedTables.contains(table);
+                                              markedTables.contains(table);
                                           final isSelected =
                                               currentlyMarkedTable == table;
                                           final isDisabled =
@@ -217,12 +220,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                             onPressed: isDisabled || isMarked
                                                 ? null
                                                 : () {
-                                              ref
-                                                  .read(
-                                                  selectedTableProvider
-                                                      .notifier)
-                                                  .state = table;
-                                            },
+                                                    ref
+                                                        .read(
+                                                            selectedTableProvider
+                                                                .notifier)
+                                                        .state = table;
+                                                  },
                                           );
                                         } else {
                                           return AnimatedAddButtonWidget(
@@ -259,10 +262,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                     text: "Confirm",
                     onPressed: selectedTable != null
                         ? () {
-                      ref.context.loaderOverlay.show();
-                      ref.read(addTableVMProvider.notifier).addTableAck();
-                      ref.read(addTableVMProvider.notifier).addTable(table: selectedTable);
-                    }
+                            ref.context.loaderOverlay.show();
+                            ref.read(addTableVMProvider.notifier).addTableAck();
+                            ref
+                                .read(addTableVMProvider.notifier)
+                                .addTable(table: selectedTable);
+                          }
                         : null,
                     isActive: selectedTable != null,
                     width: MediaQuery.of(context).size.width * 0.55,
@@ -279,7 +284,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                             currentlyMarkedTable = null;
                           });
                           ref.read(isMarkingCompleteProvider.notifier).state =
-                          false;
+                              false;
                         },
                         isActive: true,
                         width: MediaQuery.of(context).size.width * 0.25,
@@ -290,8 +295,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                         text: "Return to Base",
                         onPressed: () {
                           ref.context.loaderOverlay.show();
-                          ref.read(basePointVMProvider.notifier).getReturnToBaseAck();
-                          ref.read(basePointVMProvider.notifier).triggerReturnToBase();
+                          ref
+                              .read(basePointVMProvider.notifier)
+                              .getReturnToBaseAck();
+                          ref
+                              .read(basePointVMProvider.notifier)
+                              .triggerReturnToBase();
                         },
                         isActive: true,
                         width: MediaQuery.of(context).size.width * 0.25,
@@ -306,4 +315,3 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     );
   }
 }
-
