@@ -27,8 +27,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
   @override
   void initState() {
     super.initState();
-    ref.read(tableVMProvider.notifier).requestTableList();
-    ref.read(tableVMProvider.notifier).getTableList();
+    // ref.read(tableVMProvider.notifier).requestTableList();
+    // ref.read(tableVMProvider.notifier).getTableList();
   }
 
   @override
@@ -201,6 +201,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                         style: GoogleFonts.nunito(
                                           fontSize: 16,
                                           color: Colors.grey,
+                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                     )

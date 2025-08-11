@@ -8,7 +8,7 @@ BatteryStatus batteryStatusFromJson(String str) =>
 String batteryStatusToJson(BatteryStatus data) => json.encode(data.toJson());
 
 class BatteryStatus {
-  int? percentage;
+  double? percentage;
   int? state;
   double? voltage;
   double? current;
@@ -38,7 +38,7 @@ class BatteryStatus {
     if(percentage == null) {
       return 0;
     }
-    return percentage!;
+    return percentage!.toInt();
   }
 
   BatteryStatusType get batteryStatusType {

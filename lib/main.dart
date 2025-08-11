@@ -1,50 +1,23 @@
 import 'package:alfred/core/routes.dart';
 import 'package:alfred/core/themes.dart';
 import 'package:alfred/gen/strings.g.dart';
-import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   LocaleSettings.useDeviceLocale(); // For localization
 
+  GoogleFonts.config.allowRuntimeFetching = false;
 
-  // await windowManager.ensureInitialized();
-  // /* For Linux  */
-  // WindowOptions windowOptions = const WindowOptions(
-  //   fullScreen: true,
-  //   titleBarStyle: TitleBarStyle.hidden,
-  //   alwaysOnTop: true,
-  //   skipTaskbar: true,
-  //   windowButtonVisibility: false,
-  //   backgroundColor: Colors.black,
-  // );
-  // windowManager.waitUntilReadyToShow(windowOptions, () async {
-  //   await windowManager.show();
-  //   await windowManager.setResizable(false);
-  //   await windowManager.setFullScreen(true);
-  // });
-
-  /*  For Android */
-  /*SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft, // Left-side Landscape
-    DeviceOrientation.landscapeRight, // Right-side Landscape
-  ]);*/
-
-  runApp(DevicePreview(
-      enabled: false/*kReleaseMode*/,
-      builder: (context) => TranslationProvider(
-            child: const ProviderScope(child: MyApp()),
-          )));
+  runApp(TranslationProvider(
+    child: const ProviderScope(child: MyApp()),
+  ));
 }
 
 class MyApp extends ConsumerWidget {
