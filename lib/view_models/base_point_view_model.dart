@@ -28,6 +28,7 @@ class BasePointViewModel extends StateNotifier<String> {
       ROSConstants.msgString,
       throttleRate: 1000,
     );
+    _topicReturnAck.subscribe(_handler);
 
     _topicReset = _rosService.createTopic(
       ROSConstants.topicResetBaseLoc,
@@ -39,6 +40,7 @@ class BasePointViewModel extends StateNotifier<String> {
       ROSConstants.msgString,
       throttleRate: 1000,
     );
+    _topicResetAck.subscribe(_handler);
   }
 
   Future<void> triggerReturnToBase() async {
@@ -51,20 +53,10 @@ class BasePointViewModel extends StateNotifier<String> {
     }
   }
 
-  void getReturnToBaseAck() {
-    print('Subscribing to return to base ack topic');
-    _topicReturnAck.subscribe(_handler);
-  }
-
   Future<void> resetBaseLoc() async {
     Map<String, dynamic> json = {"data": "Base"};
     print('Publishing reset base location: $json');
     await _topicReset.publish(json);
-  }
-
-  void getResetBaseLocAck() {
-    print('Subscribing to reset base location ack topic');
-    _topicResetAck.subscribe(_handler);
   }
 
   Future<void> _handler(Map<String, dynamic> message) async {
@@ -72,23 +64,10 @@ class BasePointViewModel extends StateNotifier<String> {
     state = message['data'];
   }
 
-  void removeResetBaseListener() {
-    print('Unsubscribing to reset base ack topic');
-    _topicResetAck.unsubscribe();
-    state = "";
-  }
-
-  void removeReturnToBaseListener() {
+  void stopTimer() {
     print('Unsubscribing to return base topic & timer');
-    _topicReturn.unsubscribe();
     timer?.cancel();
     timer = null;
-  }
-
-  void removeReturnToBaseAckListener() {
-    print('Unsubscribing to return base ack topic');
-    _topicReturnAck.unsubscribe();
-    state = "";
   }
 
   @override
@@ -112,5 +91,5 @@ final basePointVMProvider =
   final rosService = ref.watch(rosServiceProvider);
   final basePointVM = BasePointViewModel(rosService);
   ref.onDispose(() => basePointVM.dispose());
-  return BasePointViewModel(rosService);
+  return basePointVM;
 });

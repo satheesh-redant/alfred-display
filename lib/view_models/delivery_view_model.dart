@@ -20,6 +20,7 @@ class DeliveryViewModel extends StateNotifier<String> {
       ROSConstants.msgString,
       throttleRate: 500,
     );
+    _topicDeliveryStatus!.subscribe(_handlerAck);
   }
 
   Future<void> moveTable({required int table, required int route}) async {
@@ -28,20 +29,9 @@ class DeliveryViewModel extends StateNotifier<String> {
     await _topicMoveTable!.publish(json);
   }
 
-  Future<void> deliveryStatus() async {
-    print('Subscribing to delivery status topic');
-    _topicDeliveryStatus!.subscribe(_handlerAck);
-  }
-
   Future<void> _handlerAck(Map<String, dynamic> message) async {
     print('delivery status: $message');
     state = message['data'];
-  }
-
-  void unsubscribe() {
-    print('Unsubscribing to delivery status topic');
-    _topicDeliveryStatus!.unsubscribe();
-    state = "";
   }
 
   @override

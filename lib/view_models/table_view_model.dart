@@ -8,11 +8,10 @@ import '../providers/ros_service_provider.dart';
 import 'package:rosbridge/rosbridge.dart';
 
 class TableViewModel extends StateNotifier<List<int>> {
-
   final ROSService _rosService;
   Topic? _topicTablesList, _topicRequestTables;
 
-  TableViewModel(this._rosService) : super([]){
+  TableViewModel(this._rosService) : super([]) {
     print('initiating all get tables topics');
     _topicRequestTables = _rosService.createTopic(
       ROSConstants.topicGetTables,
@@ -22,16 +21,12 @@ class TableViewModel extends StateNotifier<List<int>> {
       ROSConstants.topicTablesList,
       ROSConstants.msgString,
     );
+    _topicTablesList!.subscribe(_handler);
   }
 
   Future<void> requestTableList() async {
     print('Publishing request tables');
     await _topicRequestTables!.publish({});
-  }
-
-  void getTableList() {
-    print('Subscribing to get tables topic');
-    _topicTablesList!.subscribe(_handler);
   }
 
   Future<void> _handler(Map<String, dynamic> message) async {
@@ -54,7 +49,7 @@ class TableViewModel extends StateNotifier<List<int>> {
       // Handle any other cases if necessary
       print("Unexpected type for message['data']");
     }
-    unSubscribe();
+    // unSubscribe();
   }
 
   void unSubscribe() {
@@ -69,7 +64,6 @@ class TableViewModel extends StateNotifier<List<int>> {
     _topicTablesList!.unsubscribe();
     state = [];
   }
-
 }
 
 final tableVMProvider = StateNotifierProvider<TableViewModel, List<int>>((ref) {

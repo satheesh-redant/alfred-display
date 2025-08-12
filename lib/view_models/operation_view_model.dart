@@ -6,22 +6,17 @@ import 'package:rosbridge/rosbridge.dart';
 
 class OperationViewModel extends StateNotifier<String> {
   final ROSService _rosService;
-  Topic? _topicCurrentMode/*, _topicSetOpsMode*/;
+  Topic? _topicCurrentMode;
 
-  OperationViewModel(this._rosService) : super("") {
+  OperationViewModel(this._rosService) : super("");
+
+  void init() {
     print('initiating all ops mode topics');
-
     _topicCurrentMode = _rosService.createTopic(
       ROSConstants.topicSetOpsMode, //todo change it to current mode
       ROSConstants.msgString,
       throttleRate: 500,
     );
-
-
-  }
-
-  void getCurrentOp() {
-    print('Subscribing to current operation topic');
     _topicCurrentMode!.subscribe(_handler);
   }
 
@@ -30,23 +25,7 @@ class OperationViewModel extends StateNotifier<String> {
     state = message['data'];
   }
 
-  void unsubscribe() {
-    print('Unsubscribing to current ops mode topic');
-    _topicCurrentMode!.unsubscribe();
-    state = "";
-  }
-
   Future<void> sendOpsMode({required String mode}) async {
-    // _topicSetOpsMode = _rosService.createTopic(
-    //   ROSConstants.topicSetOpsMode,
-    //   ROSConstants.msgString,
-    // );
-    //
-    // _topicSetOpsMode!.subscribe((msg) async {
-    //   print("Received echo on trigger topic: $msg");
-    //   _topicSetOpsMode!.unsubscribe();
-    // });
-
     Map<String, dynamic> json = {"data": mode};
     print('Publishing ops mode: $json');
     await _topicCurrentMode!.publish(json);
@@ -56,7 +35,6 @@ class OperationViewModel extends StateNotifier<String> {
   void dispose() {
     print('Disposing all ops mode topics');
     _topicCurrentMode!.unsubscribe();
-    // _topicSetOpsMode!.unsubscribe();
     state = "";
   }
 }

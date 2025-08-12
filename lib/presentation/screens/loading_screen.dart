@@ -38,11 +38,10 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     ref.listen(bootCheckVMProvider, (previous, next) {
       if (next.overallStatus == 'OK') {
         ref.read(bootCheckVMProvider.notifier).clearTopic();
-        ref.read(opsVMProvider.notifier).getCurrentOp();
+        ref.read(opsVMProvider.notifier).init();
       }
     });
     ref.listen(opsVMProvider, (previous, next) {
-        ref.read(opsVMProvider.notifier).unsubscribe();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {

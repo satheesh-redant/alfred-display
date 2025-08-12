@@ -23,6 +23,11 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
       throttleRate: 500,
     );
     _topic!.subscribe(_responseHandler);
+    // BootCheckResponse response = BootCheckResponse();
+    // response.message = 'OK';
+    // response.overallStatus = 'OK';
+    // response.checks = [];
+    // state = response;
   }
 
   Future<void> _responseHandler(Map<String, dynamic> message) async {

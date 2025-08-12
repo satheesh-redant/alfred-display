@@ -32,7 +32,6 @@ class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScr
       deliveryVMProvider,
           (previous, next) {
         if (next == "delivered") {
-          ref.read(deliveryVMProvider.notifier).unsubscribe();
           context.replace(AlfredConstants.routeDeliveryCompleteScreen);
         }
       },

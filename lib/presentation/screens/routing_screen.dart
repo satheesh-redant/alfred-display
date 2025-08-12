@@ -30,7 +30,6 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
   void initState() {
     super.initState();
     ref.read(tableVMProvider.notifier).requestTableList();
-    ref.read(tableVMProvider.notifier).getTableList();
   }
 
   @override
@@ -40,11 +39,7 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
           (previous, next) {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
-            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
-            ref
-                .read(basePointVMProvider.notifier)
-                .removeReturnToBaseAckListener();
-            ref.read(opsVMProvider.notifier).getCurrentOp();
+            ref.read(basePointVMProvider.notifier).stopTimer();
           } else {
             ref.context.loaderOverlay.hide();
           }
@@ -57,7 +52,6 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
           (previous, next) {
         if (next == 'delivery') {
           ref.context.loaderOverlay.hide();
-          ref.read(opsVMProvider.notifier).unsubscribe();
           context.go(AlfredConstants.routeDeliveryMainScreen);
         }
       },
@@ -148,11 +142,7 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                     text: "Return to Base",
                     onPressed: () {
                       ref.context.loaderOverlay.show();
-                      ref
-                          .read(basePointVMProvider.notifier)
-                          .getReturnToBaseAck();
-                      ref
-                          .read(basePointVMProvider.notifier)
+                      ref.read(basePointVMProvider.notifier)
                           .triggerReturnToBase();
                     },
                     isActive: true,
@@ -187,23 +177,9 @@ class _CustomDialogState extends ConsumerState<CustomDialog> {
       (previous, next) {
         if (next.toUpperCase() == ROSConstants.success) {
           context.loaderOverlay.hide();
-          ref.read(routeVMProvider.notifier).unsubscribe();
-          toastification.show(
-            context: context,
-            type: ToastificationType.success,
-            style: ToastificationStyle.flat,
-            title: Text('Success'),
-            description: Text("Point added"),
-            alignment: Alignment.topCenter,
-            autoCloseDuration: const Duration(seconds: 1),
-            animationBuilder: (context, animation, alignment, child) {
-              return ScaleTransition(scale: animation, child: child);
-            },
-            borderRadius: BorderRadius.circular(12.0),
-            boxShadow: highModeShadow, // Make sure this is defined
-            showProgressBar: true,
-            pauseOnHover: false,
-          );
+          showSuccessToast(
+              context: context,
+              description: "Point added successfully");
         }
       },
     );
@@ -241,7 +217,6 @@ class _CustomDialogState extends ConsumerState<CustomDialog> {
         ElevatedButton(
           onPressed: () {
             context.loaderOverlay.show();
-            ref.read(routeVMProvider.notifier).routeAckStatus();
             ref.read(routeVMProvider.notifier).sendRouteData(
                 table: widget.tableNumber!, route: _selectedValue!);
           },

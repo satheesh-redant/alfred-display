@@ -21,6 +21,7 @@ class AddTableViewModel extends StateNotifier<String> {
       ROSConstants.msgString,
       throttleRate: 2000,
     );
+    _topicAddTableAck!.subscribe(_handlerAck);
   }
 
   Future<void> addTable({required int table}) async {
@@ -29,20 +30,9 @@ class AddTableViewModel extends StateNotifier<String> {
     await _topicAddTable!.publish(json);
   }
 
-  Future<void> addTableAck() async {
-    print('Subscribing to add table ack topic');
-    _topicAddTableAck!.subscribe(_handlerAck);
-  }
-
   Future<void> _handlerAck(Map<String, dynamic> message) async {
     print('Add table ack data : $message');
     state = message['data'];
-  }
-
-  void unsubscribe() {
-    print('Unsubscribing to add table ack topic');
-    _topicAddTableAck!.unsubscribe();
-    state = "";
   }
 
   @override

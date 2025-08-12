@@ -22,6 +22,7 @@ class RouteViewModel extends StateNotifier<String> {
       ROSConstants.msgString,
       throttleRate: 500,
     );
+    _topicRouteAck!.subscribe(_handlerAck);
   }
 
   Future<void> sendRouteData({required int table, required int route}) async {
@@ -32,20 +33,9 @@ class RouteViewModel extends StateNotifier<String> {
     await _topicRoute!.publish(json);
   }
 
-  Future<void> routeAckStatus() async {
-    print('Subscribing to route ack topic');
-    _topicRouteAck!.subscribe(_handlerAck);
-  }
-
   Future<void> _handlerAck(Map<String, dynamic> message) async {
     print('Route ack data: $message');
     state = message['data'];
-  }
-
-  void unsubscribe() {
-    print('Unsubscribing to Route ack topic');
-    _topicRouteAck!.unsubscribe();
-    state = "";
   }
 
   @override

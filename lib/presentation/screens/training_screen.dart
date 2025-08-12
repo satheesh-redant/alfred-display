@@ -61,10 +61,9 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.context.loaderOverlay.hide();
-            ref.read(addTableVMProvider.notifier).unsubscribe();
-            // showSuccessToast(
-            //     context: context,
-            //     description: "Table $selectedTable marked successfully");
+            showSuccessToast(
+                context: context,
+                description: "Table $selectedTable marked successfully");
             setState(() {
               ref.read(markedTablesProvider.notifier).state = [
                 ...markedTables,
@@ -263,9 +262,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                     onPressed: selectedTable != null
                         ? () {
                             ref.context.loaderOverlay.show();
-                            ref.read(addTableVMProvider.notifier).addTableAck();
-                            ref
-                                .read(addTableVMProvider.notifier)
+                            ref.read(addTableVMProvider.notifier)
                                 .addTable(table: selectedTable);
                           }
                         : null,

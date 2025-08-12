@@ -31,8 +31,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.context.loaderOverlay.hide();
-            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
-            ref.read(basePointVMProvider.notifier).removeReturnToBaseAckListener();
+            ref.read(basePointVMProvider.notifier).stopTimer();
             context.replace(AlfredConstants.routeDeliveryMainScreen);
           }
         }
@@ -133,7 +132,6 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                           onPressed: () {
                             ref.context.loaderOverlay.show();
                             ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTable!, route: 1);
-                            ref.read(basePointVMProvider.notifier).getReturnToBaseAck();
                             ref.read(basePointVMProvider.notifier).triggerReturnToBase();
                           },
                           isActive: true,
