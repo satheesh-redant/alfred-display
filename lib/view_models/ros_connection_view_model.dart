@@ -13,30 +13,15 @@ class ROSConnectionViewModel extends StateNotifier<ConnectionStatus> {
   Timer? _retryTimer;
 
   ROSConnectionViewModel(this._rosService) : super(ConnectionStatus.connecting) {
-    // Listen to the ROS connection status stream.
     _subscription = _rosService.ros.statusStream.listen((status) {
       print(status.name);
-      // Adjust these conditions based on your actual ROS status values.
       if (status == Status.connected) {
-        // 1. Mark connected
         state = ConnectionStatus.connected;
-        // 2. Stop retrying
         _cancelRetry();
       } else {
-        // Anything else -> stay in "connecting"
         state = ConnectionStatus.connecting;
-        // And retry every 30s
         _startRetry();
       }
-      /*if (status == Status.connected) {
-        state = ConnectionStatus.connected;
-      } else if (status == Status.errored) {
-        state = ConnectionStatus.error;
-      } else if (status == Status.closed) {
-        state = ConnectionStatus.closed;
-      } else {
-        state = ConnectionStatus.connecting;
-      }*/
     });
   }
 
@@ -55,19 +40,22 @@ class ROSConnectionViewModel extends StateNotifier<ConnectionStatus> {
   }
 
   void _cancelRetry() {
+    print('Cancelling ros connection retry');
     _retryTimer?.cancel();
     _retryTimer = null;
   }
 
   @override
   void dispose() {
+    print('Disposing ros connection');
     _subscription.cancel();
     _cancelRetry();
-    super.dispose();
   }
 }
 
 final rosConnectionVMProvider = StateNotifierProvider<ROSConnectionViewModel, ConnectionStatus>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return ROSConnectionViewModel(rosService);
+  final rosConnectionVM = ROSConnectionViewModel(rosService);
+  ref.onDispose(() => rosConnectionVM.dispose());
+  return rosConnectionVM;
 });

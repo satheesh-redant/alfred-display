@@ -49,8 +49,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
               if (next == 'delivery') {
                 context.go(AlfredConstants.routeDeliveryMainScreen);
               } else {
-                // context.go(AlfredConstants.routeChecklistScreen);
-                context.go(AlfredConstants.routeRoutingScreen);
+                context.go(AlfredConstants.routeChecklistScreen);
               }
             }
           });

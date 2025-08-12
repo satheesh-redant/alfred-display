@@ -16,6 +16,7 @@ class BatteryViewModel extends StateNotifier<BatteryStatus> {
   }
 
   void init() {
+    print('initiating Battery data topics');
     _topic = _rosService.createTopic(
       ROSConstants.topicBattery,
       ROSConstants.msgString,
@@ -24,19 +25,22 @@ class BatteryViewModel extends StateNotifier<BatteryStatus> {
   }
 
   Future<void> _handler(Map<String, dynamic> message) async {
-    print(message);
+    // print(message);
     var batteryStatus = jsonDecode(message['data']);
     state = BatteryStatus.fromJson(batteryStatus);
   }
 
   @override
   void dispose() {
+    print('Disposing all battery topics');
     _topic.unsubscribe();
-    super.dispose();
+    state = BatteryStatus();
   }
 }
 
 final batteryVMProvider = StateNotifierProvider<BatteryViewModel, BatteryStatus>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return BatteryViewModel(rosService);
+  final batteryVM = BatteryViewModel(rosService);
+  ref.onDispose(() => batteryVM.dispose());
+  return batteryVM;
 });

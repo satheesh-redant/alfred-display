@@ -68,7 +68,8 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Column(
                 children: [
-                  _buildChecklistCard(
+                  GestureDetector(
+                    child: _buildChecklistCard(
                     title: "Take Alfred to the Start point",
                     value: _task1Completed,
                     image: "assets/images/checklist_1.png",
@@ -76,13 +77,22 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                       setState(() {
                         _task1Completed = val!;
                       });
-                      // Print to terminal when task 1 is checked or unchecked
-                      print(
-                          'Task 1 - Take Alfred to the Start point: ${_task1Completed ? "Completed" : "Not Completed"}');
                     },
                     isBlueBorder: true,
                   ),
-                  _buildChecklistCard(
+                    onTap: () {
+                      setState(() {
+                        _task1Completed = !_task1Completed;
+                      });
+                    },
+                  ),
+                  GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _task2Completed = !_task2Completed;
+                        });
+                      },
+                      child: _buildChecklistCard(
                     title: "Remove all wires or cables from the path",
                     value: _task2Completed,
                     image: "assets/images/checklist_1.png",
@@ -90,12 +100,15 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                       setState(() {
                         _task2Completed = val!;
                       });
-                      // Print to terminal when task 2 is checked or unchecked
-                      print(
-                          'Task 2 - Remove all wires or cables from the path: ${_task2Completed ? "Completed" : "Not Completed"}');
                     },
-                  ),
-                  _buildChecklistCard(
+                      )),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _task3Completed = !_task3Completed;
+                      });
+                    },
+                    child: _buildChecklistCard(
                     title: "Ensure the floor is clear of obstacles",
                     value: _task3Completed,
                     image: "assets/images/checklist_1.png",
@@ -103,10 +116,8 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                       setState(() {
                         _task3Completed = val!;
                       });
-                      // Print to terminal when task 3 is checked or unchecked
-                      print(
-                          'Task 3 - Ensure the floor is clear of obstacles: ${_task3Completed ? "Completed" : "Not Completed"}');
                     },
+                  ),
                   ),
                 ],
               ),
@@ -117,6 +128,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
           ],
         ),
       ),
+
       /// **Bottom Continue Button**
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: 300.0, right: 300.0, bottom: 36.0),

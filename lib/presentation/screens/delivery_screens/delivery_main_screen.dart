@@ -27,8 +27,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
   @override
   void initState() {
     super.initState();
-    // ref.read(tableVMProvider.notifier).requestTableList();
-    // ref.read(tableVMProvider.notifier).getTableList();
+    ref.read(tableVMProvider.notifier).requestTableList();
+    ref.read(tableVMProvider.notifier).getTableList();
   }
 
   @override
@@ -55,8 +55,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
     );
 
     ref.listen(opsVMProvider, (previous, next) {
-      if (next == 'training') {
+      if (next.toLowerCase() == 'training') {
         context.loaderOverlay.hide();
+        ref.read(opsVMProvider.notifier).unsubscribe();
         context.go(AlfredConstants.routeChecklistScreen);
       }
     },);
@@ -262,7 +263,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                     onPressed: selectedTable != null
                         ? () {
                             context.loaderOverlay.show();
-                            ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTable);
+                            ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTable, route: 0);
                             ref.read(deliveryVMProvider.notifier).deliveryStatus();
                           }
                         : null,

@@ -12,34 +12,30 @@ class TableViewModel extends StateNotifier<List<int>> {
   final ROSService _rosService;
   Topic? _topicTablesList, _topicRequestTables;
 
-  TableViewModel(this._rosService) : super([]);
-
-  Future<void> requestTableList() async {
-    print('initiating requestTableList...');
+  TableViewModel(this._rosService) : super([]){
+    print('initiating all get tables topics');
     _topicRequestTables = _rosService.createTopic(
       ROSConstants.topicGetTables,
       ROSConstants.msgEmpty,
     );
-
-    _topicRequestTables!.subscribe((msg) async {
-      print("Received echo on trigger topic: $msg");
-      _topicRequestTables!.unsubscribe();
-    });
-
-    await _topicRequestTables!.publish({});
-  }
-
-  void getTableList() {
-    print('initiating get tables topic...');
     _topicTablesList = _rosService.createTopic(
       ROSConstants.topicTablesList,
       ROSConstants.msgString,
     );
+  }
+
+  Future<void> requestTableList() async {
+    print('Publishing request tables');
+    await _topicRequestTables!.publish({});
+  }
+
+  void getTableList() {
+    print('Subscribing to get tables topic');
     _topicTablesList!.subscribe(_handler);
   }
 
   Future<void> _handler(Map<String, dynamic> message) async {
-    print(message);
+    print('Table list: $message');
 
     // Check if the data is a string and parse it into a List<int>
     if (message['data'] is String) {
@@ -62,12 +58,23 @@ class TableViewModel extends StateNotifier<List<int>> {
   }
 
   void unSubscribe() {
+    print('Unsubscribing to table list topic');
     _topicTablesList!.unsubscribe();
+  }
+
+  @override
+  void dispose() {
+    print('Disposing all route topics');
+    _topicRequestTables!.unsubscribe();
+    _topicTablesList!.unsubscribe();
+    state = [];
   }
 
 }
 
 final tableVMProvider = StateNotifierProvider<TableViewModel, List<int>>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return TableViewModel(rosService);
+  final tableVM = TableViewModel(rosService);
+  ref.onDispose(() => tableVM.dispose());
+  return tableVM;
 });

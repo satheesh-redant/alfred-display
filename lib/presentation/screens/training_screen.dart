@@ -62,9 +62,9 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.context.loaderOverlay.hide();
             ref.read(addTableVMProvider.notifier).unsubscribe();
-            showSuccessToast(
-                context: context,
-                description: "Table $selectedTable marked successfully");
+            // showSuccessToast(
+            //     context: context,
+            //     description: "Table $selectedTable marked successfully");
             setState(() {
               ref.read(markedTablesProvider.notifier).state = [
                 ...markedTables,
@@ -82,34 +82,34 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
       },
     );
 
-    ref.listen(
-      basePointVMProvider,
-      (previous, next) {
-        if (next.isNotEmpty) {
-          if (next.toUpperCase() == ROSConstants.success) {
-            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
-            ref
-                .read(basePointVMProvider.notifier)
-                .removeReturnToBaseAckListener();
-            ref.read(opsVMProvider.notifier).getCurrentOp();
-          } else {
-            ref.context.loaderOverlay.hide();
-          }
-        }
-      },
-    );
-
-    ref.listen(
-      opsVMProvider,
-      (previous, next) {
-        if (next == 'delivery') {
-          ref.context.loaderOverlay.hide();
-          ref.read(opsVMProvider.notifier).unsubscribe();
-          // context.go(AlfredConstants.routeDeliveryMainScreen);
-          context.go(AlfredConstants.routeRoutingScreen);
-        }
-      },
-    );
+    // ref.listen(
+    //   basePointVMProvider,
+    //   (previous, next) {
+    //     if (next.isNotEmpty) {
+    //       if (next.toUpperCase() == ROSConstants.success) {
+    //         ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
+    //         ref
+    //             .read(basePointVMProvider.notifier)
+    //             .removeReturnToBaseAckListener();
+    //         ref.read(opsVMProvider.notifier).getCurrentOp();
+    //       } else {
+    //         ref.context.loaderOverlay.hide();
+    //       }
+    //     }
+    //   },
+    // );
+    //
+    // ref.listen(
+    //   opsVMProvider,
+    //   (previous, next) {
+    //     if (next == 'delivery') {
+    //       ref.context.loaderOverlay.hide();
+    //       ref.read(opsVMProvider.notifier).unsubscribe();
+    //       // context.go(AlfredConstants.routeDeliveryMainScreen);
+    //       context.go(AlfredConstants.routeRoutingScreen);
+    //     }
+    //   },
+    // );
 
     return Scaffold(
       appBar: AppBarWidget(),
@@ -292,19 +292,28 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                       SizedBox(width: 40),
                       ButtonWidget(
                         //todo: Button to return to base screen
-                        text: "Return to Base",
+                        text: "Next",
                         onPressed: () {
-                          ref.context.loaderOverlay.show();
-                          ref
-                              .read(basePointVMProvider.notifier)
-                              .getReturnToBaseAck();
-                          ref
-                              .read(basePointVMProvider.notifier)
-                              .triggerReturnToBase();
+                          context.go(AlfredConstants.routeRoutingScreen);
                         },
                         isActive: true,
                         width: MediaQuery.of(context).size.width * 0.25,
                       ),
+                      // ButtonWidget(
+                      //   //todo: Button to return to base screen
+                      //   text: "Return to Base",
+                      //   onPressed: () {
+                      //     ref.context.loaderOverlay.show();
+                      //     ref
+                      //         .read(basePointVMProvider.notifier)
+                      //         .getReturnToBaseAck();
+                      //     ref
+                      //         .read(basePointVMProvider.notifier)
+                      //         .triggerReturnToBase();
+                      //   },
+                      //   isActive: true,
+                      //   width: MediaQuery.of(context).size.width * 0.25,
+                      // ),
                     ],
                   ),
               ],

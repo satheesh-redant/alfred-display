@@ -5,7 +5,6 @@ import 'package:alfred/models/boot_check_state.dart';
 import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/core.dart';
-import 'package:rosbridge/core/service.dart';
 import 'package:rosbridge/core/topic.dart';
 
 class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
@@ -17,7 +16,7 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
   BootCheckViewModel(this._rosService) : super(BootCheckResponse());
 
   void init() {
-    print('Subscribing boot check topic...');
+    print('initiating boot status topics');
     _topic = _rosService.createTopic(
       ROSConstants.topicBootCheck,
       ROSConstants.msgString,
@@ -27,27 +26,26 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
   }
 
   Future<void> _responseHandler(Map<String, dynamic> message) async {
-    print(message);
+    print('Boot check data: $message');
     var bootStatus = jsonDecode(message['data']);
     state = BootCheckResponse.fromJson(bootStatus);
   }
 
-  void setData() {
-    state = BootCheckResponse();
-  }
-
   void clearTopic() {
+    print('Unsubscribing to boot status topic');
     _topic!.unsubscribe();
   }
 
   @override
   void dispose() {
+    print('Disposing all boot status topics');
     _topic!.unsubscribe();
-    super.dispose();
   }
 }
 
 final bootCheckVMProvider = StateNotifierProvider.autoDispose<BootCheckViewModel, BootCheckResponse>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return BootCheckViewModel(rosService);
+  final bootCheckVM = BootCheckViewModel(rosService);
+  ref.onDispose(() => bootCheckVM.dispose());
+  return bootCheckVM;
 });

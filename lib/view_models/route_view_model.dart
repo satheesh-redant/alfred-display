@@ -10,38 +10,48 @@ class RouteViewModel extends StateNotifier<String> {
   final ROSService _rosService;
   Topic? _topicRoute, _topicRouteAck;
 
-  RouteViewModel(this._rosService) : super("");
-
-  Future<void> sendRouteData({required int table, required int route}) async {
-    print("Sending route data : $table, $route");
+  RouteViewModel(this._rosService) : super('') {
+    print('initiating all route topic');
     _topicRoute = _rosService.createTopic(
       ROSConstants.topicRoute,
       ROSConstants.msgString,
     );
 
-    RouteState routeState = RouteState(tableNumber: table, route: route);
-
-    Map<String, dynamic> json = {"data": routeStateToJson(routeState)};
-    await _topicRoute!.publish(json);
-  }
-
-  Future<void> routeAckStatus() async {
-    print('initiating delivery status topic...');
     _topicRouteAck = _rosService.createTopic(
       ROSConstants.topicRouteAck,
       ROSConstants.msgString,
       throttleRate: 500,
     );
+  }
 
+  Future<void> sendRouteData({required int table, required int route}) async {
+    RouteState routeState = RouteState(tableNumber: table, route: route);
+    // print("Sending route data : " + routeStateToJson(routeState));
+    Map<String, dynamic> json = {"data": routeStateToJson(routeState)};
+    print('Publishing route data: $json');
+    await _topicRoute!.publish(json);
+  }
+
+  Future<void> routeAckStatus() async {
+    print('Subscribing to route ack topic');
     _topicRouteAck!.subscribe(_handlerAck);
   }
 
   Future<void> _handlerAck(Map<String, dynamic> message) async {
-    print(message);
+    print('Route ack data: $message');
     state = message['data'];
   }
 
   void unsubscribe() {
+    print('Unsubscribing to Route ack topic');
+    _topicRouteAck!.unsubscribe();
+    state = "";
+  }
+
+  @override
+  void dispose() {
+    print('Disposing all route topics');
+    _topicRoute!.unsubscribe();
     _topicRouteAck!.unsubscribe();
     state = "";
   }
@@ -50,5 +60,7 @@ class RouteViewModel extends StateNotifier<String> {
 
 final routeVMProvider = StateNotifierProvider<RouteViewModel, String>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return RouteViewModel(rosService);
+  final routeVM = RouteViewModel(rosService);
+  ref.onDispose(() => routeVM.dispose());
+  return routeVM;
 });

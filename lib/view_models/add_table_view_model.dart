@@ -9,48 +9,54 @@ class AddTableViewModel extends StateNotifier<String> {
   final ROSService _rosService;
   Topic? _topicAddTable, _topicAddTableAck;
 
-  AddTableViewModel(this._rosService) : super("");
-
-  Future<void> addTable({required int table}) async {
-    print('initiating add table topic...');
+  AddTableViewModel(this._rosService) : super(""){
+    print('initiating table topics');
     _topicAddTable = _rosService.createTopic(
       ROSConstants.topicAddTable,
       ROSConstants.msgString,
     );
 
-    _topicAddTable!.subscribe((msg) async {
-      print("Received echo on trigger topic: $msg");
-      _topicAddTable!.unsubscribe();
-    });
-
-    Map<String, dynamic> json = {"data": table.toString()};
-    await _topicAddTable!.publish(json);
-  }
-
-  Future<void> addTableAck() async {
-    print('initiating add table topic...');
     _topicAddTableAck = _rosService.createTopic(
       ROSConstants.topicAddTableAck,
       ROSConstants.msgString,
       throttleRate: 2000,
     );
+  }
 
+  Future<void> addTable({required int table}) async {
+    Map<String, dynamic> json = {"data": table.toString()};
+    print('Publishing add table: $json');
+    await _topicAddTable!.publish(json);
+  }
+
+  Future<void> addTableAck() async {
+    print('Subscribing to add table ack topic');
     _topicAddTableAck!.subscribe(_handlerAck);
   }
 
   Future<void> _handlerAck(Map<String, dynamic> message) async {
-    print(message);
+    print('Add table ack data : $message');
     state = message['data'];
   }
 
   void unsubscribe() {
+    print('Unsubscribing to add table ack topic');
     _topicAddTableAck!.unsubscribe();
     state = "";
+  }
+
+  @override
+  void dispose() {
+    print('Disposing all table topics');
+    _topicAddTable!.unsubscribe();
+    _topicAddTableAck!.unsubscribe();
   }
 
 }
 
 final addTableVMProvider = StateNotifierProvider<AddTableViewModel, String>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return AddTableViewModel(rosService);
+  final addTableVM = AddTableViewModel(rosService);
+  ref.onDispose(() => addTableVM.dispose());
+  return addTableVM;
 });

@@ -7,8 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../core/toast_utils.dart';
+import '../../view_models/base_point_view_model.dart';
+import '../../view_models/operation_view_model.dart';
 import '../../view_models/table_view_model.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/table_grid_button_widget.dart';
@@ -32,6 +35,33 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(
+      basePointVMProvider,
+          (previous, next) {
+        if (next.isNotEmpty) {
+          if (next.toUpperCase() == ROSConstants.success) {
+            ref.read(basePointVMProvider.notifier).removeReturnToBaseListener();
+            ref
+                .read(basePointVMProvider.notifier)
+                .removeReturnToBaseAckListener();
+            ref.read(opsVMProvider.notifier).getCurrentOp();
+          } else {
+            ref.context.loaderOverlay.hide();
+          }
+        }
+      },
+    );
+
+    ref.listen(
+      opsVMProvider,
+          (previous, next) {
+        if (next == 'delivery') {
+          ref.context.loaderOverlay.hide();
+          ref.read(opsVMProvider.notifier).unsubscribe();
+          context.go(AlfredConstants.routeDeliveryMainScreen);
+        }
+      },
+    );
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -113,13 +143,20 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
               padding: const EdgeInsets.only(left: 16, right: 16),
               child: Center(
                 child: FittedBox(
-                  fit: BoxFit.scaleDown,
+                  // fit: BoxFit.scaleDown,
                   child: ButtonWidget(
-                    text: "Finish",
+                    text: "Return to Base",
                     onPressed: () {
-                      context.go(AlfredConstants.routeDeliveryMainScreen);
+                      ref.context.loaderOverlay.show();
+                      ref
+                          .read(basePointVMProvider.notifier)
+                          .getReturnToBaseAck();
+                      ref
+                          .read(basePointVMProvider.notifier)
+                          .triggerReturnToBase();
                     },
                     isActive: true,
+                    width: MediaQuery.of(context).size.width * 0.25,
                   ),
                 ),
               ),
@@ -148,10 +185,25 @@ class _CustomDialogState extends ConsumerState<CustomDialog> {
     ref.listen(
       routeVMProvider,
       (previous, next) {
-        if (next == ROSConstants.success) {
+        if (next.toUpperCase() == ROSConstants.success) {
           context.loaderOverlay.hide();
           ref.read(routeVMProvider.notifier).unsubscribe();
-          showSuccessToast(context: context, description: "Point added");
+          toastification.show(
+            context: context,
+            type: ToastificationType.success,
+            style: ToastificationStyle.flat,
+            title: Text('Success'),
+            description: Text("Point added"),
+            alignment: Alignment.topCenter,
+            autoCloseDuration: const Duration(seconds: 1),
+            animationBuilder: (context, animation, alignment, child) {
+              return ScaleTransition(scale: animation, child: child);
+            },
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: highModeShadow, // Make sure this is defined
+            showProgressBar: true,
+            pauseOnHover: false,
+          );
         }
       },
     );
