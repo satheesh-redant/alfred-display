@@ -1,3 +1,4 @@
+import 'package:alfred/models/route_state.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,17 +14,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/table_grid_button_widget.dart';
 import '../../widgets/button_widget.dart';
 
-final deliveryScreenTableProvider = StateProvider<int?>((ref) => null);
+final deliveryScreenTableProvider = StateProvider<RouteState?>((ref) => null);
 
 class DeliveryMainScreen extends ConsumerStatefulWidget {
   const DeliveryMainScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _DeliveryMainScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _DeliveryMainScreenState();
 }
 
 class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -41,9 +42,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       (previous, next) {
         context.loaderOverlay.hide();
         if (next == "moving") {
-          context.push(
-            '${AlfredConstants.routeDeliveryInProgressScreen}/$selectedTable',
-          );
+          context.push(AlfredConstants.routeDeliveryInProgressScreen);
         } else {
           print(next);
         }
@@ -53,12 +52,15 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       },
     );
 
-    ref.listen(opsVMProvider, (previous, next) {
-      if (next.toLowerCase() == 'training') {
-        context.loaderOverlay.hide();
-        context.go(AlfredConstants.routeChecklistScreen);
-      }
-    },);
+    ref.listen(
+      opsVMProvider,
+      (previous, next) {
+        if (next.toLowerCase() == 'training') {
+          context.loaderOverlay.hide();
+          context.go(AlfredConstants.routeChecklistScreen);
+        }
+      },
+    );
 
     return Scaffold(
       body: Stack(
@@ -91,7 +93,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               ),
                               onPressed: () {
                                 context.loaderOverlay.show();
-                                ref.read(opsVMProvider.notifier).sendOpsMode(mode: 'training');
+                                ref
+                                    .read(opsVMProvider.notifier)
+                                    .sendOpsMode(mode: 'training');
                               },
                             ),
                             Center(
@@ -206,18 +210,22 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                     )
                                   : GridView.builder(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
                                         crossAxisSpacing: 49,
                                         mainAxisSpacing: 26,
                                         childAspectRatio: 138 / 60,
                                       ),
-                                      itemCount: ref.watch(tableVMProvider).length,
+                                      itemCount:
+                                          ref.watch(tableVMProvider).length,
                                       itemBuilder: (context, index) {
                                         final data = ref.watch(tableVMProvider);
                                         print(data);
-                                        final isSelected = selectedTable == data[index];
+                                        final isSelected =
+                                            selectedTable == data[index];
                                         return Padding(
                                           padding: EdgeInsets.only(
                                             right: index % 4 == 3 ? 0 : 0,
@@ -227,7 +235,13 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                             tableNumber: data[index],
                                             isSelected: isSelected,
                                             onPressed: () {
-                                              ref.read(deliveryScreenTableProvider.notifier).state = isSelected ? null : data[index];
+                                              ref.read(deliveryScreenTableProvider.notifier).state =
+                                                  isSelected
+                                                      ? null
+                                                      : RouteState(
+                                                          tableNumber:
+                                                              data[index],
+                                                          route: 0);
                                             },
                                           ),
                                         );
@@ -261,7 +275,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                     onPressed: selectedTable != null
                         ? () {
                             context.loaderOverlay.show();
-                            ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTable, route: 0);
+                            ref.read(deliveryVMProvider.notifier).moveTable(
+                                table: selectedTable.tableNumber,
+                                route: selectedTable.route);
                           }
                         : null,
                     isActive: selectedTable != null,

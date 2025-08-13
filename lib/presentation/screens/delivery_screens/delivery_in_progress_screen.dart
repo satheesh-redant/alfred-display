@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import 'package:alfred/view_models/delivery_view_model.dart';
 import 'package:flutter/material.dart';
@@ -9,14 +8,18 @@ import '../../widgets/appbar_widget.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import 'delivery_main_screen.dart';
+
 class DeliveryInProgressScreen extends ConsumerStatefulWidget {
   const DeliveryInProgressScreen({super.key});
 
   @override
-  ConsumerState<DeliveryInProgressScreen> createState() => _DeliveryInProgressScreenState();
+  ConsumerState<DeliveryInProgressScreen> createState() =>
+      _DeliveryInProgressScreenState();
 }
 
-class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScreen> {
+class _DeliveryInProgressScreenState
+    extends ConsumerState<DeliveryInProgressScreen> {
   @override
   void initState() {
     super.initState();
@@ -24,14 +27,14 @@ class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScr
 
   @override
   Widget build(BuildContext context) {
-    final tableNumber = GoRouterState.of(context).pathParameters['tableNumber'] ?? '0';
     final isMobile = ResponsiveBreakpoints.of(context).isMobile;
     final screenWidth = MediaQuery.of(context).size.width;
+    final selectedTable = ref.watch(deliveryScreenTableProvider);
 
     ref.listen(
       deliveryVMProvider,
-          (previous, next) {
-        if (next == "delivered") {
+      (previous, next) {
+        if (next == "delivered" && selectedTable!.route == 0) {
           context.replace(AlfredConstants.routeDeliveryCompleteScreen);
         }
       },
@@ -42,7 +45,8 @@ class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScr
         builder: (context, constraints) {
           // Calculate scale factor while maintaining original dimensions
           final scaleFactor = isMobile
-              ? min(screenWidth / 375, 1.0) // Now using the imported min() function
+              ? min(screenWidth / 375,
+                  1.0) // Now using the imported min() function
               : 1.0;
 
           return Stack(
@@ -73,7 +77,9 @@ class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScr
                           width: 114,
                           height: 28,
                           child: Text(
-                            "Table $tableNumber",
+                            selectedTable?.route == 0
+                                ? "Table ${selectedTable?.tableNumber}"
+                                : "Returning to Base",
                             textAlign: TextAlign.center,
                             style: GoogleFonts.nunito(
                               fontSize: 32,
@@ -91,7 +97,7 @@ class _DeliveryInProgressScreenState extends ConsumerState<DeliveryInProgressScr
                           width: 217,
                           height: 29,
                           child: Text(
-                            "Alfred is on move...",
+                            "Alfred is on the move...",
                             textAlign: TextAlign.center,
                             style: GoogleFonts.nunito(
                               fontSize: 24,

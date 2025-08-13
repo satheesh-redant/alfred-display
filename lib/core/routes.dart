@@ -42,7 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const DeliveryMainScreen(),
       ),
       GoRoute(
-        path: '${AlfredConstants.routeDeliveryInProgressScreen}/:tableNumber',
+        path: AlfredConstants.routeDeliveryInProgressScreen,
         builder: (context, state) => const DeliveryInProgressScreen(),
       ),
       GoRoute(

@@ -6,9 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../../../config/alfred_constants.dart';
+import '../../../models/route_state.dart';
 import '../../../view_models/base_point_view_model.dart';
 import '../../../view_models/delivery_view_model.dart';
-import '../../../view_models/table_view_model.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../widgets/button_widget.dart';
@@ -131,7 +131,8 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                           text: "Go to Base",
                           onPressed: () {
                             ref.context.loaderOverlay.show();
-                            ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTable!, route: 1);
+                            ref.read(deliveryScreenTableProvider.notifier).state = RouteState(tableNumber: selectedTable!.tableNumber, route: 1);
+                            ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTable.tableNumber, route: 1);
                             ref.read(basePointVMProvider.notifier).triggerReturnToBase();
                           },
                           isActive: true,
