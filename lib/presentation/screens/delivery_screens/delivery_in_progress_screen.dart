@@ -35,7 +35,7 @@ class _DeliveryInProgressScreenState
       deliveryVMProvider,
       (previous, next) {
         if (next == "delivered" && selectedTable!.route == 0) {
-          context.replace(AlfredConstants.routeDeliveryCompleteScreen);
+          context.pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
         }
       },
     );
@@ -55,9 +55,6 @@ class _DeliveryInProgressScreenState
               Column(
                 children: [
                   AppBarWidget(),
-                  Expanded(
-                    child: Container(), // Empty expanded to push content down
-                  ),
                 ],
               ),
 

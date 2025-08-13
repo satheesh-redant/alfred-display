@@ -32,7 +32,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.context.loaderOverlay.hide();
             ref.read(basePointVMProvider.notifier).stopTimer();
-            context.replace(AlfredConstants.routeDeliveryMainScreen);
+            context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
           }
         }
       },

@@ -25,6 +25,9 @@ class DeliveryMainScreen extends ConsumerStatefulWidget {
 }
 
 class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
+
+  int selectedTableNumber = -1;
+
   @override
   void initState() {
     super.initState();
@@ -35,20 +38,15 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
   Widget build(BuildContext context) {
     final allTables = ref.watch(tableProvider);
     final markedTables = ref.watch(markedTablesProvider);
-    final selectedTable = ref.watch(deliveryScreenTableProvider);
 
     ref.listen(
       deliveryVMProvider,
       (previous, next) {
         context.loaderOverlay.hide();
         if (next == "moving") {
-          context.push(AlfredConstants.routeDeliveryInProgressScreen);
-        } else {
-          print(next);
+          context
+              .pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
         }
-        /*else if (next == "delivered") {
-          context.replace(AlfredConstants.routeDeliveryCompleteScreen);
-        }*/
       },
     );
 
@@ -223,9 +221,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                           ref.watch(tableVMProvider).length,
                                       itemBuilder: (context, index) {
                                         final data = ref.watch(tableVMProvider);
-                                        print(data);
                                         final isSelected =
-                                            selectedTable?.tableNumber == data[index];
+                                            selectedTableNumber ==
+                                                data[index];
                                         return Padding(
                                           padding: EdgeInsets.only(
                                             right: index % 4 == 3 ? 0 : 0,
@@ -235,13 +233,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                             tableNumber: data[index],
                                             isSelected: isSelected,
                                             onPressed: () {
-                                              ref.read(deliveryScreenTableProvider.notifier).state =
-                                                  isSelected
-                                                      ? null
-                                                      : RouteState(
-                                                          tableNumber:
-                                                              data[index],
-                                                          route: 0);
+                                              setState(() {
+                                                selectedTableNumber = data[index];
+                                              });
                                             },
                                           ),
                                         );
@@ -272,15 +266,18 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                   const SizedBox(width: 20),
                   ButtonWidget(
                     text: "Go to Table",
-                    onPressed: selectedTable != null
-                        ? () {
-                            context.loaderOverlay.show();
-                            ref.read(deliveryVMProvider.notifier).moveTable(
-                                table: selectedTable.tableNumber,
-                                route: selectedTable.route);
-                          }
-                        : null,
-                    isActive: selectedTable != null,
+                    onPressed: () {
+                      context.loaderOverlay.show();
+                      ref.read(deliveryScreenTableProvider.notifier)
+                          .state =
+                          RouteState(
+                              tableNumber: selectedTableNumber,
+                              route: 0);
+                      ref.read(deliveryVMProvider.notifier).moveTable(
+                          table: selectedTableNumber,
+                          route: 0);
+                    },
+                    isActive: selectedTableNumber != -1,
                     width: MediaQuery.of(context).size.width * 0.53,
                   ),
                 ],
