@@ -1,7 +1,9 @@
 import 'dart:async';
-import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/ros.dart';
+
+import '../src/core/providers/core_providers.dart';
+import '../src/core/services/ros_service.dart';
 
 enum ConnectionStatus { connecting, connected, error, closed }
 
@@ -13,9 +15,9 @@ class ROSConnectionViewModel extends StateNotifier<ConnectionStatus> {
   Timer? _retryTimer;
 
   ROSConnectionViewModel(this._rosService) : super(ConnectionStatus.connecting) {
-    _subscription = _rosService.ros.statusStream.listen((status) {
+    _subscription = _rosService.connectionStream.listen((status) {
       print(status.name);
-      if (status == Status.connected) {
+      if (status == ROSConnectionStatus.connected) {
         state = ConnectionStatus.connected;
         _cancelRetry();
       } else {

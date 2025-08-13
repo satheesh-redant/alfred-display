@@ -5,13 +5,14 @@ import 'package:alfred/presentation/screens/mapping_screen.dart';
 import 'package:alfred/presentation/screens/delivery_screens/delivery_returning_base_screen.dart';
 import 'package:alfred/presentation/screens/routing_screen.dart';
 import 'package:alfred/presentation/screens/splash_screen.dart';
+import 'package:alfred/src/features/delivery/presentation/screens/delivery_progress_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../presentation/screens/delivery_screens/delivery_main_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_in_progress_screen.dart';
 import '../presentation/screens/check_list_screen.dart';
 import '../presentation/screens/training_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_complete_screen.dart';
+import '../src/features/delivery/presentation/screens/delivery_main_screen.dart';
 
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -34,7 +35,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const BasePointMarkingScreen(),
       ),
       GoRoute(
-        path: AlfredConstants.routeTrainingScreen,  // New Route
+        path: AlfredConstants.routeTrainingScreen,
         builder: (context, state) => const TrainingScreen(),
       ),
       GoRoute(
@@ -43,7 +44,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AlfredConstants.routeDeliveryInProgressScreen,
-        builder: (context, state) => const DeliveryInProgressScreen(),
+        builder: (context, state) => const DeliveryProgressScreen(),
       ),
       GoRoute(
         path: AlfredConstants.routeDeliveryCompleteScreen,

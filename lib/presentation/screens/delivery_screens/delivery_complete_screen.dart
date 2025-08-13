@@ -38,7 +38,6 @@ class DeliveryCompleteScreen extends ConsumerWidget {
       },
     );
 
-
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {

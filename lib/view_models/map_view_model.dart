@@ -4,10 +4,12 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/models/map_state.dart';
-import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/rosbridge.dart';
+
+import '../src/core/providers/core_providers.dart';
+import '../src/core/services/ros_service.dart';
 
 class MapViewModel extends StateNotifier<MapState> {
   final ROSService _rosService;

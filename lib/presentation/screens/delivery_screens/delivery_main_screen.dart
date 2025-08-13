@@ -5,14 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:alfred/providers/table_providers.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import '../../../config/alfred_constants.dart';
-import '../../../view_models/delivery_view_model.dart';
-import '../../../view_models/table_view_model.dart';
-import '../../widgets/appbar_widget.dart';
+import '../../../../../config/alfred_constants.dart';
+import '../../../../../view_models/table_view_model.dart';
+import '../../../../../presentation/widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../widgets/table_grid_button_widget.dart';
-import '../../widgets/button_widget.dart';
+import '../../../../../presentation/widgets/table_grid_button_widget.dart';
+import '../../../../../presentation/widgets/button_widget.dart';
+import '../../../view_models/delivery_view_model.dart';
 
 final deliveryScreenTableProvider = StateProvider<RouteState?>((ref) => null);
 

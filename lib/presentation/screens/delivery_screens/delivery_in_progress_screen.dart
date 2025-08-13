@@ -1,9 +1,9 @@
 import 'dart:math';
-import 'package:alfred/view_models/delivery_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import '../../../view_models/delivery_view_model.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -20,10 +20,6 @@ class DeliveryInProgressScreen extends ConsumerStatefulWidget {
 
 class _DeliveryInProgressScreenState
     extends ConsumerState<DeliveryInProgressScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

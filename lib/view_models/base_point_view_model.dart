@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:alfred/config/ros_constants.dart';
-import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/topic.dart';
+
+import '../src/core/providers/core_providers.dart';
+import '../src/core/services/ros_service.dart';
 
 class BasePointViewModel extends StateNotifier<String> {
   final ROSService _rosService;

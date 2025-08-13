@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:alfred/config/ros_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/ros_service_provider.dart';
 import 'package:rosbridge/rosbridge.dart';
+
+import '../src/core/providers/core_providers.dart';
+import '../src/core/services/ros_service.dart';
 
 class AddTableViewModel extends StateNotifier<String> {
 

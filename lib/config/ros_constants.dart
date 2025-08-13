@@ -4,9 +4,11 @@ class ROSConstants {
   // static const String rosUrl = 'ws://192.168.0.146:9090';
   /*  GENERIC */
   static const String msgString = 'std_msgs/String';
+  static const String stringMessageType = 'std_msgs/String';
   static const String msgInteger = 'std_msgs/Int32';
   static const String msgFloat = 'std_msgs/Float32';
   static const String msgEmpty = 'std_msgs/Empty';
+  static const String emptyMessageType = 'std_msgs/Empty';
 
   static const String mapTopic = '/map';
   static const String mapTopicMsg = 'nav_msgs/msg/OccupancyGrid';

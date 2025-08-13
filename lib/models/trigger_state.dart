@@ -25,6 +25,7 @@ class TriggerResponse {
       success: json['success'] as bool? ?? false,
       message: msg,
     );
+
   }
 
   /// Converts this TriggerResponse instance to a JSON map.

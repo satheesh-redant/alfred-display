@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/models/boot_check_state.dart';
-import 'package:alfred/providers/ros_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/core.dart';
 import 'package:rosbridge/core/topic.dart';
+
+import '../src/core/providers/core_providers.dart';
+import '../src/core/services/ros_service.dart';
 
 class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
   final ROSService _rosService;
