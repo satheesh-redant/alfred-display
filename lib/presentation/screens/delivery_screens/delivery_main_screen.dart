@@ -225,7 +225,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                         final data = ref.watch(tableVMProvider);
                                         print(data);
                                         final isSelected =
-                                            selectedTable == data[index];
+                                            selectedTable?.tableNumber == data[index];
                                         return Padding(
                                           padding: EdgeInsets.only(
                                             right: index % 4 == 3 ? 0 : 0,

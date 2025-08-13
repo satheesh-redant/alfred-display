@@ -70,35 +70,29 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                               children: [
                                 SizedBox(height: 75 * scaleFactor),
                                 // "Alfred is ready to serve" Text
-                                SizedBox(
-                                  width: 426 * scaleFactor,
-                                  child: Text(
-                                    "Alfred is ready to serve",
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.nunito(
-                                      fontSize: 36 * scaleFactor,
-                                      fontWeight: FontWeight.w900,
-                                      height: 1.2,
-                                      letterSpacing: 0.02,
-                                      color: Colors.black,
-                                    ),
+                                Text(
+                                  "Alfred is ready to serve",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 36 * scaleFactor,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1.2,
+                                    letterSpacing: 0.02,
+                                    color: Colors.black,
                                   ),
                                 ),
 
                                 // Instruction Text
                                 SizedBox(height: 17 * scaleFactor),
-                                SizedBox(
-                                  width: 536 * scaleFactor,
-                                  child: Text(
-                                    "Once task is complete, please click Go to Base",
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.nunito(
-                                      fontSize: 24 * scaleFactor,
-                                      fontWeight: FontWeight.w700,
-                                      height: 1.2,
-                                      letterSpacing: 0.02,
-                                      color: const Color(0xFF797977),
-                                    ),
+                                Text(
+                                  "Once task is complete, please click Go to Base",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 24 * scaleFactor,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.2,
+                                    letterSpacing: 0.02,
+                                    color: const Color(0xFF797977),
                                   ),
                                 ),
                                 // Alfred Ready Image

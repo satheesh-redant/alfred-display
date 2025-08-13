@@ -73,39 +73,31 @@ class _DeliveryInProgressScreenState
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Table Number Text
-                        SizedBox(
-                          width: 114,
-                          height: 28,
-                          child: Text(
-                            selectedTable?.route == 0
-                                ? "Table ${selectedTable?.tableNumber}"
-                                : "Returning to Base",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.nunito(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w700,
-                              height: 1.2,
-                              letterSpacing: 0.02,
-                              color: Colors.black,
-                            ),
+                        Text(
+                          selectedTable?.route == 0
+                              ? "Table ${selectedTable?.tableNumber}"
+                              : "Returning to Base",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.nunito(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                            letterSpacing: 0.02,
+                            color: Colors.black,
                           ),
                         ),
 
                         // "Alfred is on the move..." Text
                         const SizedBox(height: 20),
-                        SizedBox(
-                          width: 217,
-                          height: 29,
-                          child: Text(
-                            "Alfred is on the move...",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.nunito(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              height: 1.2,
-                              letterSpacing: 0.02,
-                              color: Colors.black54,
-                            ),
+                        Text(
+                          "Alfred is on the move...",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.nunito(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                            letterSpacing: 0.02,
+                            color: const Color(0xFF797977),
                           ),
                         ),
 
