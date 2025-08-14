@@ -25,19 +25,27 @@ class DeliveryCompleteScreen extends ConsumerWidget {
 
     final selectedTable = ref.watch(deliveryScreenTableProvider);
 
+    // ref.listen(
+    //   basePointVMProvider,
+    //   (previous, next) {
+    //     if (next.isNotEmpty) {
+    //       if (next.toUpperCase() == ROSConstants.success) {
+    //         ref.context.loaderOverlay.hide();
+    //         ref.read(basePointVMProvider.notifier).stopTimer();
+    //         context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+    //       }
+    //     }
+    //   },
+    // );
+
     ref.listen(
-      basePointVMProvider,
-          (previous, next) {
-        if (next.isNotEmpty) {
-          if (next.toUpperCase() == ROSConstants.success) {
-            ref.context.loaderOverlay.hide();
-            ref.read(basePointVMProvider.notifier).stopTimer();
-            context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
-          }
+      deliveryVMProvider,
+      (previous, next) {
+        if (next == "moving") {
+          context.pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
         }
       },
     );
-
 
     return Scaffold(
       body: LayoutBuilder(
@@ -63,7 +71,8 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                         Expanded(
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: max(20, (screenWidth - 540 * scaleFactor) / 2),
+                              horizontal: max(
+                                  20, (screenWidth - 540 * scaleFactor) / 2),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -124,10 +133,16 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                         child: ButtonWidget(
                           text: "Go to Base",
                           onPressed: () {
-                            ref.context.loaderOverlay.show();
-                            ref.read(deliveryScreenTableProvider.notifier).state = RouteState(tableNumber: selectedTable!.tableNumber, route: 1);
-                            ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTable.tableNumber, route: 1);
-                            ref.read(basePointVMProvider.notifier).triggerReturnToBase();
+                            // ref.context.loaderOverlay.show();
+                            ref
+                                    .read(deliveryScreenTableProvider.notifier)
+                                    .state =
+                                RouteState(
+                                    tableNumber: selectedTable!.tableNumber,
+                                    route: 1);
+                            ref.read(deliveryVMProvider.notifier).moveTable(
+                                table: selectedTable.tableNumber, route: 1);
+                            // ref.read(basePointVMProvider.notifier).triggerReturnToBase();
                           },
                           isActive: true,
                         ),

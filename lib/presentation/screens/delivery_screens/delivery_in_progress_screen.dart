@@ -34,8 +34,12 @@ class _DeliveryInProgressScreenState
     ref.listen(
       deliveryVMProvider,
       (previous, next) {
-        if (next == "delivered" && selectedTable!.route == 0) {
-          context.pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
+        if (next == "delivered") {
+          if (selectedTable!.route == 0) {
+            context.pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
+          } else {
+            context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+          }
         }
       },
     );
