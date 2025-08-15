@@ -1,10 +1,11 @@
-import 'package:alfred/config/alfred_constants.dart';
+import 'package:alfred/src/core/configs/alfred_constants.dart';
 import 'package:alfred/presentation/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:responsive_framework/responsive_framework.dart';
+import '../../models/checklist_item.dart';
 import '../widgets/button_widget.dart';
 
 class ChecklistScreen extends ConsumerStatefulWidget {
@@ -16,138 +17,111 @@ class ChecklistScreen extends ConsumerStatefulWidget {
 }
 
 class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
-  bool _task1Completed = false;
-  bool _task2Completed = false;
-  bool _task3Completed = false;
+  final List<ChecklistItem> _checklistItems = [
+    const ChecklistItem(
+      title: "Take Alfred to the Start point",
+      image: "assets/images/checklist_1.png",
+    ),
+    const ChecklistItem(
+      title: "Remove all wires or cables from the path that might obstruct Alfred's movement",
+      image: "assets/images/checklist_1.png",
+    ),
+    const ChecklistItem(
+      title: "Ensure the floor is clear of obstacles",
+      image: "assets/images/checklist_1.png",
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final allTasksCompleted = _checklistItems.every((item) => item.completed);
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBarWidget(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
+      body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// **Header Section**
             Padding(
-              padding: const EdgeInsets.only(
-                top: 40.0,
-                left: 61.0,
-                right: 8.0,
-                bottom: 10.0,
-              ),
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                // Title
                   Text(
                     "Let's Setup Alfred",
                     style: GoogleFonts.inter(
                       color: Colors.black,
-                      fontSize: 24,
+                    fontSize: 24.sp,
                       fontWeight: FontWeight.w700,
-                      height: 24.2 / 24,
                     ),
                   ),
-                  const SizedBox(height: 36),
+                SizedBox(height: 24.h),
+                // Subtitle
                   Text(
                     "Please complete the checks before marking the tables with Alfred",
                     style: GoogleFonts.inter(
                       color: Colors.black,
-                      fontSize: 20,
+                    fontSize: 20.sp,
                       fontWeight: FontWeight.w400,
-                      height: 24.2 / 20,
                     ),
                   ),
                 ],
               ),
             ),
-
-            /// **Checklist Items**
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    child: _buildChecklistCard(
-                    title: "Take Alfred to the Start point",
-                    value: _task1Completed,
-                    image: "assets/images/checklist_1.png",
-                    onChanged: (val) {
-                      setState(() {
-                        _task1Completed = val!;
-                      });
-                    },
-                    isBlueBorder: true,
-                  ),
-                    onTap: () {
-                      setState(() {
-                        _task1Completed = !_task1Completed;
-                      });
-                    },
-                  ),
-                  GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _task2Completed = !_task2Completed;
-                        });
-                      },
-                      child: _buildChecklistCard(
-                    title: "Remove all wires or cables from the path",
-                    value: _task2Completed,
-                    image: "assets/images/checklist_1.png",
-                    onChanged: (val) {
-                      setState(() {
-                        _task2Completed = val!;
-                      });
-                    },
-                      )),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _task3Completed = !_task3Completed;
-                      });
-                    },
-                    child: _buildChecklistCard(
-                    title: "Ensure the floor is clear of obstacles",
-                    value: _task3Completed,
-                    image: "assets/images/checklist_1.png",
-                    onChanged: (val) {
-                      setState(() {
-                        _task3Completed = val!;
-                      });
-                    },
-                  ),
-                  ),
-                ],
-              ),
+          // Checklist Items Area
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              child: _buildChecklistArea(),
             ),
-
-            /// **Spacer before button**
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-
-      /// **Bottom Continue Button**
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 300.0, right: 300.0, bottom: 36.0),
+          ),
+          // Continue Button
+            Padding(
+            padding: EdgeInsets.symmetric(horizontal: 300.w, vertical: 36.h),
         child: ButtonWidget(
           text: "Continue",
-          onPressed: (_task1Completed && _task2Completed && _task3Completed)
+              onPressed: allTasksCompleted
               ? () {
-                  // Print message when all tasks are completed and user presses continue
                   print('All tasks completed. Proceeding to the next screen.');
                   context.go(AlfredConstants.routeBasePointMarkingScreen);
                 }
               : null,
-          isActive: _task1Completed && _task2Completed && _task3Completed,
+              isActive: allTasksCompleted,
+            ),
         ),
+        ],
       ),
     );
   }
 
-  /// **Checklist Card Builder**
+  Widget _buildChecklistArea() {
+    final checklistCards = _checklistItems.asMap().entries.map((entry) {
+      final index = entry.key;
+      final item = entry.value;
+      return _buildChecklistCard(
+        title: item.title,
+        value: item.completed,
+        image: item.image,
+        onChanged: (val) {
+          if (val == null) return;
+          setState(() {
+            _checklistItems[index] = item.copyWith(completed: val);
+          });
+          print('Task ${index + 1} - ${item.title}: ${val ? "Completed" : "Not Completed"}');
+        },
+        isBlueBorder: item.isBlueBorder,
+      );
+    }).toList();
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: checklistCards,
+      ),
+    );
+  }
+
   Widget _buildChecklistCard({
     required String title,
     required bool value,
@@ -155,72 +129,93 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
     required Function(bool?) onChanged,
     bool isBlueBorder = false,
   }) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isBlueBorder ? Colors.white : Colors.transparent,
-          width: 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x3F000000),
-            blurRadius: 4,
-            offset: Offset(0, 4),
-            spreadRadius: 0,
+    return GestureDetector(
+      onTap: () {
+        onChanged(!value);
+      },
+      child: Container(
+        width: 1.sw, // Full screen width
+        margin: EdgeInsets.symmetric(vertical: 4.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: Colors.grey.shade300,
+            width: 1.w,
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-        child: Row(
-          children: [
-            /// **Checkbox & Title**
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 42),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      height: 28,
-                      width: 28,
-                      child: Checkbox(
-                        value: value,
-                        onChanged: onChanged,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(2)),
-                        activeColor: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      child: Text(
-                        title,
-                        style: GoogleFonts.roboto(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black),
-                        softWrap: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            /// **Checklist Image**
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Image.asset(
-                image,
-                height: 95,
-                fit: BoxFit.contain,
-              ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x2F000000),
+              blurRadius: 3,
+              offset: Offset(0, 1),
+              spreadRadius: 0,
             ),
           ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 12.w, right: 8.w),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 28.h,
+                        width: 28.w,
+                        child: Transform.scale(
+                          scale: 1.3,
+                          child: Checkbox(
+                            value: value,
+                            onChanged: onChanged,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(2.r),
+                            ),
+                            activeColor: Colors.black,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: GoogleFonts.roboto(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black,
+                          ),
+                          softWrap: true,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 6.h),
+                child: Image.asset(
+                  image,
+                  height: 70.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 70.h,
+                      width: 70.w,
+                      color: Colors.grey[200],
+                      child: Icon(Icons.broken_image, size: 40.sp, color: Colors.grey[400]),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:alfred/config/ros_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/rosbridge.dart';
 
+import '../models/table_state.dart';
+import '../src/core/configs/ros_constants.dart';
 import '../src/core/providers/core_providers.dart';
 import '../src/core/services/ros_service.dart';
 
 class TableViewModel extends StateNotifier<List<int>> {
   final ROSService _rosService;
   Topic? _topicTablesList, _topicRequestTables;
+  TableState? _newTable;
+  int? _removedTableId;
 
   TableViewModel(this._rosService) : super([]) {
     print('initiating all get tables topics');
@@ -52,6 +55,8 @@ class TableViewModel extends StateNotifier<List<int>> {
     // unSubscribe();
   }
 
+
+
   void unSubscribe() {
     print('Unsubscribing to table list topic');
     _topicTablesList!.unsubscribe();
@@ -63,6 +68,68 @@ class TableViewModel extends StateNotifier<List<int>> {
     _topicRequestTables!.unsubscribe();
     _topicTablesList!.unsubscribe();
     state = [];
+  }
+
+  // Business logic
+  List<TableState> getTableStates() {
+    final tables = state
+        .where((id) => id != _removedTableId)
+        .map((id) => TableState(tableNumber: id, isMarked: true, isEnabled: false))
+        .toList()
+      ..sort((a, b) => a.tableNumber.compareTo(b.tableNumber));
+    if (_newTable != null && !_newTable!.isRemoved) {
+      tables.add(_newTable!);
+      tables.sort((a, b) => a.tableNumber.compareTo(b.tableNumber));
+    }
+    return tables;
+  }
+
+  void addTable(int tableNumber) {
+    if (state.contains(tableNumber) && tableNumber != _removedTableId) return;
+    _newTable = TableState(tableNumber: tableNumber, isNewlyAdded: true, isSelected: false);
+    notifyListeners();
+  }
+
+  void removeTable(int tableNumber) {
+    if (_newTable != null && _newTable!.tableNumber == tableNumber) {
+      _newTable = _newTable!.copyWith(isRemoved: true);
+    } else if (state.contains(tableNumber)) {
+      _removedTableId = tableNumber;
+      state = state.where((id) => id != tableNumber).toList();
+    }
+    notifyListeners();
+  }
+
+  void selectTable(int tableNumber) {
+    if (state.contains(tableNumber) && tableNumber != _removedTableId) return;
+    if (_newTable != null && _newTable!.tableNumber == tableNumber && !_newTable!.isRemoved) {
+      _newTable = _newTable!.copyWith(isSelected: true);
+      notifyListeners();
+    }
+  }
+
+  void confirmTable(int tableNumber) {
+    if (_newTable != null && _newTable!.tableNumber == tableNumber) {
+      state = [...state, tableNumber];
+      _newTable = null;
+      if (tableNumber == _removedTableId) _removedTableId = null;
+      notifyListeners();
+    }
+  }
+
+  void resetMarking() {
+    if (_newTable != null) {
+      _newTable = _newTable!.copyWith(isSelected: false);
+      notifyListeners();
+    }
+  }
+
+  bool get hasMarkedTables => state.isNotEmpty;
+
+  int? get selectedTableNumber => _newTable != null && _newTable!.isSelected && !_newTable!.isRemoved ? _newTable!.tableNumber : null;
+
+  void notifyListeners() {
+    state = [...state];
   }
 }
 

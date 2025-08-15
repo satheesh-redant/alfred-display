@@ -1,8 +1,8 @@
 import 'package:alfred/view_models/base_point_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 class SaveStartingPointDialog extends ConsumerWidget {
   final VoidCallback onConfirmed;
@@ -11,47 +11,51 @@ class SaveStartingPointDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.listen(basePointVMProvider, (prev, next) {
-    //   Navigator.pop(context); // Close dialog
-    // });
-    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
-
-    print("Building SaveStartingPointDialog...");
-    print("isMobile: $isMobile");
 
     return Dialog(
       backgroundColor: Colors.white,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 16.0 : 0.0,
-        vertical: 24.0,
+        horizontal: 16.w,
+        vertical: 24.h,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        side: const BorderSide(color: Colors.white, width: 2.0),
+        borderRadius: BorderRadius.circular(8.r),
+        side: BorderSide(color: Colors.white, width: 2.w),
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: isMobile ? double.infinity : 500.0,
+          maxWidth: 500.w,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(24.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Are you sure ?",
+                "Save your Base Point",
                 style: GoogleFonts.roboto(
-                  textStyle: const TextStyle(
-                    color: Color(0xFF1D1B20),
-                    fontSize: 24.0,
+                  textStyle: TextStyle(
+                    color: const Color(0xFF1D1B20),
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              const SizedBox(height: 16.0),
-              const Divider(color: Colors.grey, thickness: 1.0),
-              const SizedBox(height: 24.0),
+              SizedBox(height: 8.h),
+              Text(
+                "Once Saved, you cannot change the Base Point",
+                style: GoogleFonts.roboto(
+                  textStyle: TextStyle(
+                    color: const Color(0xFF1D1B20),
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              Divider(color: Colors.grey, thickness: 1.w),
+              SizedBox(height: 24.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -61,26 +65,26 @@ class SaveStartingPointDialog extends ConsumerWidget {
                       Navigator.pop(context);
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 25.0,
-                        vertical: 20.0,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 25.w,
+                        vertical: 20.h,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                     ),
                     child: Text(
                       "Cancel",
                       style: GoogleFonts.roboto(
-                        textStyle: const TextStyle(
-                          fontSize: 20.0,
+                        textStyle: TextStyle(
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16.0),
+                  SizedBox(width: 16.w),
                   FilledButton(
                     onPressed: () {
                       print("Yes button pressed");
@@ -89,19 +93,19 @@ class SaveStartingPointDialog extends ConsumerWidget {
                     },
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 45.0,
-                        vertical: 20.0,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 45.w,
+                        vertical: 20.h,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                     ),
                     child: Text(
                       "Yes",
                       style: GoogleFonts.roboto(
-                        textStyle: const TextStyle(
-                          fontSize: 20.0,
+                        textStyle: TextStyle(
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -118,108 +122,3 @@ class SaveStartingPointDialog extends ConsumerWidget {
   }
 }
 
-
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:responsive_framework/responsive_framework.dart';
-//
-// class SaveStartingPointDialog extends StatelessWidget {
-//   final VoidCallback onConfirmed;
-//
-//   const SaveStartingPointDialog({required this.onConfirmed});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final isMobile = ResponsiveBreakpoints.of(context).isMobile;
-//
-//     return Dialog(
-//       backgroundColor: Colors.white,
-//       insetPadding: EdgeInsets.symmetric(
-//         horizontal: isMobile ? 16.0 : 0.0,
-//         vertical: 24.0,
-//       ),
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(8.0),
-//         side: const BorderSide(color: Colors.white, width: 2.0),
-//       ),
-//       child: ConstrainedBox(
-//         constraints: BoxConstraints(
-//           maxWidth: isMobile ? double.infinity : 500.0,
-//         ),
-//         child: Padding(
-//           padding: const EdgeInsets.all(24.0),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 "Save your Base Point",
-//                 style: GoogleFonts.roboto(
-//                   textStyle: const TextStyle(
-//                     color: Color(0xFF1D1B20),
-//                     fontSize: 24.0,
-//                     fontWeight: FontWeight.w700,
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(height: 16.0),
-//               const Divider(color: Colors.grey, thickness: 1.0),
-//               const SizedBox(height: 24.0),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.end,
-//                 children: [
-//                   OutlinedButton(
-//                     onPressed: () => Navigator.pop(context),
-//                     style: OutlinedButton.styleFrom(
-//                       padding: const EdgeInsets.symmetric(
-//                         horizontal: 25.0,
-//                         vertical: 20.0,
-//                       ),
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(8.0),
-//                       ),
-//                     ),
-//                     child: Text(
-//                       "Cancel",
-//                       style: GoogleFonts.roboto(
-//                         textStyle: const TextStyle(
-//                           fontSize: 20.0,
-//                           fontWeight: FontWeight.w500,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                   const SizedBox(width: 16.0),
-//                   FilledButton(
-//                     onPressed: onConfirmed,
-//                     style: FilledButton.styleFrom(
-//                       backgroundColor: Colors.black,
-//                       padding: const EdgeInsets.symmetric(
-//                         horizontal: 45.0,
-//                         vertical: 20.0,
-//                       ),
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(8.0),
-//                       ),
-//                     ),
-//                     child: Text(
-//                       "Yes",
-//                       style: GoogleFonts.roboto(
-//                         textStyle: const TextStyle(
-//                           fontSize: 20.0,
-//                           fontWeight: FontWeight.w600,
-//                           color: Colors.white,
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }

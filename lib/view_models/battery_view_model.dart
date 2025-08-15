@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
-import 'package:alfred/config/ros_constants.dart';
+import 'package:alfred/src/core/configs/ros_constants.dart';
 import 'package:alfred/models/battery_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/rosbridge.dart';

@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:alfred/config/ros_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/rosbridge.dart';
 
+import '../src/core/configs/ros_constants.dart';
 import '../src/core/providers/core_providers.dart';
 import '../src/core/services/ros_service.dart';
 
@@ -15,7 +15,7 @@ class OperationViewModel extends StateNotifier<String> {
   void init() {
     print('initiating all ops mode topics');
     _topicCurrentMode = _rosService.createTopic(
-      ROSConstants.topicSetOpsMode, //todo change it to current mode
+      ROSConstants.topicSetOpsMode,
       ROSConstants.msgString,
       throttleRate: 500,
     );

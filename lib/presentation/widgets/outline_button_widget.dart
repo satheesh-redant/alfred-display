@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ButtonWidget extends StatelessWidget {
+class OutlineButtonWidget extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final bool isActive;
@@ -12,7 +12,7 @@ class ButtonWidget extends StatelessWidget {
   final BorderSide? borderSide;
   final TextStyle? textStyle;
 
-  const ButtonWidget({
+  const OutlineButtonWidget({
     super.key,
     required this.text,
     required this.onPressed,
@@ -35,8 +35,8 @@ class ButtonWidget extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isActive ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? (isActive ? Colors.black : Colors.grey.shade400),
-          side: borderSide ?? BorderSide.none,
+          backgroundColor: backgroundColor ?? (isActive ? Colors.white : Colors.grey.shade400),
+          side: borderSide ?? BorderSide(color: isActive ? Colors.black : Colors.grey.shade400, width: 1.5.w),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.r),
           ),
@@ -49,11 +49,10 @@ class ButtonWidget extends StatelessWidget {
               GoogleFonts.inter(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: isActive ? Colors.black : Colors.grey.shade500,
               ),
         ),
       ),
     );
   }
 }
-

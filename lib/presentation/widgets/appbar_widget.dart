@@ -1,141 +1,71 @@
-import 'dart:async';
-import 'package:alfred/config/assets_constants.dart';
-import 'package:alfred/presentation/widgets/widget_battery.dart';
-import 'package:alfred/view_models/battery_view_model.dart';
+import 'package:alfred/src/core/configs/assets_constants.dart';
+import 'package:alfred/presentation/widgets/battery_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:responsive_framework/responsive_framework.dart';
+import '../../view_models/battery_view_model.dart';
+import '../../view_models/timer_view_model.dart';
+import 'timer_widget.dart';
 
-// State class
-class AppBarWidgetState {
-  final String currentTime;
-
-  AppBarWidgetState({
-    this.currentTime = "",
-  });
-
-  AppBarWidgetState copyWith({
-    String? currentTime,
-  }) {
-    return AppBarWidgetState(
-      currentTime: currentTime ?? this.currentTime,
-    );
-  }
-}
-
-// StateNotifier
-class AppBarWidgetStateNotifier extends StateNotifier<AppBarWidgetState> {
-  AppBarWidgetStateNotifier() : super(AppBarWidgetState()) {
-    _init();
-  }
-
-  Timer? _timer;
-
-  void _init() {
-    _updateTime();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateTime());
-  }
-
-  void _updateTime() {
-    final now = DateTime.now();
-    final timeString = DateFormat('h:mm').format(now);
-    final period = now.hour < 12 ? 'am' : 'pm';
-    final dateString = DateFormat('d MMMM').format(now);
-
-    state = state.copyWith(
-      currentTime: '$timeString $period, $dateString',
-    );
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-}
-
-// Provider (make sure this is declared as final and globally accessible)
-final appBarWidgetProvider =
-    StateNotifierProvider<AppBarWidgetStateNotifier, AppBarWidgetState>(
-  (ref) => AppBarWidgetStateNotifier(),
-);
-
-// Widget
 class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
   @override
-  final Size preferredSize = const Size.fromHeight(40.0);
+  final Size preferredSize = Size.fromHeight(40.h);
 
-  const AppBarWidget({super.key});
+  AppBarWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(appBarWidgetProvider);
     final batteryState = ref.watch(batteryVMProvider);
+    final timerState = ref.watch(timerProvider);
     return Container(
-      color: const Color(0xFFFFFFFF),
-      child: ResponsiveRowColumn(
-        layout: ResponsiveRowColumnType.COLUMN,
-        columnMainAxisAlignment: MainAxisAlignment.center,
+      height: preferredSize.height,
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ResponsiveRowColumnItem(
-              child: ResponsiveRowColumn(
-            layout: ResponsiveRowColumnType.ROW,
+          // ───── Left side: logo + timer ─────
+          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              ResponsiveRowColumnItem(
-                  child: ResponsiveRowColumn(
-                layout: ResponsiveRowColumnType.ROW,
-                rowMainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(left: 20, top: 5, bottom: 5),
-                    child: Image.asset(
-                      AssetsConstants.companyLogo,
-                      width: 15,
-                      height: 20,
-                      fit: BoxFit.cover,
-                    ),
-                  )),
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(left: 27, top: 9, bottom: 9),
-                    child: Text(
-                      state.currentTime,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF101828),
-                      ),
-                    ),
-                  ))
-                ],
-              )),
-              ResponsiveRowColumnItem(child: Spacer()),
-              ResponsiveRowColumnItem(
-                  child: ResponsiveRowColumn(
-                layout: ResponsiveRowColumnType.ROW,
-                children: [
-                  ResponsiveRowColumnItem(
-                      child: Padding(
-                    padding: EdgeInsets.only(right: 18),
-                    child: InkWell(
-                      onTap: () {},
-                      child: SvgPicture.asset(
-                        AssetsConstants.iconWifi,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  )),
-                  ResponsiveRowColumnItem(
-                      child: WidgetBattery(batteryStatus: batteryState)
-                  ),
-                ],
-              )),
+              // company logo
+              Image.asset(
+                AssetsConstants.companyLogo,
+                width: 15.w,
+                height: 20.h,
+                fit: BoxFit.contain,
+              ),
+
+              SizedBox(width: 12.w),
+
+              // allow the timer to shrink under tight space
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: TimerWidget(timerState: timerState),
+                ),
+              ),
             ],
-          )),
+          ),
+          // ───── Right side: wifi + battery ─────
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                AssetsConstants.iconWifi,
+                width: 24.w,
+                height: 24.h,
+                fit: BoxFit.contain,
+              ),
+
+              SizedBox(width: 12.w),
+
+              BatteryWidget(batteryStatus: batteryState),
+            ],
+          ),
         ],
       ),
     );

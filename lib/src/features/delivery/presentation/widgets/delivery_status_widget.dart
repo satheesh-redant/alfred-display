@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import '../../data/models/delivery_models.dart';
 
 class DeliveryStatusWidget extends StatelessWidget {
-  final DeliveryProgressStage progressStage;
-  final DeliveryState deliveryState;
+  final DeliveryData deliveryState;
 
   const DeliveryStatusWidget({
     super.key,
-    required this.progressStage,
     required this.deliveryState,
   });
 
@@ -30,15 +28,16 @@ class DeliveryStatusWidget extends StatelessWidget {
   }
 
   String _getImagePath() {
-    switch (progressStage) {
-      case DeliveryProgressStage.baseToTable:
-        return 'assets/images/alfred_moving.png'; // Moving to table
-      case DeliveryProgressStage.baseToTableFinished:
-        return 'assets/images/alfred_ready.png'; // Arrived at table
-      case DeliveryProgressStage.tableToBase:
-        return 'assets/images/alfred_moving.png'; // Returning to base
-      case DeliveryProgressStage.tableToBaseFinished:
-        return 'assets/images/alfred_ready.png'; // Back at base
+    if (deliveryState.state == DeliveryState.moving) {
+      return 'assets/images/alfred_moving.png';
+    } else if (deliveryState.state == DeliveryState.delivered) {
+      /*if (deliveryState.isBaseToTable) {
+        return 'assets/images/alfred_arrived.png'; // At table
+      } else {
+        return 'assets/images/alfred_base.png'; // Back at base
+      }*/
+      return 'assets/images/alfred_ready.png';
     }
+    return 'assets/images/alfred_ready.png'; // Default
   }
 }

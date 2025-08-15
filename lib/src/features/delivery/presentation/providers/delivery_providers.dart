@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
-import '../../data/services/delivery_service.dart';
+import '../../../../shared/services/delivery_service.dart';
 import '../../data/models/delivery_models.dart';
-import '../view_models/delivery_main_view_model.dart';
-import '../view_models/delivery_progress_view_model.dart';
+import '../view_models/delivery_view_model.dart';
 
 final deliveryServiceProvider = Provider<DeliveryService>((ref) {
   final rosService = ref.watch(rosServiceProvider);
@@ -12,12 +11,7 @@ final deliveryServiceProvider = Provider<DeliveryService>((ref) {
   return deliveryService;
 });
 
-final deliveryMainViewModelProvider = StateNotifierProvider<DeliveryMainViewModel, DeliveryData>((ref) {
+final deliveryViewModelProvider = StateNotifierProvider<DeliveryViewModel, DeliveryData>((ref) {
   final deliveryService = ref.watch(deliveryServiceProvider);
-  return DeliveryMainViewModel(deliveryService);
-});
-
-final deliveryProgressViewModelProvider = StateNotifierProvider<DeliveryProgressViewModel, DeliveryData>((ref) {
-  final deliveryService = ref.watch(deliveryServiceProvider);
-  return DeliveryProgressViewModel(deliveryService);
+  return DeliveryViewModel(deliveryService);
 });

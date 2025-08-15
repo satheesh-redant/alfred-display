@@ -1,35 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class TableGridWidget extends StatelessWidget {
+class TableGridButtonWidget extends StatelessWidget {
+  final String label;
   final int tableNumber;
   final bool isSelected;
-  final VoidCallback onTap;
+  final bool isMarked;
+  final VoidCallback onPressed;
 
-  const TableGridWidget({
+  const TableGridButtonWidget({
     super.key,
+    required this.label,
     required this.tableNumber,
     required this.isSelected,
-    required this.onTap,
+    required this.isMarked,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onPressed,
       child: Container(
+        width: 138.w,
+        height: 60.h,
         decoration: BoxDecoration(
           color: isSelected ? Colors.blue : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           border: Border.all(
             color: isSelected ? Colors.blue.shade700 : Colors.grey.shade400,
-            width: 2,
+            width: 2.w,
           ),
         ),
         child: Center(
           child: Text(
-            'Table $tableNumber',
-            style: TextStyle(
-              fontSize: 16,
+            'Table $label',
+            style: GoogleFonts.nunito(
+              fontSize: 16.sp,
               fontWeight: FontWeight.bold,
               color: isSelected ? Colors.white : Colors.black,
             ),

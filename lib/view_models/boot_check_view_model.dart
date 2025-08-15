@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:alfred/config/ros_constants.dart';
-import 'package:alfred/models/boot_check_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/core.dart';
 import 'package:rosbridge/core/topic.dart';
 
+import '../src/core/configs/ros_constants.dart';
 import '../src/core/providers/core_providers.dart';
 import '../src/core/services/ros_service.dart';
+import '../src/shared/models/boot_check_response.dart';
 
 class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
   final ROSService _rosService;
@@ -15,7 +15,7 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
 
   Map<String, dynamic> requestData = {};
 
-  BootCheckViewModel(this._rosService) : super(BootCheckResponse());
+  BootCheckViewModel(this._rosService) : super(BootCheckResponse(overallStatus: '', checks: [], message: ''));
 
   void init() {
     print('initiating boot status topics');
@@ -25,11 +25,7 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
       throttleRate: 500,
     );
     // _topic!.subscribe(_responseHandler);
-    BootCheckResponse response = BootCheckResponse();
-    response.message = 'OK';
-    response.overallStatus = 'OK';
-    response.checks = [];
-    state = response;
+    state = BootCheckResponse(overallStatus: 'OK', checks: [], message: 'OK');
   }
 
   Future<void> _responseHandler(Map<String, dynamic> message) async {

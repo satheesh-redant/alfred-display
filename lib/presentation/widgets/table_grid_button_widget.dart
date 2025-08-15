@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:alfred/providers/table_providers.dart';
 
-class TableGridButtonWidget extends ConsumerWidget {
+class TableGridButtonWidget extends StatelessWidget {
   final String label;
   final bool isDashed;
   final int? tableNumber;
@@ -12,6 +11,7 @@ class TableGridButtonWidget extends ConsumerWidget {
   final bool isSelected;
   final bool isDisabled;
   final bool isMarked;
+  final bool ignoreMarkedBackground;
 
   const TableGridButtonWidget({
     super.key,
@@ -22,49 +22,42 @@ class TableGridButtonWidget extends ConsumerWidget {
     this.isSelected = false,
     this.isDisabled = false,
     this.isMarked = false,
+    this.ignoreMarkedBackground = false,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-
-    final isTraining = ref.watch(isTrainingProvider);
-    final selectedTable = ref.watch(selectedTableProvider);
-    final showSelected = isSelected || (!isDashed && selectedTable == tableNumber);
-    final showMarked = isMarked && !showSelected;
-
-    final showDisabled = isDisabled && !showSelected;
-
-    final backgroundColor = showSelected
+  Widget build(BuildContext context) {
+    final backgroundColor = isSelected
         ? Colors.black
-        : showMarked
+        : (isMarked && !ignoreMarkedBackground)
         ? Colors.grey[100]!
         : Colors.transparent;
 
-    final textColor = showSelected
+    final textColor = isSelected
         ? Colors.white
-        : showMarked
+        : isMarked
         ? Colors.grey[400]!
-        : showDisabled
+        : isDisabled
         ? Colors.grey[300]!
         : const Color(0xFF757575);
 
-    final borderColor = showSelected
-        ? Colors.black
-        : showMarked
+    final borderColor = isSelected
+        ? Colors.white
+        : isMarked
         ? Colors.grey[400]!
-        : showDisabled
+        : isDisabled
         ? Colors.grey[300]!
         : const Color(0xFF757575);
 
-    Widget buttonContent = SizedBox(
-      width: 138,
-      height: 60,
+    final buttonContent = SizedBox(
+      width: 138.w,
+      height: 60.h,
       child: Center(
         child: Text(
           label,
           style: GoogleFonts.nunito(
-            fontSize: 20,
-            fontWeight: showMarked ? FontWeight.w300 : FontWeight.w400,
+            fontSize: 20.sp,
+            fontWeight: isMarked ? FontWeight.w300 : FontWeight.w400,
             color: textColor,
           ),
         ),
@@ -72,36 +65,48 @@ class TableGridButtonWidget extends ConsumerWidget {
     );
 
     if (isDashed) {
-      return DottedBorder(
-        borderType: BorderType.RRect,
-        radius: const Radius.circular(8),
-        dashPattern: const [4, 4],
-        color: borderColor,
-        strokeWidth: 1,
-        child: Material(
-          color: backgroundColor,
-          child: InkWell(
-            //todo: Disable tap if in training mode or button is disabled
-            onTap: isTraining || showDisabled ? null : onPressed,
-            borderRadius: BorderRadius.circular(8),
-            child: buttonContent,
-          ),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: SizedBox(
+          width: 138.w,
+          height: 60.h,
+          child: DottedBorder(
+            options: RoundedRectDottedBorderOptions(
+              padding: EdgeInsets.zero,
+              radius: Radius.circular(8.r),
+              dashPattern: [4.w, 4.w],
+              color: borderColor,
+              strokeWidth: 1.w,
+            ),
+            child: Material(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8.r),
+              clipBehavior: Clip.hardEdge,
+              child: InkWell(
+                onTap: isDisabled ? null : onPressed,
+                borderRadius: BorderRadius.circular(8.r),
+                child: buttonContent,
+              ),
+            ),
+          )
         ),
       );
     }
 
     return Material(
       color: backgroundColor,
+      borderRadius: BorderRadius.circular(8.r),
+      clipBehavior: Clip.hardEdge,
       child: InkWell(
-        onTap: showDisabled ? null : onPressed,
-        borderRadius: BorderRadius.circular(8),
+        onTap: isDisabled ? null : onPressed,
+        borderRadius: BorderRadius.circular(8.r),
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(
               color: borderColor,
-              width: 0.5,
+              width: 0.5.w,
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: buttonContent,
         ),

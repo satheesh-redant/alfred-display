@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:alfred/config/ros_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/topic.dart';
 
+import '../src/core/configs/ros_constants.dart';
 import '../src/core/providers/core_providers.dart';
 import '../src/core/services/ros_service.dart';
 

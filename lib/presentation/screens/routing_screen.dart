@@ -1,6 +1,5 @@
-import 'package:alfred/config/alfred_constants.dart';
-import 'package:alfred/config/ros_constants.dart';
-import 'package:alfred/core/routes.dart';
+import 'package:alfred/src/core/configs/alfred_constants.dart';
+import 'package:alfred/src/core/helpers/routes.dart';
 import 'package:alfred/view_models/route_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:toastification/toastification.dart';
 
-import '../../core/toast_utils.dart';
+import '../../src/core/helpers/toast_utils.dart';
+import '../../src/core/configs/ros_constants.dart';
 import '../../view_models/base_point_view_model.dart';
 import '../../view_models/operation_view_model.dart';
 import '../../view_models/table_view_model.dart';
@@ -52,7 +52,7 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
           (previous, next) {
         if (next == 'delivery') {
           ref.context.loaderOverlay.hide();
-          context.go(AlfredConstants.routeDeliveryMainScreen);
+          context.go(AlfredConstants.routeDeliveryScreen);
         }
       },
     );
