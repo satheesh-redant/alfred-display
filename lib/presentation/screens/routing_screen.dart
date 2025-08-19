@@ -40,6 +40,7 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
         if (next.isNotEmpty) {
           if (next.toUpperCase() == ROSConstants.success) {
             ref.read(basePointVMProvider.notifier).stopTimer();
+            ref.read(opsVMProvider.notifier).getCurrentMode();
           } else {
             ref.context.loaderOverlay.hide();
           }
@@ -51,6 +52,7 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
       opsVMProvider,
           (previous, next) {
         if (next == 'delivery') {
+          ref.read(opsVMProvider.notifier).unsubscribe();
           ref.context.loaderOverlay.hide();
           context.go(AlfredConstants.routeDeliveryMainScreen);
         }

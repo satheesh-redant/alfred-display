@@ -10,7 +10,7 @@ class OperationViewModel extends StateNotifier<String> {
 
   OperationViewModel(this._rosService) : super("");
 
-  void init() {
+  Future<void> getCurrentMode() async {
     print('initiating all ops mode topics');
     _topicCurrentMode = _rosService.createTopic(
       ROSConstants.topicSetOpsMode, //todo change it to current mode
@@ -20,15 +20,28 @@ class OperationViewModel extends StateNotifier<String> {
     _topicCurrentMode!.subscribe(_handler);
   }
 
+
   Future<void> _handler(Map<String, dynamic> message) async {
     print('Current ops mode: $message');
     state = message['data'];
   }
 
   Future<void> sendOpsMode({required String mode}) async {
+    print('initiating all ops mode topics');
+    _topicCurrentMode = _rosService.createTopic(
+      ROSConstants.topicSetOpsMode, //todo change it to current mode
+      ROSConstants.msgString,
+      throttleRate: 500,
+    );
+
     Map<String, dynamic> json = {"data": mode};
     print('Publishing ops mode: $json');
     await _topicCurrentMode!.publish(json);
+  }
+
+  void unsubscribe() {
+    _topicCurrentMode?.unsubscribe();
+    _topicCurrentMode = null;
   }
 
   @override

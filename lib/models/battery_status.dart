@@ -36,7 +36,7 @@ class BatteryStatus {
 
   int get batteryPercentage {
     if(percentage == null) {
-      return 0;
+      return 100;
     }
     return percentage!.toInt();
   }

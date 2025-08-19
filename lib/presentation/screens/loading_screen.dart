@@ -38,21 +38,26 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     ref.listen(bootCheckVMProvider, (previous, next) {
       if (next.overallStatus == 'OK') {
         ref.read(bootCheckVMProvider.notifier).clearTopic();
-        ref.read(opsVMProvider.notifier).init();
+        ref.read(opsVMProvider.notifier).getCurrentMode();
       }
     });
-    ref.listen(opsVMProvider, (previous, next) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Future.delayed(const Duration(seconds: 2), () {
-            if (mounted) {
-              if (next == 'delivery') {
-                context.go(AlfredConstants.routeDeliveryMainScreen);
-              } else {
-                context.go(AlfredConstants.routeChecklistScreen);
+    ref.listen(
+      opsVMProvider,
+      (previous, next) {
+        if (next.isNotEmpty) {
+          ref.read(opsVMProvider.notifier).unsubscribe();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) {
+                if (next == 'delivery') {
+                  context.go(AlfredConstants.routeDeliveryMainScreen);
+                } else {
+                  context.go(AlfredConstants.routeChecklistScreen);
+                }
               }
-            }
+            });
           });
-        });
+        }
       },
     );
 
@@ -65,18 +70,18 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           children: [
             ResponsiveRowColumnItem(
                 child: SizedBox(
-                  height: 136,
-                )),
+              height: 136,
+            )),
             ResponsiveRowColumnItem(
                 child: Expanded(
                     child: Image.asset(
-                      'assets/images/loading.png',
-                      fit: BoxFit.cover,
-                    ))),
+              'assets/images/loading.png',
+              fit: BoxFit.cover,
+            ))),
             ResponsiveRowColumnItem(
                 child: SizedBox(
-                  height: 64,
-                )),
+              height: 64,
+            )),
             ResponsiveRowColumnItem(
                 child: Padding(
                     padding: EdgeInsets.only(top: 10),
@@ -91,8 +96,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
                     ))),
             ResponsiveRowColumnItem(
                 child: SizedBox(
-                  height: 87,
-                )),
+              height: 87,
+            )),
           ],
         ),
       ),
@@ -100,10 +105,10 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   }
 
   Widget _buildStatusWidget(
-      BuildContext context,
-      ConnectionStatus connectionStatus,
-      BootCheckResponse bootStatus,
-      ) {
+    BuildContext context,
+    ConnectionStatus connectionStatus,
+    BootCheckResponse bootStatus,
+  ) {
     if (connectionStatus == ConnectionStatus.connecting) {
       return const CircularProgressIndicator();
     } else if (connectionStatus == ConnectionStatus.error) {
@@ -127,7 +132,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
               fontSize: 24,
               color: Colors.green),
         );
-      } else */if (bootStatus.overallStatus?.toUpperCase() == 'FAIL') {
+      } else */
+      if (bootStatus.overallStatus?.toUpperCase() == 'FAIL') {
         String msg = bootStatus.message;
         for (var check in bootStatus.checks!) {
           if (check.status == 'FAIL') {

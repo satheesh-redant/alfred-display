@@ -38,12 +38,12 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
   Widget build(BuildContext context) {
     final allTables = ref.watch(tableProvider);
     final markedTables = ref.watch(markedTablesProvider);
+    final selectedTable = ref.watch(deliveryScreenTableProvider);
 
     ref.listen(
       deliveryVMProvider,
       (previous, next) {
-        context.loaderOverlay.hide();
-        if (next == "moving") {
+        if (next == "moving" && selectedTable?.route != -1) {
           context
               .pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
         }
@@ -54,6 +54,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       opsVMProvider,
       (previous, next) {
         if (next.toLowerCase() == 'training') {
+          ref.read(opsVMProvider.notifier).unsubscribe();
           context.loaderOverlay.hide();
           context.go(AlfredConstants.routeChecklistScreen);
         }
@@ -74,7 +75,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                       padding: const EdgeInsets.only(left: 0, top: 70),
                       child: Container(
                         width: 63,
-                        height: 240,
+                        height: 300,
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
@@ -120,6 +121,36 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                             ),
                             Text(
                               "Settings",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.nunito(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                height: 1.20,
+                                letterSpacing: 0.24,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            IconButton(
+                              icon: SvgPicture.asset(
+                                'assets/images/setting_icon.svg',
+                                width: 36,
+                                height: 36,
+                              ),
+                              onPressed: () {
+                                if(selectedTableNumber != -1) {
+                                  ref.read(deliveryScreenTableProvider.notifier)
+                                      .state =
+                                      RouteState(
+                                          tableNumber: selectedTableNumber,
+                                          route: -1);
+                                  ref.read(deliveryVMProvider.notifier).moveTable(
+                                      table: selectedTableNumber, route: 1);
+                                }
+                              },
+                            ),
+                            Text(
+                              "Base",
                               textAlign: TextAlign.center,
                               style: GoogleFonts.nunito(
                                 color: Colors.black,
@@ -267,7 +298,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                   ButtonWidget(
                     text: "Go to Table",
                     onPressed: () {
-                      context.loaderOverlay.show();
                       ref.read(deliveryScreenTableProvider.notifier)
                           .state =
                           RouteState(
