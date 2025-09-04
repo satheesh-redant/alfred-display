@@ -34,7 +34,7 @@ class _DeliveryInProgressScreenState
     ref.listen(
       deliveryVMProvider,
       (previous, next) {
-        if (next == "delivered") {
+        if (next.toLowerCase() == "delivered") {
           if (selectedTable!.route == 0) {
             context.pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
           } else {

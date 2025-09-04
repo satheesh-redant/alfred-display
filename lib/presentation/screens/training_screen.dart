@@ -72,7 +72,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
               currentlyMarkedTable = selectedTable;
               showBasePointMessage = true;
             });
-            ref.read(isMarkingCompleteProvider.notifier).state = true;
+            // ref.read(isMarkingCompleteProvider.notifier).state = true;
             ref.read(selectedTableProvider.notifier).state = null;
           } else {
             // showErrorToast(context: context, description: next);
@@ -97,18 +97,30 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     //     }
     //   },
     // );
-    //
+
     // ref.listen(
     //   opsVMProvider,
     //   (previous, next) {
-    //     if (next == 'delivery') {
+    //     if (next == 'navigation') {
     //       ref.context.loaderOverlay.hide();
     //       ref.read(opsVMProvider.notifier).unsubscribe();
-    //       // context.go(AlfredConstants.routeDeliveryMainScreen);
-    //       context.go(AlfredConstants.routeRoutingScreen);
+    //       context.go(AlfredConstants.routeDeliveryMainScreen);
+    //       // context.go(AlfredConstants.routeRoutingScreen);
     //     }
     //   },
     // );
+
+    ref.listen(
+      addTableVMProvider,
+          (previous, next) {
+        if (next.toUpperCase() == ROSConstants.success) {
+          ref.context.loaderOverlay.hide();
+          ref.read(opsVMProvider.notifier).unsubscribe();
+          context.go(AlfredConstants.routeDeliveryMainScreen);
+          // context.go(AlfredConstants.routeRoutingScreen);
+        }
+      },
+    );
 
     return Scaffold(
       appBar: AppBarWidget(),
@@ -139,7 +151,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                                   margin:
                                       const EdgeInsets.only(top: 50, left: 63),
                                   alignment: Alignment.center,
-                                  //todo: Dynamic text that changes based on marking state
                                   child: Text(
                                     showBasePointMessage
                                         ? 'You are at your Base Point. Please move Alfred towards table to start marking'
@@ -258,12 +269,14 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                 const SizedBox(width: 20),
                 if (!isMarkingComplete)
                   ButtonWidget(
-                    text: "Confirm",
+                    text: "Save Map",
                     onPressed: selectedTable != null
                         ? () {
                             ref.context.loaderOverlay.show();
-                            ref.read(addTableVMProvider.notifier)
-                                .addTable(table: selectedTable);
+                            ref.read(addTableVMProvider.notifier).saveMap();
+                            // ref.read(addTableVMProvider.notifier)
+                            //     .addTable(table: selectedTable);
+
                           }
                         : null,
                     isActive: selectedTable != null,

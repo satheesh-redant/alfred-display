@@ -7,7 +7,7 @@ import 'package:rosbridge/rosbridge.dart';
 class AddTableViewModel extends StateNotifier<String> {
 
   final ROSService _rosService;
-  Topic? _topicAddTable, _topicAddTableAck;
+  Topic? _topicAddTable, _topicAddTableAck, _topicSaveMap, _topicSavedMapAck;
 
   AddTableViewModel(this._rosService) : super(""){
     print('initiating table topics');
@@ -16,12 +16,24 @@ class AddTableViewModel extends StateNotifier<String> {
       ROSConstants.msgString,
     );
 
+    _topicSaveMap = _rosService.createTopic(
+      ROSConstants.topicSaveMap,
+      ROSConstants.msgEmpty,
+    );
+
     _topicAddTableAck = _rosService.createTopic(
       ROSConstants.topicAddTableAck,
       ROSConstants.msgString,
       throttleRate: 2000,
     );
     _topicAddTableAck!.subscribe(_handlerAck);
+
+    _topicSavedMapAck = _rosService.createTopic(
+      ROSConstants.topicMapSaved,
+      ROSConstants.msgString,
+      throttleRate: 2000,
+    );
+    _topicSavedMapAck!.subscribe(_handlerMapAck);
   }
 
   Future<void> addTable({required int table}) async {
@@ -30,8 +42,17 @@ class AddTableViewModel extends StateNotifier<String> {
     await _topicAddTable!.publish(json);
   }
 
+  Future<void> saveMap() async {
+    await _topicSaveMap!.publish({});
+  }
+
   Future<void> _handlerAck(Map<String, dynamic> message) async {
     print('Add table ack data : $message');
+    state = message['data'];
+  }
+
+  Future<void> _handlerMapAck(Map<String, dynamic> message) async {
+    print('Save map ack data : $message');
     state = message['data'];
   }
 

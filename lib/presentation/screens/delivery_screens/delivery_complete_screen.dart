@@ -1,25 +1,28 @@
-import 'package:alfred/config/ros_constants.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import '../../../config/alfred_constants.dart';
 import '../../../models/route_state.dart';
-import '../../../view_models/base_point_view_model.dart';
 import '../../../view_models/delivery_view_model.dart';
 import '../../widgets/appbar_widget.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import '../../widgets/button_widget.dart';
 import 'delivery_main_screen.dart';
 
-class DeliveryCompleteScreen extends ConsumerWidget {
+class DeliveryCompleteScreen extends ConsumerStatefulWidget {
   const DeliveryCompleteScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+  ConsumerState<DeliveryCompleteScreen> createState() =>
+      _DeliveryCompleteScreenState();
+}
+
+class _DeliveryCompleteScreenState
+    extends ConsumerState<DeliveryCompleteScreen> {
+
+  @override
+  Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -41,7 +44,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
     ref.listen(
       deliveryVMProvider,
       (previous, next) {
-        if (next == "moving") {
+        if (next.toLowerCase() == "moving") {
           context.pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
         }
       },
@@ -133,7 +136,6 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                         child: ButtonWidget(
                           text: "Go to Base",
                           onPressed: () {
-                            // ref.context.loaderOverlay.show();
                             ref
                                     .read(deliveryScreenTableProvider.notifier)
                                     .state =
@@ -141,7 +143,7 @@ class DeliveryCompleteScreen extends ConsumerWidget {
                                     tableNumber: selectedTable!.tableNumber,
                                     route: 1);
                             ref.read(deliveryVMProvider.notifier).moveTable(
-                                table: selectedTable.tableNumber, route: 1);
+                                table: 0, route: 1);
                             // ref.read(basePointVMProvider.notifier).triggerReturnToBase();
                           },
                           isActive: true,

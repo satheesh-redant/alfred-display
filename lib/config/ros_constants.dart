@@ -2,6 +2,7 @@ class ROSConstants {
   static const String rosUrl = 'ws://192.168.133.56:9090';
   // static const String rosUrl = 'ws://127.0.0.1:9090';
   // static const String rosUrl = 'ws://192.168.0.146:9090';
+
   /*  GENERIC */
   static const String msgString = 'std_msgs/String';
   static const String msgInteger = 'std_msgs/Int32';
@@ -21,7 +22,7 @@ class ROSConstants {
   static const String topicBattery = '/battery_status';
 
   /*  OPERATIONS  */
-  static const String topicSetOpsMode = '/set_mode';
+  static const String topicSetOpsMode = '/mode';
   // static const String topicCurrentMode = '/current_mode';
 
   /*  TABLES  */
@@ -40,12 +41,16 @@ class ROSConstants {
 
   /*  DELIVERY  */
   // static const String topicMoveTable = '/move_to_table';
-  static const String topicMoveTable = '/goto_point';
+  // static const String topicMoveTable = '/goto_point';
+  static const String topicMoveTable = '/table_number';
   static const String topicDeliveryStatus = '/delivery_status';
 
   /*  ROUTE */
   static const String topicRoute = '/save_route';
   static const String topicRouteAck = '/save_route_ack';
+
+  static const String topicSaveMap = '/save_map';
+  static const String topicMapSaved = '/map_saved';
 
   static const String success = 'SUCCESS';
 }

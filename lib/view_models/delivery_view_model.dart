@@ -12,7 +12,7 @@ class DeliveryViewModel extends StateNotifier<String> {
     print('initiating all delivery topics');
     _topicMoveTable = _rosService.createTopic(
       ROSConstants.topicMoveTable,
-      ROSConstants.msgString,
+      ROSConstants.msgInteger,
     );
 
     _topicDeliveryStatus = _rosService.createTopic(
@@ -24,7 +24,7 @@ class DeliveryViewModel extends StateNotifier<String> {
   }
 
   Future<void> moveTable({required int table, required int route}) async {
-    Map<String, dynamic> json = {'data': '${table.toString()}:${route.toString()}'};
+    Map<String, dynamic> json = {'data': table};
     print('Publishing move table: $json');
     await _topicMoveTable!.publish(json);
   }

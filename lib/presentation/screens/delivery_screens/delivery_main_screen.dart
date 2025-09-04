@@ -1,3 +1,4 @@
+import 'package:alfred/core/toast_utils.dart';
 import 'package:alfred/models/route_state.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
   int selectedTableNumber = -1;
 
+  List<int> tables = List.generate(10, (index) => index + 1);
+
   @override
   void initState() {
     super.initState();
@@ -36,16 +39,21 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final allTables = ref.watch(tableProvider);
-    final markedTables = ref.watch(markedTablesProvider);
+    final tableList = ref.watch(tableVMProvider);
+    if (tableList.isNotEmpty) {
+      tables = tableList;
+    }
+
     final selectedTable = ref.watch(deliveryScreenTableProvider);
 
     ref.listen(
       deliveryVMProvider,
       (previous, next) {
-        if (next == "moving" && selectedTable?.route != -1) {
+        if (next.toLowerCase() == "moving" && selectedTable?.route != -1) {
           context
               .pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
+        } else {
+          showErrorToast(context: context, description: "Goal rejected");
         }
       },
     );
@@ -225,7 +233,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.only(right: 40),
-                              child: ref.watch(tableVMProvider).isEmpty
+                              child: tables.isEmpty
                                   ? Center(
                                       child: Text(
                                         "No tables marked yet\nPlease mark tables in Training Mode first",
@@ -249,9 +257,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                         childAspectRatio: 138 / 60,
                                       ),
                                       itemCount:
-                                          ref.watch(tableVMProvider).length,
+                                      tables.length,
                                       itemBuilder: (context, index) {
-                                        final data = ref.watch(tableVMProvider);
+                                        final data = tables;
                                         final isSelected =
                                             selectedTableNumber ==
                                                 data[index];
