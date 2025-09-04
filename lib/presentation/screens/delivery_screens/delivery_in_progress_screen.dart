@@ -35,8 +35,9 @@ class _DeliveryInProgressScreenState
       deliveryVMProvider,
       (previous, next) {
         if (next.toLowerCase() == "delivered") {
-          if (selectedTable!.route == 0) {
-            context.pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
+          if (selectedTable!.route == 0 || selectedTable.route == -1) {
+            context
+                .pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
           } else {
             context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
           }
@@ -77,7 +78,9 @@ class _DeliveryInProgressScreenState
                         Text(
                           selectedTable?.route == 0
                               ? "Table ${selectedTable?.tableNumber}"
-                              : "Returning to Base",
+                              : selectedTable?.route == 1
+                                  ? "Returning to Base"
+                                  : "To Washing Area",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.nunito(
                             fontSize: 32,

@@ -23,7 +23,11 @@ class _DeliveryCompleteScreenState
 
   @override
   Widget build(BuildContext context) {
+
     final screenWidth = MediaQuery.of(context).size.width;
+    final defaultWidth = screenWidth >= 1024 ? 697.0 : screenWidth * 0.55;
+    final defaultHeight = 80.0;
+
     final screenHeight = MediaQuery.of(context).size.height;
 
     final selectedTable = ref.watch(deliveryScreenTableProvider);
@@ -45,7 +49,8 @@ class _DeliveryCompleteScreenState
       deliveryVMProvider,
       (previous, next) {
         if (next.toLowerCase() == "moving") {
-          context.pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
+          context
+              .pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
         }
       },
     );
@@ -83,7 +88,9 @@ class _DeliveryCompleteScreenState
                                 SizedBox(height: 75 * scaleFactor),
                                 // "Alfred is ready to serve" Text
                                 Text(
-                                  "Alfred is ready to serve",
+                                  selectedTable?.route == 0
+                                      ? "Alfred is ready to serve"
+                                      : "Reached washing area",
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.nunito(
                                     fontSize: 36 * scaleFactor,
@@ -133,20 +140,71 @@ class _DeliveryCompleteScreenState
                       right: 0,
                       bottom: 20,
                       child: Center(
-                        child: ButtonWidget(
-                          text: "Go to Base",
-                          onPressed: () {
-                            ref
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                                width: defaultWidth,
+                                height: defaultHeight,
+                                child: OutlinedButton(
+                              onPressed: () {
+                                ref
                                     .read(deliveryScreenTableProvider.notifier)
-                                    .state =
-                                RouteState(
-                                    tableNumber: selectedTable!.tableNumber,
-                                    route: 1);
-                            ref.read(deliveryVMProvider.notifier).moveTable(
-                                table: 0, route: 1);
-                            // ref.read(basePointVMProvider.notifier).triggerReturnToBase();
-                          },
-                          isActive: true,
+                                    .state = RouteState(tableNumber: 3, route: -1);
+                                ref
+                                    .read(deliveryVMProvider.notifier)
+                                    .moveTable(table: 3, route: -1);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 24),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                elevation: selectedTable?.route != -1 ? 6 : 0,
+                              ),
+                              child: Text(
+                                "Go to Washing Area",
+                                style: GoogleFonts.inter(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            )),
+                            // ButtonWidget(
+                            //   text: "Go to Washing Area",
+                            //   onPressed: () {
+                            //     ref
+                            //         .read(deliveryScreenTableProvider.notifier)
+                            //         .state =
+                            //         RouteState(
+                            //             tableNumber: 3,
+                            //             route: -1);
+                            //     ref
+                            //         .read(deliveryVMProvider.notifier)
+                            //         .moveTable(table: 3, route: -1);
+                            //   },
+                            //   isActive: selectedTable?.route != -1,
+                            //   width: MediaQuery.of(context).size.width * 0.25,
+                            // ),
+                            SizedBox(width: 40),
+                            ButtonWidget(
+                              text: "Go to Base",
+                              onPressed: () {
+                                ref
+                                    .read(deliveryScreenTableProvider.notifier)
+                                    .state = RouteState(tableNumber: 0, route: 1);
+                                ref
+                                    .read(deliveryVMProvider.notifier)
+                                    .moveTable(table: 0, route: 1);
+                                // ref.read(basePointVMProvider.notifier).triggerReturnToBase();
+                              },
+                              isActive: true,
+                              width: MediaQuery.of(context).size.width * 0.25,
+                            ),
+                          ],
                         ),
                       ),
                     ),
