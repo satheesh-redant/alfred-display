@@ -55,31 +55,31 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     //   },
     // );
 
-    ref.listen(
-      addTableVMProvider,
-      (previous, next) {
-        if (next.isNotEmpty) {
-          if (next.toUpperCase() == ROSConstants.success) {
-            ref.context.loaderOverlay.hide();
-            showSuccessToast(
-                context: context,
-                description: "Table $selectedTable marked successfully");
-            setState(() {
-              ref.read(markedTablesProvider.notifier).state = [
-                ...markedTables,
-                selectedTable!
-              ];
-              currentlyMarkedTable = selectedTable;
-              showBasePointMessage = true;
-            });
-            // ref.read(isMarkingCompleteProvider.notifier).state = true;
-            ref.read(selectedTableProvider.notifier).state = null;
-          } else {
-            // showErrorToast(context: context, description: next);
-          }
-        }
-      },
-    );
+    // ref.listen(
+    //   addTableVMProvider,
+    //   (previous, next) {
+    //     if (next.isNotEmpty) {
+    //       if (next.toUpperCase() == ROSConstants.success) {
+    //         ref.context.loaderOverlay.hide();
+    //         showSuccessToast(
+    //             context: context,
+    //             description: "Table $selectedTable marked successfully");
+    //         setState(() {
+    //           ref.read(markedTablesProvider.notifier).state = [
+    //             ...markedTables,
+    //             selectedTable!
+    //           ];
+    //           currentlyMarkedTable = selectedTable;
+    //           showBasePointMessage = true;
+    //         });
+    //         // ref.read(isMarkingCompleteProvider.notifier).state = true;
+    //         ref.read(selectedTableProvider.notifier).state = null;
+    //       } else {
+    //         // showErrorToast(context: context, description: next);
+    //       }
+    //     }
+    //   },
+    // );
 
     // ref.listen(
     //   basePointVMProvider,
@@ -115,9 +115,9 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
           (previous, next) {
         if (next.toUpperCase() == ROSConstants.success) {
           ref.context.loaderOverlay.hide();
-          ref.read(opsVMProvider.notifier).unsubscribe();
-          context.go(AlfredConstants.routeDeliveryMainScreen);
-          // context.go(AlfredConstants.routeRoutingScreen);
+          // ref.read(opsVMProvider.notifier).unsubscribe();
+          // context.go(AlfredConstants.routeDeliveryMainScreen);
+          context.go(AlfredConstants.routeRoutingScreen);
         }
       },
     );
@@ -270,16 +270,11 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                 if (!isMarkingComplete)
                   ButtonWidget(
                     text: "Save Map",
-                    onPressed: selectedTable != null
-                        ? () {
-                            ref.context.loaderOverlay.show();
-                            ref.read(addTableVMProvider.notifier).saveMap();
-                            // ref.read(addTableVMProvider.notifier)
-                            //     .addTable(table: selectedTable);
-
-                          }
-                        : null,
-                    isActive: selectedTable != null,
+                    onPressed: () {
+                      ref.context.loaderOverlay.show();
+                      ref.read(addTableVMProvider.notifier).saveMap();
+                    },
+                    isActive: true,
                     width: MediaQuery.of(context).size.width * 0.55,
                   ),
                 //todo: Show action buttons when marking is complete
@@ -301,7 +296,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
                       ),
                       SizedBox(width: 40),
                       ButtonWidget(
-                        //todo: Button to return to base screen
                         text: "Next",
                         onPressed: () {
                           context.go(AlfredConstants.routeRoutingScreen);

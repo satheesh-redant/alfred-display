@@ -14,7 +14,7 @@ class RouteViewModel extends StateNotifier<String> {
     print('initiating all route topic');
     _topicRoute = _rosService.createTopic(
       ROSConstants.topicRoute,
-      ROSConstants.msgString,
+      ROSConstants.msgInteger,
     );
 
     _topicRouteAck = _rosService.createTopic(
@@ -28,7 +28,8 @@ class RouteViewModel extends StateNotifier<String> {
   Future<void> sendRouteData({required int table, required int route}) async {
     RouteState routeState = RouteState(tableNumber: table, route: route);
     // print("Sending route data : " + routeStateToJson(routeState));
-    Map<String, dynamic> json = {"data": routeStateToJson(routeState)};
+    // Map<String, dynamic> json = {"data": routeStateToJson(routeState)};
+    Map<String, dynamic> json = {"data": table};
     print('Publishing route data: $json');
     await _topicRoute!.publish(json);
   }
@@ -41,7 +42,7 @@ class RouteViewModel extends StateNotifier<String> {
   @override
   void dispose() {
     print('Disposing all route topics');
-    _topicRoute!.unsubscribe();
+    // _topicRoute!.unsubscribe();
     _topicRouteAck!.unsubscribe();
     state = "";
   }

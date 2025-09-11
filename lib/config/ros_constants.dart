@@ -46,8 +46,8 @@ class ROSConstants {
   static const String topicDeliveryStatus = '/delivery_status';
 
   /*  ROUTE */
-  static const String topicRoute = '/save_route';
-  static const String topicRouteAck = '/save_route_ack';
+  static const String topicRoute = '/save_wp';
+  static const String topicRouteAck = '/save_wp_ack';
 
   static const String topicSaveMap = '/save_map';
   static const String topicMapSaved = '/map_saved';

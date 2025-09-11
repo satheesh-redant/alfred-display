@@ -10,6 +10,7 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:toastification/toastification.dart';
 
 import '../../core/toast_utils.dart';
+import '../../providers/table_providers.dart';
 import '../../view_models/base_point_view_model.dart';
 import '../../view_models/operation_view_model.dart';
 import '../../view_models/table_view_model.dart';
@@ -29,35 +30,38 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
   @override
   void initState() {
     super.initState();
-    ref.read(tableVMProvider.notifier).requestTableList();
+    // ref.read(tableVMProvider.notifier).requestTableList();
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(
-      basePointVMProvider,
-          (previous, next) {
-        if (next.isNotEmpty) {
-          if (next.toUpperCase() == ROSConstants.success) {
-            ref.read(basePointVMProvider.notifier).stopTimer();
-            ref.read(opsVMProvider.notifier).getCurrentMode();
-          } else {
-            ref.context.loaderOverlay.hide();
-          }
-        }
-      },
-    );
+    final tables = ref.watch(tableProvider);
 
-    ref.listen(
-      opsVMProvider,
-          (previous, next) {
-        if (next == 'delivery') {
-          ref.read(opsVMProvider.notifier).unsubscribe();
-          ref.context.loaderOverlay.hide();
-          context.go(AlfredConstants.routeDeliveryMainScreen);
-        }
-      },
-    );
+    // ref.listen(
+    //   basePointVMProvider,
+    //       (previous, next) {
+    //     if (next.isNotEmpty) {
+    //       if (next.toUpperCase() == ROSConstants.success) {
+    //         ref.read(basePointVMProvider.notifier).stopTimer();
+    //         ref.read(opsVMProvider.notifier).getCurrentMode();
+    //       } else {
+    //         ref.context.loaderOverlay.hide();
+    //       }
+    //     }
+    //   },
+    // );
+
+    // ref.listen(
+    //   opsVMProvider,
+    //       (previous, next) {
+    //     if (next == 'delivery') {
+    //       ref.read(opsVMProvider.notifier).unsubscribe();
+    //       ref.context.loaderOverlay.hide();
+    //       context.go(AlfredConstants.routeDeliveryMainScreen);
+    //     }
+    //   },
+    // );
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -82,7 +86,7 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.only(right: 40),
-                  child: ref.watch(tableVMProvider).isEmpty
+                  child: tables.isEmpty
                       ? Center(
                           child: Text(
                             "No tables marked yet\nPlease mark tables in Training Mode first",
@@ -104,10 +108,9 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                             mainAxisSpacing: 26,
                             childAspectRatio: 138 / 60,
                           ),
-                          itemCount: ref.watch(tableVMProvider).length,
+                          itemCount: tables.length,
                           itemBuilder: (context, index) {
-                            final data = ref.watch(tableVMProvider);
-                            print(data);
+                            final data = tables;
                             final isSelected = selectedTable == data[index];
                             return Padding(
                               padding: EdgeInsets.only(
@@ -126,6 +129,11 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                                     builder: (context) {
                                       return CustomDialog(
                                         tableNumber: data[index],
+                                        onCancel: () {
+                                          setState(() {
+                                            selectedTable = -1;
+                                          });
+                                        },
                                       );
                                     },
                                   );
@@ -162,8 +170,9 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
 
 class CustomDialog extends ConsumerStatefulWidget {
   final int? tableNumber;
+  Function onCancel;
 
-  const CustomDialog({super.key, this.tableNumber});
+  CustomDialog({super.key, this.tableNumber, required this.onCancel});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _CustomDialogState();
@@ -214,7 +223,10 @@ class _CustomDialogState extends ConsumerState<CustomDialog> {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              widget.onCancel();
+              Navigator.of(context).pop();
+            },
             child: const Text('Cancel')),
         ElevatedButton(
           onPressed: () {
