@@ -4,16 +4,12 @@ import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:alfred/providers/table_providers.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../../../config/alfred_constants.dart';
 import '../../../view_models/delivery_view_model.dart';
 import '../../../view_models/table_view_model.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../../widgets/table_grid_button_widget.dart';
-import '../../widgets/button_widget.dart';
 
 final deliveryScreenTableProvider = StateProvider<RouteState?>((ref) => null);
 
@@ -26,7 +22,6 @@ class DeliveryMainScreen extends ConsumerStatefulWidget {
 }
 
 class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
-
   int selectedTableNumber = -1;
 
   List<int> tables = List.generate(10, (index) => index + 1);
@@ -44,23 +39,24 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       tables = tableList;
     }
 
-    final selectedTable = ref.watch(deliveryScreenTableProvider);
-
     ref.listen(
       deliveryVMProvider,
-      (previous, next) {
-        if (next.toLowerCase() == "moving" && selectedTable?.route != -1) {
+          (previous, next) {
+        if (next.toLowerCase() == "moving") {
+          ref.read(deliveryScreenTableProvider.notifier).state =
+              RouteState(tableNumber: selectedTableNumber, status: Status.inprogress);
+
           context
               .pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
         } else {
-          showErrorToast(context: context, description: "Goal rejected");
+          showErrorToast(context: context, description: next);
         }
       },
     );
 
     ref.listen(
       opsVMProvider,
-      (previous, next) {
+          (previous, next) {
         if (next.toLowerCase() == 'training') {
           ref.read(opsVMProvider.notifier).unsubscribe();
           context.loaderOverlay.hide();
@@ -70,259 +66,388 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
     );
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              AppBarWidget(),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 0, top: 70),
-                      child: Container(
-                        width: 63,
-                        height: 300,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              icon: SvgPicture.asset(
-                                'assets/images/Edit_icon.svg',
-                                width: 31,
-                                height: 31,
-                              ),
-                              onPressed: () {
-                                context.loaderOverlay.show();
-                                ref
-                                    .read(opsVMProvider.notifier)
-                                    .sendOpsMode(mode: 'training');
-                              },
-                            ),
-                            Center(
-                              child: Text(
-                                'Training \nMode',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.nunito(
-                                  color: Colors.black,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.20,
-                                  letterSpacing: 0.24,
+      backgroundColor: const Color(0xFFFFFFFF), // Light background
+      body: SafeArea(
+        child: Column(
+          children: [
+            AppBarWidget(),
+            Expanded(
+              child: Stack(
+                children: [
+                  // Main content
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20, left: 100), // Add left margin for sidebar space
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Center - Alfred Image and Status
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 30),
+                                Text(
+                                  "Alfred at Base",
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w900,
+                                    color: const Color(0xFF2E3A59),
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
+                                const SizedBox(height: 15),
+                                Text(
+                                  "Start the Service by selecting table number",
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 30),
+                                Expanded(
+                                  child: Container(
+                                    constraints: const BoxConstraints(maxWidth: 300),
+                                    child: Image.asset(
+                                      "assets/images/alfred_base.png",
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 10),
-                            IconButton(
-                              icon: SvgPicture.asset(
-                                'assets/images/setting_icon.svg',
-                                width: 36,
-                                height: 36,
-                              ),
-                              onPressed: () {},
+                          ),
+                        ),
+
+                        // Right Side - Table Selection Card
+                        Expanded(
+                          flex: 3,
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 20, right: 20),
+                            child: _buildTableSelectionCard(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Left Sidebar - Positioned at center left
+                  Positioned(
+                    left: 20,
+                    top: 0,
+                    bottom: 0,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        width: 80,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              const Color(0xFF2E3A59),
+                              const Color(0xFF1A2332),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
-                            Text(
-                              "Settings",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.nunito(
-                                color: Colors.black,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                height: 1.20,
-                                letterSpacing: 0.24,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            IconButton(
-                              icon: SvgPicture.asset(
-                                'assets/images/setting_icon.svg',
-                                width: 36,
-                                height: 36,
-                              ),
-                              onPressed: () {
-                                if(selectedTableNumber != -1) {
-                                  ref.read(deliveryScreenTableProvider.notifier)
-                                      .state =
-                                      RouteState(
-                                          tableNumber: selectedTableNumber,
-                                          route: -1);
-                                  ref.read(deliveryVMProvider.notifier).moveTable(
-                                      table: selectedTableNumber, route: 1);
-                                }
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Training Mode
+                            _buildSidebarItem(
+                              icon: Icons.school_outlined,
+                              label: 'Training\nMode',
+                              onTap: () {
+                                context.go(AlfredConstants.routeChecklistScreen);
                               },
                             ),
-                            Text(
-                              "Base",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.nunito(
-                                color: Colors.black,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                height: 1.20,
-                                letterSpacing: 0.24,
-                              ),
+
+                            const SizedBox(height: 20),
+
+                            // Settings
+                            _buildSidebarItem(
+                              icon: Icons.settings_outlined,
+                              label: 'Settings',
+                              onTap: () {
+                                // Settings action
+                              },
                             ),
                           ],
                         ),
                       ),
                     ),
-                    Expanded(
-                      flex: 2,
-                      child: Stack(
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebarItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isActive = false,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 60,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isActive
+                ? Colors.white.withOpacity(0.2)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 24,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.nunito(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  height: 1.1,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableSelectionCard() {
+    return Card(
+      elevation: 6,
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  // Grid for tables
+                  Expanded(
+                    child: tables.isEmpty
+                        ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Positioned(
-                            left: 183,
-                            top: 50,
-                            child: Text(
-                              "Alfred at Base",
-                              style: GoogleFonts.nunito(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                              ),
-                              textAlign: TextAlign.center,
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[21],
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Icon(
+                              Icons.table_restaurant_outlined,
+                              size: 48,
+                              color: Colors.grey,
                             ),
                           ),
-                          Positioned(
-                            left: 111,
-                            top: 100,
-                            child: Text(
-                              "Start the Service by selecting table number",
-                              style: GoogleFonts.nunito(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              textAlign: TextAlign.center,
+                          const SizedBox(height: 20),
+                          Text(
+                            "No tables marked yet",
+                            style: GoogleFonts.nunito(
+                              fontSize: 18,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          Positioned(
-                            left: 122,
-                            top: 218,
-                            bottom: 5,
-                            child: Image.asset(
-                              "assets/images/alfred_base.png",
-                              width: 267,
-                              height: 614,
-                              fit: BoxFit.contain,
+                          const SizedBox(height: 8),
+                          Text(
+                            "Please mark tables in Training Mode first",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.nunito(
+                              fontSize: 14,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],
                       ),
+                    )
+                        : GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 1.8,
+                      ),
+                      itemCount: tables.length,
+                      itemBuilder: (context, index) {
+                        final tableNumber = tables[index];
+                        final isSelected = selectedTableNumber == tableNumber;
+
+                        return _buildTableButton(
+                          tableNumber: tableNumber,
+                          isSelected: isSelected,
+                          onPressed: () {
+                            setState(() {
+                              selectedTableNumber = tableNumber;
+                            });
+                          },
+                        );
+                      },
                     ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        padding: const EdgeInsets.only(top: 50),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+
+                  // Action Button inside the card
+                  if (selectedTableNumber != -1) ...[
+                    const SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      height: 50,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.blue.shade600, // Changed to blue
+                            Colors.blue.shade700, // Changed to blue
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.3), // Changed to blue
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ref.read(deliveryScreenTableProvider.notifier).state =
+                              RouteState(tableNumber: selectedTableNumber, status: Status.pending);
+                          ref
+                              .read(deliveryVMProvider.notifier)
+                              .moveTable(table: selectedTableNumber);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            const Icon(Icons.arrow_forward_rounded, size: 20),
+                            const SizedBox(width: 8),
                             Text(
-                              "Select Tables",
-                              style: GoogleFonts.nunito(
+                              "Go to Table $selectedTableNumber",
+                              style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
-                            ),
-                            const SizedBox(height: 49),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.only(right: 40),
-                              child: tables.isEmpty
-                                  ? Center(
-                                      child: Text(
-                                        "No tables marked yet\nPlease mark tables in Training Mode first",
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.nunito(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    )
-                                  : GridView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 4,
-                                        crossAxisSpacing: 49,
-                                        mainAxisSpacing: 26,
-                                        childAspectRatio: 138 / 60,
-                                      ),
-                                      itemCount:
-                                      tables.length,
-                                      itemBuilder: (context, index) {
-                                        final data = tables;
-                                        final isSelected =
-                                            selectedTableNumber ==
-                                                data[index];
-                                        return Padding(
-                                          padding: EdgeInsets.only(
-                                            right: index % 4 == 3 ? 0 : 0,
-                                          ),
-                                          child: TableGridButtonWidget(
-                                            label: data[index].toString(),
-                                            tableNumber: data[index],
-                                            isSelected: isSelected,
-                                            onPressed: () {
-                                              setState(() {
-                                                selectedTableNumber = data[index];
-                                              });
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    ),
                             ),
                           ],
                         ),
                       ),
                     ),
                   ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableButton({
+    required int tableNumber,
+    required bool isSelected,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? LinearGradient(
+            colors: [
+              Colors.blue.withOpacity(0.1), // Changed to blue
+              Colors.blue.withOpacity(0.05), // Changed to blue
+            ],
+          )
+              : null,
+          color: isSelected ? null : Colors.grey.shade50,
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey.shade300, // Changed to blue
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isSelected
+              ? [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.2), // Changed to blue
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ]
+              : null,
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.table_restaurant_rounded,
+                size: 20,
+                color: isSelected ? Colors.blue : Colors.grey.shade600, // Changed to blue
+              ),
+              const SizedBox(height: 4),
+              Text(
+                tableNumber.toString(),
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? Colors.blue : Colors.black87, // Changed to blue
                 ),
               ),
             ],
           ),
-          Positioned(
-            left: 0,
-            right: 40,
-            bottom: 36,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 15),
-              child: Row(
-                children: [
-                  const Expanded(
-                    flex: 2,
-                    child: SizedBox(),
-                  ),
-                  const SizedBox(width: 20),
-                  ButtonWidget(
-                    text: "Go to Table",
-                    onPressed: () {
-                      ref.read(deliveryScreenTableProvider.notifier)
-                          .state =
-                          RouteState(
-                              tableNumber: selectedTableNumber,
-                              route: 0);
-                      ref.read(deliveryVMProvider.notifier).moveTable(
-                          table: selectedTableNumber,
-                          route: 0);
-                    },
-                    isActive: selectedTableNumber != -1,
-                    width: MediaQuery.of(context).size.width * 0.53,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

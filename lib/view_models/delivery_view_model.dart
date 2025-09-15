@@ -23,7 +23,7 @@ class DeliveryViewModel extends StateNotifier<String> {
     _topicDeliveryStatus!.subscribe(_handlerAck);
   }
 
-  Future<void> moveTable({required int table, required int route}) async {
+  Future<void> moveTable({required int table}) async {
     Map<String, dynamic> json = {'data': table};
     print('Publishing move table: $json');
     await _topicMoveTable!.publish(json);

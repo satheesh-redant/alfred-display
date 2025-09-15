@@ -49,10 +49,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Future.delayed(const Duration(seconds: 2), () {
               if (mounted) {
-                if (next.toLowerCase() == 'navigation') {
+                if (next.toLowerCase() == 'mapping') {
+                  context.go(AlfredConstants.routeTrainingScreen);
+                } else if (next.toLowerCase() == 'navigation') {
                   context.go(AlfredConstants.routeDeliveryMainScreen);
                 } else {
-                  context.go(AlfredConstants.routeTrainingScreen);
+                  context.go(AlfredConstants.routeRoutingScreen);
                 }
               }
             });

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import '../../../models/route_state.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -35,11 +36,14 @@ class _DeliveryInProgressScreenState
       deliveryVMProvider,
       (previous, next) {
         if (next.toLowerCase() == "delivered") {
-          if (selectedTable!.route == 0 || selectedTable.route == -1) {
+          ref.read(deliveryScreenTableProvider.notifier).state =
+              RouteState(tableNumber: selectedTable!.tableNumber,status: Status.completed);
+          if (selectedTable.tableNumber == 0) {
+            context
+                .pushReplacement(AlfredConstants.routeDeliveryMainScreen);
+          } else {
             context
                 .pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
-          } else {
-            context.pushReplacement(AlfredConstants.routeDeliveryMainScreen);
           }
         }
       },
@@ -76,11 +80,9 @@ class _DeliveryInProgressScreenState
                       children: [
                         // Table Number Text
                         Text(
-                          selectedTable?.route == 0
+                          selectedTable?.tableNumber != 0
                               ? "Table ${selectedTable?.tableNumber}"
-                              : selectedTable?.route == 1
-                                  ? "Returning to Base"
-                                  : "To Washing Area",
+                              : "Returning to Base",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.nunito(
                             fontSize: 32,

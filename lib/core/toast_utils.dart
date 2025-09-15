@@ -24,7 +24,7 @@ void showToast(BuildContext context, String description, String title, Toastific
     title: Text(title),
     description: Text(description),
     alignment: Alignment.topCenter,
-    autoCloseDuration: const Duration(seconds: 1),
+    autoCloseDuration: const Duration(seconds: 2),
     animationBuilder: (context, animation, alignment, child) {
       return ScaleTransition(scale: animation, child: child);
     },

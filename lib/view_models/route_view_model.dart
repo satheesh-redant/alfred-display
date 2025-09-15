@@ -25,8 +25,7 @@ class RouteViewModel extends StateNotifier<String> {
     _topicRouteAck!.subscribe(_handlerAck);
   }
 
-  Future<void> sendRouteData({required int table, required int route}) async {
-    RouteState routeState = RouteState(tableNumber: table, route: route);
+  Future<void> sendRouteData({required String table}) async {
     // print("Sending route data : " + routeStateToJson(routeState));
     // Map<String, dynamic> json = {"data": routeStateToJson(routeState)};
     Map<String, dynamic> json = {"data": table};

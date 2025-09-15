@@ -2,7 +2,6 @@ import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/presentation/screens/base_point_marking_screen.dart';
 import 'package:alfred/presentation/screens/loading_screen.dart';
 import 'package:alfred/presentation/screens/mapping_screen.dart';
-import 'package:alfred/presentation/screens/delivery_screens/delivery_returning_base_screen.dart';
 import 'package:alfred/presentation/screens/routing_screen.dart';
 import 'package:alfred/presentation/screens/splash_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,10 +47,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AlfredConstants.routeDeliveryCompleteScreen,
         builder: (context, state) => const DeliveryCompleteScreen(),
-      ),
-      GoRoute(
-        path: AlfredConstants.routeDeliveryReturningBaseScreen,
-        builder: (context, state) => const DeliveryReturningBaseScreen(),
       ),
       GoRoute(
         path: AlfredConstants.routeMappingScreen,
