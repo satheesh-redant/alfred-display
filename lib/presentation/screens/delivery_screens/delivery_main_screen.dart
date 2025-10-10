@@ -7,9 +7,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../../../config/alfred_constants.dart';
 import '../../../view_models/delivery_view_model.dart';
+import '../../../view_models/ros_connection_view_model.dart';
 import '../../../view_models/table_view_model.dart';
 import '../../widgets/appbar_widget.dart';
 import 'package:go_router/go_router.dart';
+
+import '../confirmation_dialog.dart';
 
 final deliveryScreenTableProvider = StateProvider<RouteState?>((ref) => null);
 
@@ -54,13 +57,26 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       },
     );
 
+    ref.listen(rosConnectionVMProvider, (previous, next) {
+      if (next == ConnectionStatus.connecting) {
+        context.loaderOverlay.show();
+      } else {
+        context.loaderOverlay.hide();
+        ref.read(opsVMProvider.notifier).getCurrentMode();
+      }
+    });
+
     ref.listen(
       opsVMProvider,
           (previous, next) {
-        if (next.toLowerCase() == 'training') {
-          ref.read(opsVMProvider.notifier).unsubscribe();
+        if (next.isNotEmpty) {
           context.loaderOverlay.hide();
-          context.go(AlfredConstants.routeChecklistScreen);
+          ref.read(opsVMProvider.notifier).unsubscribe();
+          if (next.toLowerCase() == 'mapping') {
+            context.go(AlfredConstants.routeTrainingScreen);
+          } else {
+            print(next.toLowerCase());
+          }
         }
       },
     );
@@ -170,7 +186,23 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               icon: Icons.school_outlined,
                               label: 'Training\nMode',
                               onTap: () {
-                                context.go(AlfredConstants.routeChecklistScreen);
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return ConfirmationDialog(
+                                      title: "Alert !",
+                                      message: "Are you sure you want to start Training Mode?",
+                                      onYes: () {
+                                        print("User confirmed mapping");
+                                        context.loaderOverlay.show();
+                                        ref.read(opsVMProvider.notifier).sendOpsMode(mode: "mapping");
+                                      },
+                                      onNo: () {
+                                        print("User cancelled routing");
+                                      },
+                                    );
+                                  },
+                                );
                               },
                             ),
 

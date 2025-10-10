@@ -34,6 +34,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         ref.read(bootCheckVMProvider.notifier).init();
       }
     });
+
     // Once boot check is successful, navigate to the next screen.
     ref.listen(bootCheckVMProvider, (previous, next) {
       if (next.overallStatus == 'OK') {
@@ -41,6 +42,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         ref.read(opsVMProvider.notifier).getCurrentMode();
       }
     });
+
     ref.listen(
       opsVMProvider,
       (previous, next) {

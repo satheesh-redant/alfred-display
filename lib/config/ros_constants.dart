@@ -22,8 +22,8 @@ class ROSConstants {
   static const String topicBattery = '/battery_status';
 
   /*  OPERATIONS  */
-  static const String topicSetOpsMode = '/mode';
-  // static const String topicCurrentMode = '/current_mode';
+  static const String topicCurrentMode = '/mode';
+  static const String topicSetOpsMode = '/mode_requested';
 
   /*  TABLES  */
   // static const String topicAddTable = '/add_table';

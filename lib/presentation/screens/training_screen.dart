@@ -7,10 +7,13 @@ import '../../config/alfred_constants.dart';
 import '../../config/ros_constants.dart';
 import '../../providers/ros_service_provider.dart';
 import '../../view_models/add_table_view_model.dart';
+import '../../view_models/operation_view_model.dart';
+import '../../view_models/ros_connection_view_model.dart';
 import '../../view_models/slam_mapping_service.dart';
 import '../widgets/appbar_widget.dart';
 import '../widgets/training/map_display_widget.dart';
 import '../widgets/training/connection_status_widget.dart';
+import 'confirmation_dialog.dart';
 
 class TrainingScreen extends ConsumerStatefulWidget {
   const TrainingScreen({super.key});
@@ -82,11 +85,51 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
       }
     });
 
+    ref.listen(rosConnectionVMProvider, (previous, next) {
+      if (next == ConnectionStatus.connecting) {
+        context.loaderOverlay.show();
+      } else {
+        context.loaderOverlay.hide();
+        ref.read(opsVMProvider.notifier).getCurrentMode();
+      }
+    });
+
+    ref.listen(
+      opsVMProvider,
+          (previous, next) {
+        if (next.isNotEmpty) {
+          ref.read(opsVMProvider.notifier).unsubscribe();
+          if (next.toLowerCase() == 'routing') {
+            context.loaderOverlay.hide();
+            context.go(AlfredConstants.routeRoutingScreen);
+          } else {
+            print(next.toLowerCase());
+          }
+        }
+      },
+    );
+
     // Listen to add table view model for save map completion
     ref.listen(addTableVMProvider, (previous, next) {
+      ref.context.loaderOverlay.hide();
       if (next.toUpperCase() == ROSConstants.success) {
-        ref.context.loaderOverlay.hide();
-        context.go(AlfredConstants.routeRoutingScreen);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ConfirmationDialog(
+              title: "Map Saved Successfully",
+              message: "Would you like to go to the route planning screen to create navigation routes?",
+              onYes: () {
+                print("User confirmed routing");
+                context.loaderOverlay.show();
+                ref.read(opsVMProvider.notifier).sendOpsMode(mode: "routing");
+              },
+              onNo: () {
+                print("User cancelled routing");
+              },
+            );
+          },
+        );
       }
     });
 

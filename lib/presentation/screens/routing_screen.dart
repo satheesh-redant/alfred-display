@@ -1,21 +1,15 @@
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/config/ros_constants.dart';
-import 'package:alfred/core/routes.dart';
 import 'package:alfred/view_models/route_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:toastification/toastification.dart';
 
-import '../../core/toast_utils.dart';
-import '../../providers/table_providers.dart';
-import '../../view_models/base_point_view_model.dart';
 import '../../view_models/operation_view_model.dart';
-import '../../view_models/table_view_model.dart';
-import '../widgets/button_widget.dart';
-import '../widgets/table_grid_button_widget.dart';
+import '../../view_models/ros_connection_view_model.dart';
+import 'confirmation_dialog.dart';
 
 class RoutingScreen extends ConsumerStatefulWidget {
   const RoutingScreen({super.key});
@@ -61,6 +55,30 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    ref.listen(rosConnectionVMProvider, (previous, next) {
+      if (next == ConnectionStatus.connecting) {
+        context.loaderOverlay.show();
+      } else {
+        context.loaderOverlay.hide();
+        ref.read(opsVMProvider.notifier).getCurrentMode();
+      }
+    });
+
+    ref.listen(
+      opsVMProvider,
+          (previous, next) {
+        if (next.isNotEmpty) {
+          ref.read(opsVMProvider.notifier).unsubscribe();
+          if (next.toLowerCase() == 'navigation') {
+            context.loaderOverlay.hide();
+            context.go(AlfredConstants.routeDeliveryMainScreen);
+          } else {
+            print(next.toLowerCase());
+          }
+        }
+      },
+    );
 
     ref.listen(
       routeVMProvider,
@@ -351,32 +369,100 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                 ),
               ),
 
-            // Start Routing Button (only show when both tables are selected)
-            if (!isRoutingMode && selectedFromTable != null && selectedToTable != null)
+            // Bottom Button Row - Only visible during FROM & TO selection (not in routing mode)
+            if (!isRoutingMode)
               Container(
                 padding: EdgeInsets.only(top: 24),
                 width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _startRouting,
-                  icon: Icon(Icons.route, color: Colors.white),
-                  label: Text(
-                    "Start Route Planning: ${selectedFromTable == 0 ? 'BASE' : 'Table $selectedFromTable'} → Table $selectedToTable",
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                child: Row(
+                  children: [
+                    // Finish Button (OutlinedButton)
+                    Expanded(
+                      flex: 1,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          // Add your finish logic here
+                          print("Route finished");
+                          // You can add navigation or other finish logic here
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ConfirmationDialog(
+                                title: "Ready for Deliveries?",
+                                message: "Would you like to navigate to delivery screen to begin serving tables?",
+                                onYes: () {
+                                  print("User confirmed routing");
+                                  context.loaderOverlay.show();
+                                  ref.read(opsVMProvider.notifier).sendOpsMode(mode: "navigation");
+                                },
+                                onNo: () {
+                                  print("User cancelled routing");
+                                },
+                              );
+                            },
+                          );
+                        },// Disabled when tables not selected
+                        icon: Icon(
+                          Icons.check_circle,
+                          color: const Color(0xFF10B981),// Grey when disabled
+                        ),
+                        label: Text(
+                          "Finish",
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF10B981),// Grey when disabled
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            width: 2.0,
+                            color: const Color(0xFF10B981)  // Green border when enabled
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                        ),
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF059669),
-                    elevation: 3,
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+
+                    SizedBox(width: 16), // Space between buttons
+
+                    // Start Route Planning Button (ElevatedButton)
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: (selectedFromTable != null && selectedToTable != null)
+                            ? _startRouting
+                            : null, // Disabled when conditions not met
+                        icon: Icon(Icons.route, color: Colors.white),
+                        label: Text(
+                          (selectedFromTable != null && selectedToTable != null)
+                              ? "Start Route Planning: ${selectedFromTable == 0 ? 'BASE' : 'Table $selectedFromTable'} → Table $selectedToTable"
+                              : "Select FROM and TO tables",
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: (selectedFromTable != null && selectedToTable != null)
+                              ? const Color(0xFF059669) // Green when enabled
+                              : Colors.grey, // Grey when disabled
+                          elevation: 3,
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
+
           ],
         ),
       ),
