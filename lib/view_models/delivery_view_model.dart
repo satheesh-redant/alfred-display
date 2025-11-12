@@ -6,7 +6,7 @@ import 'package:rosbridge/rosbridge.dart';
 
 class DeliveryViewModel extends StateNotifier<String> {
   final ROSService _rosService;
-  Topic? _topicMoveTable, _topicDeliveryStatus;
+  Topic? _topicMoveTable, _topicDeliveryStatus, _topicPowerOff;
 
   DeliveryViewModel(this._rosService) : super("") {
     print('initiating all delivery topics');
@@ -21,6 +21,12 @@ class DeliveryViewModel extends StateNotifier<String> {
       throttleRate: 500,
     );
     _topicDeliveryStatus!.subscribe(_handlerAck);
+
+    // creates  power off topic (msg=string)
+    _topicPowerOff = _rosService.createTopic(
+      ROSConstants.topicPowerOff,
+      ROSConstants.msgString,
+    );
   }
 
   Future<void> moveTable({required int table}) async {
@@ -34,11 +40,19 @@ class DeliveryViewModel extends StateNotifier<String> {
     state = message['data'];
   }
 
+  Future<void> powerOff() async {
+    Map<String, dynamic> json = {'data': 'OFF'};
+    print("publishing power off :$json");
+
+    await _topicPowerOff!.publish(json);
+  }
+
   @override
   void dispose() {
     print('Disposing all delivery topics');
     _topicMoveTable!.unsubscribe();
     _topicDeliveryStatus!.unsubscribe();
+    _topicPowerOff!.unsubscribe();
     state = "";
   }
 }

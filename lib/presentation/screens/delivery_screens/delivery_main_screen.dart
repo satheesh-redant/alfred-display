@@ -44,10 +44,10 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
     ref.listen(
       deliveryVMProvider,
-          (previous, next) {
+      (previous, next) {
         if (next.toLowerCase() == "moving") {
-          ref.read(deliveryScreenTableProvider.notifier).state =
-              RouteState(tableNumber: selectedTableNumber, status: Status.inprogress);
+          ref.read(deliveryScreenTableProvider.notifier).state = RouteState(
+              tableNumber: selectedTableNumber, status: Status.inprogress);
 
           context
               .pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
@@ -68,7 +68,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
     ref.listen(
       opsVMProvider,
-          (previous, next) {
+      (previous, next) {
         if (next.isNotEmpty) {
           context.loaderOverlay.hide();
           ref.read(opsVMProvider.notifier).unsubscribe();
@@ -92,7 +92,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                 children: [
                   // Main content
                   Container(
-                    margin: const EdgeInsets.only(bottom: 20, left: 100), // Add left margin for sidebar space
+                    margin: const EdgeInsets.only(bottom: 20, left: 100),
+                    // Add left margin for sidebar space
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -126,7 +127,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                 const SizedBox(height: 30),
                                 Expanded(
                                   child: Container(
-                                    constraints: const BoxConstraints(maxWidth: 300),
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 300),
                                     child: Image.asset(
                                       "assets/images/alfred_base.png",
                                       fit: BoxFit.contain,
@@ -191,11 +193,14 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                   builder: (BuildContext context) {
                                     return ConfirmationDialog(
                                       title: "Alert !",
-                                      message: "Are you sure you want to start Training Mode?",
+                                      message:
+                                          "Are you sure you want to start Training Mode?",
                                       onYes: () {
                                         print("User confirmed mapping");
                                         context.loaderOverlay.show();
-                                        ref.read(opsVMProvider.notifier).sendOpsMode(mode: "mapping");
+                                        ref
+                                            .read(opsVMProvider.notifier)
+                                            .sendOpsMode(mode: "mapping");
                                       },
                                       onNo: () {
                                         print("User cancelled routing");
@@ -216,6 +221,34 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                                 // Settings action
                               },
                             ),
+
+                            // 🔹 Added white divider line below settings
+                            const SizedBox(height: 10),
+                            Container(
+                              height: 1,
+                              width: 40,
+                              color: Colors.white,
+                              margin: const EdgeInsets.only(bottom: 10),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            // 🔴 Power Off button with white background and red color
+                            _buildSidebarItem(
+                              icon: Icons.power_settings_new_outlined,
+                              label: 'Power Off',
+                              onTap: () {
+                                print("Power off initiated");
+                                ref
+                                    .read(deliveryVMProvider.notifier)
+                                    .powerOff();
+                                showSuccessToast(
+                                  context: context,
+                                  description: "Sent Power Off command",
+                                );
+                              },
+                              isPowerButton: true,
+                            ),
                           ],
                         ),
                       ),
@@ -235,6 +268,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
     required String label,
     required VoidCallback onTap,
     bool isActive = false,
+    bool isPowerButton = false, // Added for Power Off style
   }) {
     return Material(
       color: Colors.transparent,
@@ -245,9 +279,11 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
           width: 60,
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isActive
-                ? Colors.white.withOpacity(0.2)
-                : Colors.transparent,
+            color: isPowerButton
+                ? Colors.white // white background for Power Off
+                : isActive
+                    ? Colors.white.withOpacity(0.2)
+                    : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -256,14 +292,18 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
               Icon(
                 icon,
                 size: 24,
-                color: Colors.white,
+                color: isPowerButton
+                    ? Colors.red // red icon for Power Off
+                    : Colors.white,
               ),
               const SizedBox(height: 6),
               Text(
                 label,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.nunito(
-                  color: Colors.white,
+                  color: isPowerButton
+                      ? Colors.red // red text for Power Off
+                      : Colors.white,
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                   height: 1.1,
@@ -297,66 +337,68 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                   Expanded(
                     child: tables.isEmpty
                         ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[21],
-                              borderRadius: BorderRadius.circular(50),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[21],
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  child: Icon(
+                                    Icons.table_restaurant_outlined,
+                                    size: 48,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  "No tables marked yet",
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 18,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "Please mark tables in Training Mode first",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
                             ),
-                            child: Icon(
-                              Icons.table_restaurant_outlined,
-                              size: 48,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            "No tables marked yet",
-                            style: GoogleFonts.nunito(
-                              fontSize: 18,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Please mark tables in Training Mode first",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.nunito(
-                              fontSize: 14,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                          )
                         : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1.8,
-                      ),
-                      itemCount: tables.length,
-                      itemBuilder: (context, index) {
-                        final tableNumber = tables[index];
-                        final isSelected = selectedTableNumber == tableNumber;
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 1.8,
+                            ),
+                            itemCount: tables.length,
+                            itemBuilder: (context, index) {
+                              final tableNumber = tables[index];
+                              final isSelected =
+                                  selectedTableNumber == tableNumber;
 
-                        return _buildTableButton(
-                          tableNumber: tableNumber,
-                          isSelected: isSelected,
-                          onPressed: () {
-                            setState(() {
-                              selectedTableNumber = tableNumber;
-                            });
-                          },
-                        );
-                      },
-                    ),
+                              return _buildTableButton(
+                                tableNumber: tableNumber,
+                                isSelected: isSelected,
+                                onPressed: () {
+                                  setState(() {
+                                    selectedTableNumber = tableNumber;
+                                  });
+                                },
+                              );
+                            },
+                          ),
                   ),
 
                   // Action Button inside the card
@@ -376,7 +418,8 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blue.withOpacity(0.3), // Changed to blue
+                            color: Colors.blue.withOpacity(0.3),
+                            // Changed to blue
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -385,7 +428,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           ref.read(deliveryScreenTableProvider.notifier).state =
-                              RouteState(tableNumber: selectedTableNumber, status: Status.pending);
+                              RouteState(
+                                  tableNumber: selectedTableNumber,
+                                  status: Status.pending);
                           ref
                               .read(deliveryVMProvider.notifier)
                               .moveTable(table: selectedTableNumber);
@@ -437,26 +482,27 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
-            colors: [
-              Colors.blue.withOpacity(0.1), // Changed to blue
-              Colors.blue.withOpacity(0.05), // Changed to blue
-            ],
-          )
+                  colors: [
+                    Colors.blue.withOpacity(0.1), // Changed to blue
+                    Colors.blue.withOpacity(0.05), // Changed to blue
+                  ],
+                )
               : null,
           color: isSelected ? null : Colors.grey.shade50,
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.shade300, // Changed to blue
+            color: isSelected ? Colors.blue : Colors.grey.shade300,
+            // Changed to blue
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.2), // Changed to blue
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ]
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.2), // Changed to blue
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
               : null,
         ),
         child: Center(
@@ -466,7 +512,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
               Icon(
                 Icons.table_restaurant_rounded,
                 size: 20,
-                color: isSelected ? Colors.blue : Colors.grey.shade600, // Changed to blue
+                color: isSelected
+                    ? Colors.blue
+                    : Colors.grey.shade600, // Changed to blue
               ),
               const SizedBox(height: 4),
               Text(
@@ -474,7 +522,9 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? Colors.blue : Colors.black87, // Changed to blue
+                  color: isSelected
+                      ? Colors.blue
+                      : Colors.black87, // Changed to blue
                 ),
               ),
             ],

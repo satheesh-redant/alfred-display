@@ -45,6 +45,8 @@ class ROSConstants {
   static const String topicMoveTable = '/table_number';
   static const String topicDeliveryStatus = '/delivery_status';
 
+  static const String topicPowerOff = '/power_off';
+
   /*  ROUTE */
   static const String topicRoute = '/save_wp';
   static const String topicRouteAck = '/save_wp_ack';
