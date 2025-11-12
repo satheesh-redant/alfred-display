@@ -21,14 +21,14 @@ class ROSService {
 
   /// Helper method to create a topic.
   Topic createTopic(String name, String type,
-      {int queueSize = 10, int throttleRate = 0}) {
+      {int queueSize = 10, int throttleRate = 0, reconnectOnClose = true}) {
     return Topic(
       ros: ros,
       name: name,
       type: type,
       queueSize: queueSize,
       throttleRate: throttleRate,
-      reconnectOnClose: false
+      reconnectOnClose: reconnectOnClose
     );
   }
 }

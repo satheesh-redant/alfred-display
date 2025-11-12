@@ -7,5 +7,6 @@ class AssetsConstants {
 
   static const String iconWifi = '${assetPath}icon_wifi_new$svg';
   static const String companyLogo = '${assetPath}company_logo$png';
+  static const String rubbixLogo = '${assetPath}logo_rubbix_robotix$png';
 
 }

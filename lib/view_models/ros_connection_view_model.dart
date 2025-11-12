@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:alfred/providers/ros_service_provider.dart';
+import 'package:alfred/services/ros_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/ros.dart';
 

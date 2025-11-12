@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/models/boot_check_state.dart';
-import 'package:alfred/providers/ros_service_provider.dart';
+import 'package:alfred/services/ros_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/core/core.dart';
 import 'package:rosbridge/core/topic.dart';
@@ -23,11 +23,14 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
       throttleRate: 500,
     );
     // _topic!.subscribe(_responseHandler);
-    BootCheckResponse response = BootCheckResponse();
-    response.message = 'OK';
-    response.overallStatus = 'OK';
-    response.checks = [];
-    state = response;
+
+    Future.delayed(const Duration(seconds: 2), () {
+      BootCheckResponse response = BootCheckResponse();
+      response.message = 'OK';
+      response.overallStatus = 'OK';
+      response.checks = [];
+      state = response;
+    });
   }
 
   Future<void> _responseHandler(Map<String, dynamic> message) async {

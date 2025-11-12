@@ -1,6 +1,6 @@
 class ROSConstants {
-  static const String rosUrl = 'ws://192.168.133.56:9090';
-  // static const String rosUrl = 'ws://127.0.0.1:9090';
+  // static const String rosUrl = 'ws://192.168.133.56:9090';
+  static const String rosUrl = 'ws://127.0.0.1:9090';
   // static const String rosUrl = 'ws://192.168.0.146:9090';
 
   /*  GENERIC */
@@ -19,14 +19,14 @@ class ROSConstants {
   static const String topicBootCheck = '/boot_check';
 
   /*  BATTERY */
-  static const String topicBattery = '/battery_status';
+  static const String batteryTopicName = '/battery_state';
+  static const String batteryTopicType = 'sensor_msgs/msg/BatteryState';
 
   /*  OPERATIONS  */
   static const String topicCurrentMode = '/mode';
   static const String topicSetOpsMode = '/mode_requested';
 
   /*  TABLES  */
-  // static const String topicAddTable = '/add_table';
   static const String topicAddTable = '/save_point';
   static const String topicAddTableAck = '/add_table_ack';
   static const String topicGetTables = '/get_table_list';

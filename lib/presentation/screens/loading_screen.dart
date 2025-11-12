@@ -23,17 +23,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     super.initState();
     // Trigger ROS connection.
     Future.delayed(const Duration(seconds: 2), () {
-      ref.read(rosConnectionVMProvider.notifier).connect();
+      ref.read(bootCheckVMProvider.notifier).init();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(rosConnectionVMProvider, (previous, next) {
-      if (next == ConnectionStatus.connected) {
-        ref.read(bootCheckVMProvider.notifier).init();
-      }
-    });
 
     // Once boot check is successful, navigate to the next screen.
     ref.listen(bootCheckVMProvider, (previous, next) {

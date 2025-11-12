@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alfred/config/alfred_constants.dart';
-import 'package:alfred/presentation/widgets/appbar_widget.dart';
+import 'package:alfred/presentation/widgets/widget_appbar.dart';
 import 'package:alfred/presentation/widgets/button_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -55,7 +55,7 @@ class _BasePointMarkingScreenState
     print('Displaying the base point marking screen');
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBarWidget(),
+      appBar: AlfredAppBarWidget(),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -181,7 +181,7 @@ class _BasePointMarkerScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBarWidget(),
+      appBar: AlfredAppBarWidget(),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: LayoutBuilder(

@@ -6,7 +6,7 @@ import '../../../config/alfred_constants.dart';
 import '../../../core/toast_utils.dart';
 import '../../../models/route_state.dart';
 import '../../../view_models/delivery_view_model.dart';
-import '../../widgets/appbar_widget.dart';
+import '../../widgets/widget_appbar.dart';
 import 'delivery_main_screen.dart';
 
 class DeliveryCompleteScreen extends ConsumerStatefulWidget {
@@ -57,7 +57,7 @@ class _DeliveryCompleteScreenState
     return Scaffold(
       body: Column(
         children: [
-          AppBarWidget(),
+          AlfredAppBarWidget(),
 
           // Task Completed Text - Top Center
           Container(

@@ -4,7 +4,7 @@ import 'dart:ffi';
 import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/models/table_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/ros_service_provider.dart';
+import '../services/ros_service.dart';
 import 'package:rosbridge/rosbridge.dart';
 
 class TableViewModel extends StateNotifier<List<int>> {

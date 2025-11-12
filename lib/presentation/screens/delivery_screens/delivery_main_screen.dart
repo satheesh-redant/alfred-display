@@ -9,7 +9,7 @@ import '../../../config/alfred_constants.dart';
 import '../../../view_models/delivery_view_model.dart';
 import '../../../view_models/ros_connection_view_model.dart';
 import '../../../view_models/table_view_model.dart';
-import '../../widgets/appbar_widget.dart';
+import '../../widgets/widget_appbar.dart';
 import 'package:go_router/go_router.dart';
 
 import '../confirmation_dialog.dart';
@@ -86,7 +86,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            AppBarWidget(),
+            AlfredAppBarWidget(),
             Expanded(
               child: Stack(
                 children: [

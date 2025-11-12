@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../../config/alfred_constants.dart';
 import '../../config/ros_constants.dart';
-import '../../providers/ros_service_provider.dart';
+import '../../services/ros_service.dart';
 import '../../view_models/add_table_view_model.dart';
 import '../../view_models/operation_view_model.dart';
 import '../../view_models/ros_connection_view_model.dart';
 import '../../view_models/slam_mapping_service.dart';
-import '../widgets/appbar_widget.dart';
+import '../widgets/widget_appbar.dart';
 import '../widgets/training/map_display_widget.dart';
 import '../widgets/training/connection_status_widget.dart';
 import 'confirmation_dialog.dart';
@@ -138,7 +138,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            AppBarWidget(),
+            AlfredAppBarWidget(),
             Expanded(
               child: Stack(
                 children: [

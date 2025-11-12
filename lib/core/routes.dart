@@ -1,5 +1,7 @@
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/presentation/screens/base_point_marking_screen.dart';
+import 'package:alfred/presentation/screens/battery_screens/battery_charging_screen.dart';
+import 'package:alfred/presentation/screens/battery_screens/shutdown_alert_screen.dart';
 import 'package:alfred/presentation/screens/loading_screen.dart';
 import 'package:alfred/presentation/screens/mapping_screen.dart';
 import 'package:alfred/presentation/screens/routing_screen.dart';
@@ -55,6 +57,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AlfredConstants.routeRoutingScreen,
         builder: (context, state) => const RoutingScreen(),
+      ),
+      GoRoute(
+        path: AlfredConstants.routeBatteryChargingScreen,
+        builder: (context, state) => const BatteryChargingScreen(),
+      ),
+      GoRoute(
+        path: AlfredConstants.routeShutdownScreen,
+        builder: (context, state) => const ShutdownAlertScreen(),
       ),
     ],
     initialLocation: AlfredConstants.routeSplashScreen,

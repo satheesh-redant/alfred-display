@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/rosbridge.dart';
-import '../providers/ros_service_provider.dart';
+import '../services/ros_service.dart';
 import '../providers/map_provider.dart';
 import '../providers/robot_pose_provider.dart';
 import '../providers/slam_connection_provider.dart';

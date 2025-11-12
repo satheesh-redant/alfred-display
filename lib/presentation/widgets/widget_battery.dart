@@ -1,45 +1,43 @@
+import 'package:alfred/models/battery_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../models/battery_status.dart';
-
 class WidgetBattery extends ConsumerWidget {
-  WidgetBattery({
+  const WidgetBattery({
     super.key,
     this.trackHeight = 12.0,
     this.trackAspectRatio = 2.0,
     this.borderRadius,
     this.fillChargeDuration = const Duration(seconds: 1),
     this.fillChargeCurve = Curves.ease,
-    required this.batteryStatus,
+    required this.batteryState,
   });
 
-  final BatteryStatus batteryStatus;
+  final BatteryState? batteryState;
   final double trackHeight;
-
-  // Aspect ratio = width / height. the width is twice the height.
   final double trackAspectRatio;
   final BorderRadius? borderRadius;
-
   final Duration fillChargeDuration;
   final Curve fillChargeCurve;
 
   double get _trackWidth => trackHeight * trackAspectRatio;
-
   double get _trackBorderWidth => trackHeight / 10;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Row(
-      // mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center, // Ensures vertical centering
       children: [
-        batteryStatus.batteryState == BatteryState.charging
-            ? _chargingAnimation(context)
-            : const SizedBox.shrink(key: ValueKey("empty")),
         _batteryTrack(context),
         _batteryKnob(context),
         _batteryPercentage(context),
+        if (batteryState?.statusEnum == BatteryStatus.charging)
+          _chargingAnimation(context)
+        else
+          const SizedBox.shrink(key: ValueKey("empty")),
       ],
     );
   }
@@ -51,7 +49,7 @@ class WidgetBattery extends ConsumerWidget {
         height: trackHeight / 3,
         width: trackHeight / 6,
         decoration: BoxDecoration(
-          color: batteryStatus.batteryColor,
+          color: Colors.black /*batteryState?.percentageColor*/,
           borderRadius: BorderRadius.circular(trackHeight / 18),
         ),
       ),
@@ -59,14 +57,18 @@ class WidgetBattery extends ConsumerWidget {
   }
 
   Widget _batteryPercentage(BuildContext context) {
+    // Convert percentage to integer for display
+    final percentageValue = ((batteryState?.percentage ?? 0) * 100).toInt();
+
     return Padding(
-      padding: EdgeInsets.only(right: 15, top: 9, bottom: 9),
+      padding: const EdgeInsets.only(right: 3),
       child: Text(
-        batteryStatus.batteryPercentage.toString() + "%",
-        style: GoogleFonts.inter(
+        "$percentageValue%",
+        style: GoogleFonts.poppins(
           fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: const Color(0xFF757575),
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF000000),
+          height: 1.0, // Ensures text doesn't add extra vertical space
         ),
       ),
     );
@@ -78,7 +80,9 @@ class WidgetBattery extends ConsumerWidget {
       width: _trackWidth,
       decoration: BoxDecoration(
         border: Border.all(
-            color: batteryStatus.batteryColor, width: _trackBorderWidth),
+          color: Colors.black /*batteryState!.percentageColor*/,
+          width: _trackBorderWidth,
+        ),
         borderRadius: borderRadius ?? BorderRadius.circular(trackHeight / 4),
       ),
       child: Stack(
@@ -90,6 +94,9 @@ class WidgetBattery extends ConsumerWidget {
   }
 
   Widget _batteryBar(BuildContext context) {
+    // Convert percentage (0.0 to 1.0) to actual percentage value
+    final percentage = (batteryState?.percentage ?? 0) * 100;
+
     return Padding(
       padding: EdgeInsets.all(_trackBorderWidth),
       child: ClipRRect(
@@ -100,11 +107,9 @@ class WidgetBattery extends ConsumerWidget {
             AnimatedContainer(
               duration: fillChargeDuration,
               curve: fillChargeCurve,
-              width: (_trackWidth - _trackBorderWidth * 4) *
-                  batteryStatus.batteryPercentage /
-                  100,
+              width: (_trackWidth - _trackBorderWidth * 4) * percentage / 100,
               height: double.infinity,
-              decoration: BoxDecoration(color: batteryStatus.batteryColor),
+              decoration: BoxDecoration(color: batteryState?.percentageColor),
             ),
           ],
         ),
@@ -113,15 +118,19 @@ class WidgetBattery extends ConsumerWidget {
   }
 
   Widget _chargingAnimation(BuildContext context) {
-    return Icon(
-      Icons.bolt,
-      key: const ValueKey("bolt"),
-      size: 48.0 / 4,
-      color: Colors.green,
+    return Padding(
+      padding: const EdgeInsets.only(left: 2),
+      child: SizedBox(
+        width: 7,
+        height: 13,
+        child: SvgPicture.asset(
+          'assets/images/icon_charging.svg',
+          width: 7,
+          height: 13,
+          fit: BoxFit.contain,
+          semanticsLabel: 'Estimated Charging Icon',
+        ),
+      ),
     );
-  }
-
-  Widget _lowBatteryAnimation(BuildContext context) {
-    return Container();
   }
 }

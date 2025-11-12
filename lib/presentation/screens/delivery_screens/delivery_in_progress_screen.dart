@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../models/route_state.dart';
-import '../../widgets/appbar_widget.dart';
+import '../../widgets/widget_appbar.dart';
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -63,7 +63,7 @@ class _DeliveryInProgressScreenState
               // Background content
               Column(
                 children: [
-                  AppBarWidget(),
+                  AlfredAppBarWidget(),
                 ],
               ),
 

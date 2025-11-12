@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/models/route_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/ros_service_provider.dart';
+import '../services/ros_service.dart';
 import 'package:rosbridge/rosbridge.dart';
 
 class RouteViewModel extends StateNotifier<String> {

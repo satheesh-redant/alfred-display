@@ -1,4 +1,6 @@
 
+import 'dart:ui';
+
 class AlfredConstants {
 
   /*  Navigation Routes    */
@@ -12,7 +14,14 @@ class AlfredConstants {
   static const String routeDeliveryInProgressScreen = '/table-move';
   static const String routeDeliveryCompleteScreen = '/task-complete';
   static const String routeDeliveryReturningBaseScreen = '/returning-base';
+  static const String routeBatteryChargingScreen = '/battery-charging';
+  static const String routeShutdownScreen = '/alfred-shutdown';
 
   static const String routeRoutingScreen = '/routing';
+
+  static const Color batteryColorRed = Color(0xFFEE0011);
+  static const Color batteryColorOrange = Color(0xFFFF6B00);
+  static const Color batteryColorYellow = Color(0xFFF6BF1E);
+  static const Color batteryColorGreen = Color(0xFF28A745);
 
 }
