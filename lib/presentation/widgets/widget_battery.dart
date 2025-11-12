@@ -44,7 +44,7 @@ class WidgetBattery extends ConsumerWidget {
 
   Widget _batteryKnob(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: trackHeight / 15, right: 3),
+      padding: EdgeInsets.only(left: trackHeight / 15, right: 5),
       child: Container(
         height: trackHeight / 3,
         width: trackHeight / 6,

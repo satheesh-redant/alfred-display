@@ -87,7 +87,7 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
         !_hasShownCriticalDialog) {
       // Use WidgetsBinding to ensure dialog shows after build completes
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showCriticalConfirmationDialog(battery);
+        // _showCriticalConfirmationDialog(battery);
       });
       _hasShownCriticalDialog = true;
     }
@@ -97,7 +97,7 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
         percentage < 5 &&
         !_hasShownCriticalWarning) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showCriticalWarningDialog(battery);
+        // _showCriticalWarningDialog(battery);
       });
       _hasShownCriticalWarning = true;
     }
