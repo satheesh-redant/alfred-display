@@ -4,6 +4,7 @@ import 'package:alfred/models/route_state.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../../../config/alfred_constants.dart';
@@ -429,10 +430,14 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          final batteryState = ref.read(batteryViewModelProvider).value;
-                          final percentage = (batteryState?.percentage ?? 0) * 100;
-                          final category = ref.read(batteryLevelCategoryProvider);
-                          final isCharging = batteryState?.statusEnum == BatteryStatus.charging;
+                          final batteryState =
+                              ref.read(batteryViewModelProvider).value;
+                          final percentage =
+                              (batteryState?.percentage ?? 0) * 100;
+                          final category =
+                              ref.read(batteryLevelCategoryProvider);
+                          final isCharging = batteryState?.statusEnum ==
+                              BatteryStatus.charging;
 
                           // Don't show alerts when charging (already on charging screen)
                           if (isCharging) {
@@ -450,7 +455,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                           }
 
                           if (category == BatteryLevelCategory.criticalLow &&
-                              percentage < 5 ) {
+                              percentage < 5) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               _showCriticalWarningDialog(batteryState!);
                             });
@@ -567,44 +572,111 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning_amber_rounded,
-            size: 56, color: Colors.red),
-        title: const Text(
-          'Are you sure you want to continue for service?',
-          textAlign: TextAlign.center,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
+        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        actionsPadding: const EdgeInsets.only(bottom: 24),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Estimated Run Time: ${estimatedTime ?? 0} min',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            // Battery Icon
+            SvgPicture.asset(
+              'assets/images/icon_critical_low_battery.svg',
+              // Path to your SVG file
+              width: 143,
+              height: 143,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
+
             Text(
-              'Battery: ${((battery.percentage ?? 0) * 100).toInt()}%',
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              'Critically Low Battery < 10%',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                color: const Color(0xFF040303),
+                fontWeight: FontWeight.w400,
+                height: 1.0, // Removes extra vertical space from text
+              ),
+              textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 12),
+            Text(
+              'Estimated Run Time: ${estimatedTime ?? 20} min',
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                color: const Color(0xFF000000),
+                fontWeight: FontWeight.w600,
+                height: 1.0, // Removes extra vertical space from text
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Please plug in the charger to avoid shutdown',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                color: const Color(0x9F040303),
+                fontWeight: FontWeight.w400,
+                height: 1.0, // Removes extra vertical space from text
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 30),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('No', style: TextStyle(fontSize: 16)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _triggerDelivery();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Yes', style: TextStyle(fontSize: 16)),
-          ),
+          Align(
+              alignment: AlignmentGeometry.center,
+              child: SizedBox(
+                width: 160,
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF005AFF),
+                    borderRadius: BorderRadius.circular(7),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        // Changed to blue
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // _triggerDelivery();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Okay",
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )),
         ],
       ),
     );
@@ -618,36 +690,157 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.battery_alert, size: 56, color: Colors.red),
-        title: const Text(
-          'Critically Low Battery < 10%',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.red),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
+        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        actionsPadding: const EdgeInsets.only(bottom: 24),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Estimated Run Time: ${estimatedTime ?? 0} min',
-              style: const TextStyle(fontSize: 16),
+            // Battery Icon
+            SvgPicture.asset(
+              'assets/images/icon_critical_low_battery.svg',
+              // Path to your SVG file
+              width: 143,
+              height: 143,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Please plug in the charger to avoid shutdown',
+
+            Text(
+              'Are you sure you want to continue for service ?',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                color: const Color(0xFF000000),
+                fontWeight: FontWeight.w400,
+                height: 1.0, // Removes extra vertical space from text
+              ),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14),
             ),
+            const SizedBox(height: 12),
+            Text(
+              'Estimated Run Time: ${estimatedTime ?? 20} min',
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                color: const Color(0xFF000000),
+                fontWeight: FontWeight.w600,
+                height: 1.0, // Removes extra vertical space from text
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 30),
           ],
         ),
         actions: [
-          ElevatedButton(
-            onPressed: () => () {
-              Navigator.pop(context);
-              _triggerDelivery();
-            },
-            child: const Text('Okay'),
-          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 160,
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(7),
+                    border: Border.all(
+                      color: Color(0xFF005AFF),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _triggerDelivery();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Color(0xFF005AFF),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Yes",
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF005AFF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 24),
+
+              SizedBox(
+                width: 160,
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF005AFF),
+                    borderRadius: BorderRadius.circular(7),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        // Changed to blue
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _triggerDelivery();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "No",
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          )
         ],
       ),
     );
@@ -655,11 +848,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
   void _triggerDelivery() {
     ref.read(deliveryScreenTableProvider.notifier).state =
-        RouteState(
-            tableNumber: selectedTableNumber,
-            status: Status.pending);
-    ref
-        .read(deliveryVMProvider.notifier)
-        .moveTable(table: selectedTableNumber);
+        RouteState(tableNumber: selectedTableNumber, status: Status.pending);
+    ref.read(deliveryVMProvider.notifier).moveTable(table: selectedTableNumber);
   }
 }
