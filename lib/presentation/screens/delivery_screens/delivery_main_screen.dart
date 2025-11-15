@@ -1,4 +1,5 @@
 import 'package:alfred/core/toast_utils.dart';
+import 'package:alfred/models/battery_state.dart';
 import 'package:alfred/models/route_state.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../../../config/alfred_constants.dart';
+import '../../../view_models/battery_view_model.dart';
 import '../../../view_models/delivery_view_model.dart';
 import '../../../view_models/ros_connection_view_model.dart';
 import '../../../view_models/table_view_model.dart';
@@ -37,6 +39,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final batteryState = ref.watch(batteryViewModelProvider);
     final tableList = ref.watch(tableVMProvider);
     if (tableList.isNotEmpty) {
       tables = tableList;
@@ -233,7 +236,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
                             const SizedBox(height: 10),
 
-                            // 🔴 Power Off button with white background and red color
                             _buildSidebarItem(
                               icon: Icons.power_settings_new_outlined,
                               label: 'Power Off',
@@ -427,13 +429,34 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          ref.read(deliveryScreenTableProvider.notifier).state =
-                              RouteState(
-                                  tableNumber: selectedTableNumber,
-                                  status: Status.pending);
-                          ref
-                              .read(deliveryVMProvider.notifier)
-                              .moveTable(table: selectedTableNumber);
+                          final batteryState = ref.read(batteryViewModelProvider).value;
+                          final percentage = (batteryState?.percentage ?? 0) * 100;
+                          final category = ref.read(batteryLevelCategoryProvider);
+                          final isCharging = batteryState?.statusEnum == BatteryStatus.charging;
+
+                          // Don't show alerts when charging (already on charging screen)
+                          if (isCharging) {
+                            return;
+                          }
+
+                          if (category == BatteryLevelCategory.criticalLow &&
+                              percentage >= 5 &&
+                              percentage < 10) {
+                            // Use WidgetsBinding to ensure dialog shows after build completes
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _showCriticalConfirmationDialog(batteryState!);
+                            });
+                            return;
+                          }
+
+                          if (category == BatteryLevelCategory.criticalLow &&
+                              percentage < 5 ) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _showCriticalWarningDialog(batteryState!);
+                            });
+                            return;
+                          }
+                          _triggerDelivery();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
@@ -532,5 +555,111 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
         ),
       ),
     );
+  }
+
+  void _showCriticalConfirmationDialog(BatteryState battery) {
+    if (!mounted) return;
+
+    final estimatedTime =
+        ref.read(batteryViewModelProvider.notifier).estimatedMinutesLeft;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning_amber_rounded,
+            size: 56, color: Colors.red),
+        title: const Text(
+          'Are you sure you want to continue for service?',
+          textAlign: TextAlign.center,
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Estimated Run Time: ${estimatedTime ?? 0} min',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Battery: ${((battery.percentage ?? 0) * 100).toInt()}%',
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('No', style: TextStyle(fontSize: 16)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _triggerDelivery();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Yes', style: TextStyle(fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCriticalWarningDialog(BatteryState battery) {
+    if (!mounted) return;
+
+    final estimatedTime =
+        ref.read(batteryViewModelProvider.notifier).estimatedMinutesLeft;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.battery_alert, size: 56, color: Colors.red),
+        title: const Text(
+          'Critically Low Battery < 10%',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.red),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Estimated Run Time: ${estimatedTime ?? 0} min',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Please plug in the charger to avoid shutdown',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => () {
+              Navigator.pop(context);
+              _triggerDelivery();
+            },
+            child: const Text('Okay'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _triggerDelivery() {
+    ref.read(deliveryScreenTableProvider.notifier).state =
+        RouteState(
+            tableNumber: selectedTableNumber,
+            status: Status.pending);
+    ref
+        .read(deliveryVMProvider.notifier)
+        .moveTable(table: selectedTableNumber);
   }
 }

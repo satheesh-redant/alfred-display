@@ -445,19 +445,19 @@ class _BatteryChargingScreenState extends ConsumerState<BatteryChargingScreen> {
                 ),
 
                 // Left: Estimated Run Time
-                Positioned(
-                  left: 20,
-                  child: _buildEstimatedRunTime(estimatedRunTime),
-                ),
+                // Positioned(
+                //   left: 20,
+                //   child: _buildEstimatedRunTime(estimatedRunTime),
+                // ),
 
                 // Right: Estimated Charging Time
-                Positioned(
-                  right: 20,
-                  child: _buildEstimatedChargingTime(
-                    estimatedChargingTime,
-                    fullChargeTime,
-                  ),
-                ),
+                // Positioned(
+                //   right: 20,
+                //   child: _buildEstimatedChargingTime(
+                //     estimatedChargingTime,
+                //     fullChargeTime,
+                //   ),
+                // ),
               ],
             ),
           ),

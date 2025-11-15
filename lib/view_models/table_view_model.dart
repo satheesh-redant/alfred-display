@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:alfred/config/ros_constants.dart';
 import 'package:alfred/models/table_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
