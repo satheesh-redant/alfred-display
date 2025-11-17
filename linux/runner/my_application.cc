@@ -51,8 +51,8 @@ static void my_application_activate(GApplication* application) {
   gtk_widget_show(GTK_WIDGET(window));
 
   // TODO
-//  gtk_window_fullscreen(GTK_WINDOW(window));       // Makes the window fullscreen
-//  gtk_window_set_decorated(GTK_WINDOW(window), FALSE);  // Removes window
+  gtk_window_fullscreen(GTK_WINDOW(window));       // Makes the window fullscreen
+  gtk_window_set_decorated(GTK_WINDOW(window), FALSE);  // Removes window
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(project, self->dart_entrypoint_arguments);

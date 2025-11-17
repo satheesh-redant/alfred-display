@@ -51,8 +51,12 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
         // Normal app flow
         return widget.child;
       },
-      loading: () => Container(),
-      error: (error, _) => Container(),
+      loading: () => widget.child,
+      error: (error, _) {
+        // Optional: Log error for debugging
+        print('Battery error: $error');
+        return widget.child;
+      },
     );
   }
 

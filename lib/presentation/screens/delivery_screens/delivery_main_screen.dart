@@ -243,13 +243,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               onTap: () {
                                 print("Power off initiated");
                                 context.go(AlfredConstants.routeSoftShutdownScreen);
-                                // ref
-                                //     .read(deliveryVMProvider.notifier)
-                                //     .powerOff();
-                                // showSuccessToast(
-                                //   context: context,
-                                //   description: "Sent Power Off command",
-                                // );
                               },
                               isPowerButton: true,
                             ),
