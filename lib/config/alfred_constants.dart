@@ -16,6 +16,7 @@ class AlfredConstants {
   static const String routeDeliveryReturningBaseScreen = '/returning-base';
   static const String routeBatteryChargingScreen = '/battery-charging';
   static const String routeShutdownScreen = '/alfred-shutdown';
+  static const String routeSoftShutdownScreen = '/alfred-soft-shutdown';
 
   static const String routeRoutingScreen = '/routing';
 
@@ -23,5 +24,6 @@ class AlfredConstants {
   static const Color batteryColorOrange = Color(0xFFFF6B00);
   static const Color batteryColorYellow = Color(0xFFF6BF1E);
   static const Color batteryColorGreen = Color(0xFF28A745);
+  static const Color batteryColorBlack = Color(0xFF000000);
 
 }

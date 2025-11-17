@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alfred/view_models/battery_view_model.dart';
 import 'package:alfred/view_models/ros_connection_view_model.dart';
 import 'package:alfred/models/battery_state.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -48,15 +49,21 @@ class AlfredAppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
           ],
 
           // Logo/Brand - wrapped in SizedBox for consistent height
-          SizedBox(
+          SvgPicture.asset(
+            'assets/images/RubbixRobotix_Logo.svg',
+            // Path to your SVG file
+            // width: 25,
             height: 17,
-            child: Image.asset(
-              'assets/images/logo_rubbix_robotix.png',
-              height: 17,
-              width: 137,
-              fit: BoxFit.contain,
-            ),
           ),
+          // SizedBox(
+          //   height: 17,
+          //   child: Image.asset(
+          //     'assets/images/logo_rubbix_robotix.png',
+          //     height: 17,
+          //     width: 137,
+          //     fit: BoxFit.contain,
+          //   ),
+          // ),
 
           const SizedBox(width: 14),
 

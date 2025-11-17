@@ -87,10 +87,10 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF), // Light background
+      appBar: AlfredAppBarWidget(showBackButton: false),
       body: SafeArea(
         child: Column(
           children: [
-            AlfredAppBarWidget(),
             Expanded(
               child: Stack(
                 children: [
@@ -242,13 +242,14 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               label: 'Power Off',
                               onTap: () {
                                 print("Power off initiated");
-                                ref
-                                    .read(deliveryVMProvider.notifier)
-                                    .powerOff();
-                                showSuccessToast(
-                                  context: context,
-                                  description: "Sent Power Off command",
-                                );
+                                context.go(AlfredConstants.routeSoftShutdownScreen);
+                                // ref
+                                //     .read(deliveryVMProvider.notifier)
+                                //     .powerOff();
+                                // showSuccessToast(
+                                //   context: context,
+                                //   description: "Sent Power Off command",
+                                // );
                               },
                               isPowerButton: true,
                             ),
@@ -449,7 +450,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                               percentage < 10) {
                             // Use WidgetsBinding to ensure dialog shows after build completes
                             WidgetsBinding.instance.addPostFrameCallback((_) {
-                              _showCriticalConfirmationDialog(batteryState!);
+                              _showCriticalWarningDialog(batteryState!);
                             });
                             return;
                           }
@@ -457,7 +458,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                           if (category == BatteryLevelCategory.criticalLow &&
                               percentage < 5) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
-                              _showCriticalWarningDialog(batteryState!);
+                              _showCriticalConfirmationDialog(batteryState!);
                             });
                             return;
                           }
@@ -602,17 +603,17 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Estimated Run Time: ${estimatedTime ?? 20} min',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                color: const Color(0xFF000000),
-                fontWeight: FontWeight.w600,
-                height: 1.0, // Removes extra vertical space from text
-              ),
-              textAlign: TextAlign.center,
-            ),
+            // const SizedBox(height: 12),
+            // Text(
+            //   'Estimated Run Time: ${estimatedTime ?? 20} min',
+            //   style: GoogleFonts.inter(
+            //     fontSize: 24,
+            //     color: const Color(0xFF000000),
+            //     fontWeight: FontWeight.w600,
+            //     height: 1.0, // Removes extra vertical space from text
+            //   ),
+            //   textAlign: TextAlign.center,
+            // ),
             const SizedBox(height: 16),
             Text(
               'Please plug in the charger to avoid shutdown',
@@ -651,7 +652,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      // _triggerDelivery();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
@@ -722,17 +722,17 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Estimated Run Time: ${estimatedTime ?? 20} min',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                color: const Color(0xFF000000),
-                fontWeight: FontWeight.w600,
-                height: 1.0, // Removes extra vertical space from text
-              ),
-              textAlign: TextAlign.center,
-            ),
+            // const SizedBox(height: 12),
+            // Text(
+            //   'Estimated Run Time: ${estimatedTime ?? 20} min',
+            //   style: GoogleFonts.inter(
+            //     fontSize: 24,
+            //     color: const Color(0xFF000000),
+            //     fontWeight: FontWeight.w600,
+            //     height: 1.0, // Removes extra vertical space from text
+            //   ),
+            //   textAlign: TextAlign.center,
+            // ),
             const SizedBox(height: 30),
           ],
         ),
@@ -813,7 +813,6 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      _triggerDelivery();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,

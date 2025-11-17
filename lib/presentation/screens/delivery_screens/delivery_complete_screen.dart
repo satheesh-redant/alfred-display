@@ -55,10 +55,10 @@ class _DeliveryCompleteScreenState
     );
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFFFF), // Light background
+      appBar: AlfredAppBarWidget(showBackButton: false),
       body: Column(
         children: [
-          AlfredAppBarWidget(),
-
           // Task Completed Text - Top Center
           Container(
             width: double.infinity,

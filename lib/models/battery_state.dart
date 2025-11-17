@@ -267,7 +267,7 @@ class BatteryState {
     if (value < 10) return AlfredConstants.batteryColorRed; // Red - Critical
     if (value < 20) return AlfredConstants.batteryColorOrange; // Orange - Low
     if (value < 40) return AlfredConstants.batteryColorYellow; // Yellow - Moderate
-    if (value <= 100) return AlfredConstants.batteryColorGreen; // Lime Green - Fair
+    if (value <= 100) return AlfredConstants.batteryColorBlack; // Lime Green - Fair
     return Colors.grey;
   }
 

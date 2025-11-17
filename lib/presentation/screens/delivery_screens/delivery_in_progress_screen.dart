@@ -50,6 +50,8 @@ class _DeliveryInProgressScreenState
     );
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFFFF), // Light background
+      appBar: AlfredAppBarWidget(showBackButton: false),
       body: LayoutBuilder(
         builder: (context, constraints) {
           // Calculate scale factor while maintaining original dimensions
@@ -60,12 +62,12 @@ class _DeliveryInProgressScreenState
 
           return Stack(
             children: [
-              // Background content
-              Column(
-                children: [
-                  AlfredAppBarWidget(),
-                ],
-              ),
+              // // Background content
+              // Column(
+              //   children: [
+              //     AlfredAppBarWidget(),
+              //   ],
+              // ),
 
               // Centered Content with scaled dimensions
               Align(
