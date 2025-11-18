@@ -29,6 +29,8 @@ dependencies:
   loader_overlay: ^5.0.0
   intl: any
   window_manager: ^0.4.3
+  slider_button: ^2.1.0
+
 
 dev_dependencies:
   flutter_test:
