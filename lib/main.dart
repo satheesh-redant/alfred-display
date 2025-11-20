@@ -57,40 +57,40 @@ class _MyAppState extends ConsumerState<MyApp> {
           supportedLocales: AppLocaleUtils.supportedLocales,
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
           builder: (context, child) {
-            return BatteryAlertListener(
-                child: Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.white,
-                    child: ResponsiveBreakpoints.builder(
-                      breakpoints: [
-                        const Breakpoint(start: 0, end: 450, name: MOBILE),
-                        const Breakpoint(start: 451, end: 800, name: TABLET),
-                        const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                        const Breakpoint(
-                            start: 1921, end: double.infinity, name: '4K'),
-                      ],
-                      child: Builder(builder: (context) {
-                        return ResponsiveScaledBox(
-                          width: ResponsiveValue<double>(
-                            context,
-                            conditionalValues: [
-                              //Scale:- the application will scale and maintain ratio of designScreenWidth pixels in any resolution by scaling.
-                              Condition.largerThan(
-                                breakpoint: 0,
-                                value: 1200,
-                              ),
-                            ],
-                            defaultValue: 0,
-                          ).value,
-                          child: ClampingScrollWrapper.builder(
-                            dragWithMouse: true,
-                            context,
-                            child!,
+            return Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                color: Colors.white,
+                child: ResponsiveBreakpoints.builder(
+                  breakpoints: [
+                    const Breakpoint(start: 0, end: 450, name: MOBILE),
+                    const Breakpoint(start: 451, end: 800, name: TABLET),
+                    const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                    const Breakpoint(
+                        start: 1921, end: double.infinity, name: '4K'),
+                  ],
+                  child: Builder(builder: (context) {
+                    return BatteryAlertListener(
+                        child: ResponsiveScaledBox(
+                      width: ResponsiveValue<double>(
+                        context,
+                        conditionalValues: [
+                          //Scale:- the application will scale and maintain ratio of designScreenWidth pixels in any resolution by scaling.
+                          Condition.largerThan(
+                            breakpoint: 0,
+                            value: 1200,
                           ),
-                        );
-                      }),
-                    )));
+                        ],
+                        defaultValue: 0,
+                      ).value,
+                      child: ClampingScrollWrapper.builder(
+                        dragWithMouse: true,
+                        context,
+                        child!,
+                      ),
+                    ));
+                  }),
+                ));
           },
         )));
   }

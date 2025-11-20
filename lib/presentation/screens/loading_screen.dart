@@ -18,17 +18,24 @@ class LoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Trigger ROS connection.
-    Future.delayed(const Duration(seconds: 2), () {
-      ref.read(bootCheckVMProvider.notifier).init();
-    });
-  }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // Trigger ROS connection.
+  //   Future.delayed(const Duration(seconds: 2), () {
+  //     ref.read(bootCheckVMProvider.notifier).init();
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
+
+    ref.listen(rosConnectionVMProvider, (previous, next) {
+      if (next == ConnectionStatus.connected) {
+        ref.read(bootCheckVMProvider.notifier).init();
+      }
+    });
 
     // Once boot check is successful, navigate to the next screen.
     ref.listen(bootCheckVMProvider, (previous, next) {
@@ -50,8 +57,10 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
                   context.go(AlfredConstants.routeTrainingScreen);
                 } else if (next.toLowerCase() == 'navigation') {
                   context.go(AlfredConstants.routeDeliveryMainScreen);
-                } else {
+                } else if (next.toLowerCase() == 'routing') {
                   context.go(AlfredConstants.routeRoutingScreen);
+                } else {
+                  context.go(AlfredConstants.routeBatteryChargingScreen);
                 }
               }
             });
