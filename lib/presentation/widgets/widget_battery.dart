@@ -58,7 +58,7 @@ class WidgetBattery extends ConsumerWidget {
 
   Widget _batteryPercentage(BuildContext context) {
     // Convert percentage to integer for display
-    final percentageValue = ((batteryState?.percentage ?? 0) * 100).toInt();
+    final percentageValue = ((batteryState?.percentage ?? 0) * 100).round();
 
     return Padding(
       padding: const EdgeInsets.only(right: 3),
@@ -95,7 +95,7 @@ class WidgetBattery extends ConsumerWidget {
 
   Widget _batteryBar(BuildContext context) {
     // Convert percentage (0.0 to 1.0) to actual percentage value
-    final percentage = (batteryState?.percentage ?? 0) * 100;
+    final percentage = ((batteryState?.percentage ?? 0) * 100).round();
 
     return Padding(
       padding: EdgeInsets.all(_trackBorderWidth),

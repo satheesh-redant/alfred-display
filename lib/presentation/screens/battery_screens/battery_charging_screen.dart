@@ -1,7 +1,10 @@
+import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/presentation/widgets/widget_appbar.dart';
+import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
@@ -359,41 +362,27 @@ class BatteryChargingScreen extends ConsumerStatefulWidget {
 }
 
 class _BatteryChargingScreenState extends ConsumerState<BatteryChargingScreen> {
-  bool _hasShownChargingError = false;
-
   @override
   Widget build(BuildContext context) {
     final batteryState = ref.watch(batteryViewModelProvider);
 
-    // ref.listen<AsyncValue<BatteryState>>(
-    //   batteryViewModelProvider,
-    //       (previous, next) {
-    //     next.whenData((battery) {
-    //       if (battery.hasChargingError && !_hasShownChargingError) {
-    //         _showChargingErrorBanner();
-    //         _hasShownChargingError = true;
-    //       } else if (!battery.hasChargingError) {
-    //         _hasShownChargingError = false;
-    //       }
-    //     });
-    //   },
-    // );
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: const AlfredAppBarWidget(showBackButton: false),
-      body: batteryState.when(
-        data: (battery) => _buildChargingView(battery),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Battery Error: $error',
-                  style: const TextStyle(color: Colors.white)),
-            ],
+    return Material(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: const AlfredAppBarWidget(showBackButton: false),
+        body: batteryState.when(
+          data: (battery) => _buildChargingView(battery),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Battery Error: $error',
+                    style: const TextStyle(color: Colors.red)),
+              ],
+            ),
           ),
         ),
       ),
@@ -401,7 +390,7 @@ class _BatteryChargingScreenState extends ConsumerState<BatteryChargingScreen> {
   }
 
   Widget _buildChargingView(BatteryState battery) {
-    final percentage = ((battery.percentage ?? 0) * 100).toInt();
+    final percentage = ref.read(batteryPercentageProvider).round();
     final estimatedRunTime = _calculateEstimatedRunTime(battery);
     final estimatedChargingTime = _calculateChargingTime(battery);
     final fullChargeTime = _calculateFullChargeTime(estimatedChargingTime);

@@ -1,4 +1,5 @@
 import 'package:alfred/config/alfred_constants.dart';
+import 'package:alfred/view_models/battery_view_model.dart';
 import 'package:alfred/view_models/boot_check_view_model.dart';
 import 'package:alfred/view_models/operation_view_model.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../models/boot_check_state.dart';
 import '../../view_models/ros_connection_view_model.dart';
+import 'battery_screens/battery_alert_listener.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({super.key});
@@ -18,22 +20,23 @@ class LoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // Trigger ROS connection.
-  //   Future.delayed(const Duration(seconds: 2), () {
-  //     ref.read(bootCheckVMProvider.notifier).init();
-  //   });
-  // }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(rosConnectionVMProvider.notifier).connect();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     ref.listen(rosConnectionVMProvider, (previous, next) {
       if (next == ConnectionStatus.connected) {
         ref.read(bootCheckVMProvider.notifier).init();
+        ref.read(batteryViewModelProvider.notifier).subscribe();
+        ref.read(opsVMProvider.notifier).getCurrentMode();
+      } else {
+        print(next);
       }
     });
 
@@ -41,37 +44,30 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     ref.listen(bootCheckVMProvider, (previous, next) {
       if (next.overallStatus == 'OK') {
         ref.read(bootCheckVMProvider.notifier).clearTopic();
-        ref.read(opsVMProvider.notifier).getCurrentMode();
       }
     });
 
-    ref.listen(
+    ref.listen<AsyncValue<String>>(
       opsVMProvider,
       (previous, next) {
-        if (next.isNotEmpty) {
-          ref.read(opsVMProvider.notifier).unsubscribe();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) {
-                if (next.toLowerCase() == 'mapping') {
-                  context.go(AlfredConstants.routeTrainingScreen);
-                } else if (next.toLowerCase() == 'navigation') {
-                  context.go(AlfredConstants.routeDeliveryMainScreen);
-                } else if (next.toLowerCase() == 'routing') {
-                  context.go(AlfredConstants.routeRoutingScreen);
-                } else {
-                  context.go(AlfredConstants.routeBatteryChargingScreen);
-                }
-              }
-            });
-          });
+        if (next.value?.toLowerCase() == 'mapping') {
+          context.go(AlfredConstants.routeTrainingScreen);
+        } else if (next.value?.toLowerCase() == 'navigation') {
+          context.go(AlfredConstants.routeDeliveryMainScreen);
+        } else if (next.value?.toLowerCase() == 'routing') {
+          context.go(AlfredConstants.routeRoutingScreen);
+        } /*else if (next.value?.toLowerCase() == 'charging') {
+          context.go(AlfredConstants.routeBatteryChargingScreen);
+        } */else {
+          print(next.value?.toLowerCase());
         }
       },
     );
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
+      body: BatteryAlertListener(
+          child: Center(
         child: ResponsiveRowColumn(
           layout: ResponsiveRowColumnType.COLUMN,
           columnMainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +104,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
             )),
           ],
         ),
-      ),
+      )),
     );
   }
 

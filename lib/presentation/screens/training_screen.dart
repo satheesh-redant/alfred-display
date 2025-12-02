@@ -90,24 +90,16 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
         context.loaderOverlay.show();
       } else {
         context.loaderOverlay.hide();
-        ref.read(opsVMProvider.notifier).getCurrentMode();
+        // ref.read(opsVMProvider.notifier).getCurrentMode();
       }
     });
 
-    ref.listen(
-      opsVMProvider,
-          (previous, next) {
-        if (next.isNotEmpty) {
-          ref.read(opsVMProvider.notifier).unsubscribe();
-          if (next.toLowerCase() == 'routing') {
-            context.loaderOverlay.hide();
-            context.go(AlfredConstants.routeRoutingScreen);
-          } else {
-            print(next.toLowerCase());
-          }
-        }
-      },
-    );
+    ref.listen(opsVMProvider, (previous, next) {
+      if (next.value?.toLowerCase() == 'routing') {
+        context.loaderOverlay.hide();
+        context.go(AlfredConstants.routeRoutingScreen);
+      }
+    });
 
     // Listen to add table view model for save map completion
     ref.listen(addTableVMProvider, (previous, next) {

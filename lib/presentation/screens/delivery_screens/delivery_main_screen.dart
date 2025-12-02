@@ -31,6 +31,7 @@ class DeliveryMainScreen extends ConsumerStatefulWidget {
 class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
   int selectedTableNumber = -1;
 
+  // bool _hasShownLowWarning = false;
   List<int> tables = List.generate(10, (index) => index + 1);
 
   @override
@@ -46,6 +47,15 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
     if (tableList.isNotEmpty) {
       tables = tableList;
     }
+    //
+    // ref.listen<AsyncValue<BatteryState>>(
+    //   batteryViewModelProvider,
+    //       (previous, next) {
+    //     next.whenData((battery) {
+    //       _handleBatteryChanges(battery);
+    //     });
+    //   },
+    // );
 
     ref.listen(
       deliveryVMProvider,
@@ -67,100 +77,18 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
         context.loaderOverlay.show();
       } else {
         context.loaderOverlay.hide();
-        ref.read(opsVMProvider.notifier).getCurrentMode();
+        // ref.read(opsVMProvider.notifier).getCurrentMode();
       }
     });
 
-    ref.listen(
-      opsVMProvider,
-      (previous, next) {
-        if (next.isNotEmpty) {
-          context.loaderOverlay.hide();
-          ref.read(opsVMProvider.notifier).unsubscribe();
-          if (next.toLowerCase() == 'mapping') {
-            context.go(AlfredConstants.routeTrainingScreen);
-          } else {
-            print(next.toLowerCase());
-          }
-        }
-      },
-    );
-
-    // power off slider
-    void _showPowerOffDialog() {
-      showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-            actionsPadding: const EdgeInsets.only(bottom: 24),
-            insetPadding: const EdgeInsets.symmetric(horizontal: 40),
-
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.power_settings_new_rounded,
-                  size: 70,
-                  color: Colors.red,
-                ),
-                const SizedBox(height: 20),
-
-                Text(
-                  "Are you sure you want to\npower off Alfred?",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-              ],
-            ),
-
-            actions: [
-              Center(
-                child: SliderButton(
-                  action: () async {
-                    Navigator.pop(context);
-                    context.go(AlfredConstants.routeSoftShutdownScreen);
-                    return true;
-                  },
-
-                  label: Text(
-                    "Slide to Power Off",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-
-                  icon: Icon(Icons.power_settings_new, color: Colors.white),
-
-                  width: 250,
-                  height: 60,        // FIXED (must be >= 60)
-                  buttonSize: 60,    // Explicitly set
-                  buttonColor: Colors.red,
-                  backgroundColor: Colors.grey.shade200,
-                  baseColor: Colors.black,
-                  highlightedColor: Colors.red.shade700,
-                )
-                ,
-              ),
-            ],
-          );
-        },
-      );
-    }
+    ref.listen(opsVMProvider, (previous, next) {
+      context.loaderOverlay.hide();
+      if (next.value?.toLowerCase() == 'mapping') {
+        context.go(AlfredConstants.routeTrainingScreen);
+      } else {
+        print(next.value?.toLowerCase());
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF), // Light background
@@ -336,6 +264,118 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
     );
   }
 
+  // power off slider
+  void _showPowerOffDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          actionsPadding: const EdgeInsets.only(bottom: 24),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.power_settings_new_rounded,
+                size: 70,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Are you sure you want to\npower off Alfred?",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
+          actions: [
+            Center(
+              child: SliderButton(
+                action: () async {
+                  Navigator.pop(context);
+                  context.go(AlfredConstants.routeSoftShutdownScreen);
+                  return true;
+                },
+
+                label: Text(
+                  "Slide to Power Off",
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                icon: Icon(Icons.power_settings_new, color: Colors.white),
+
+                width: 250,
+                height: 60,
+                // FIXED (must be >= 60)
+                buttonSize: 60,
+                // Explicitly set
+                buttonColor: Colors.red,
+                backgroundColor: Colors.grey.shade200,
+                baseColor: Colors.black,
+                highlightedColor: Colors.red.shade700,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // void _handleBatteryChanges(BatteryState battery) {
+  //   final percentage = (battery.percentage ?? 0) * 100;
+  //   final category = ref.read(batteryLevelCategoryProvider);
+  //   final isCharging = battery.statusEnum == BatteryStatus.charging;
+  //
+  //   // Don't show alerts when charging (already on charging screen)
+  //   if (isCharging) {
+  //     _hasShownLowWarning = false;
+  //     return;
+  //   }
+  //
+  //   // Don't show if battery is too low (will show shutdown screen)
+  //   if (percentage < 2) {
+  //     return;
+  //   }
+  //
+  //   // Low Battery - Show banner (10-19%)
+  //   if (category == BatteryLevelCategory.low && !_hasShownLowWarning) {
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       _showLowBatteryBanner(battery);
+  //     });
+  //     _hasShownLowWarning = true;
+  //   }
+  //
+  //   // Reset flags when battery level improves
+  //   if (percentage >= 20) {
+  //     _hasShownLowWarning = false;
+  //   }
+  // }
+  //
+  // void _showLowBatteryBanner(BatteryState battery) {
+  //   final percentage = ((battery.percentage ?? 0) * 100).toInt();
+  //
+  //   showLowBatteryWarning(
+  //     context: context,
+  //     batteryPercentage: percentage,
+  //   );
+  // }
+
   Widget _buildSidebarItem({
     required IconData icon,
     required String label,
@@ -503,7 +543,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                           final batteryState =
                               ref.read(batteryViewModelProvider).value;
                           final percentage =
-                              (batteryState?.percentage ?? 0) * 100;
+                              ref.read(batteryPercentageProvider).round();
                           final category =
                               ref.read(batteryLevelCategoryProvider);
                           final isCharging = batteryState?.statusEnum ==
@@ -859,9 +899,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(width: 24),
-
               SizedBox(
                 width: 160,
                 child: Container(

@@ -31,14 +31,6 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    // Initialize ROS connection when app starts
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(rosConnectionVMProvider.notifier).connect();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +62,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                         start: 1921, end: double.infinity, name: '4K'),
                   ],
                   child: Builder(builder: (context) {
-                    return BatteryAlertListener(
-                        child: ResponsiveScaledBox(
+                    return ResponsiveScaledBox(
                       width: ResponsiveValue<double>(
                         context,
                         conditionalValues: [
@@ -88,7 +79,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                         context,
                         child!,
                       ),
-                    ));
+                    );
                   }),
                 ));
           },

@@ -61,24 +61,18 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
         context.loaderOverlay.show();
       } else {
         context.loaderOverlay.hide();
-        ref.read(opsVMProvider.notifier).getCurrentMode();
+        // ref.read(opsVMProvider.notifier).getCurrentMode();
       }
     });
 
-    ref.listen(
-      opsVMProvider,
-          (previous, next) {
-        if (next.isNotEmpty) {
-          ref.read(opsVMProvider.notifier).unsubscribe();
-          if (next.toLowerCase() == 'navigation') {
-            context.loaderOverlay.hide();
-            context.go(AlfredConstants.routeDeliveryMainScreen);
-          } else {
-            print(next.toLowerCase());
-          }
-        }
-      },
-    );
+    ref.listen(opsVMProvider, (previous, next) {
+      if (next.value?.toLowerCase() == 'navigation') {
+        context.loaderOverlay.hide();
+        context.go(AlfredConstants.routeDeliveryMainScreen);
+      } else {
+        print(next.value?.toLowerCase());
+      }
+    });
 
     ref.listen(
       routeVMProvider,

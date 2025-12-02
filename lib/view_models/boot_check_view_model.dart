@@ -22,7 +22,7 @@ class BootCheckViewModel extends StateNotifier<BootCheckResponse> {
       ROSConstants.msgString,
       throttleRate: 500,
     );
-    // _topic!.subscribe(_responseHandler);
+    _topic!.subscribe(_responseHandler);
 
     Future.delayed(const Duration(seconds: 2), () {
       BootCheckResponse response = BootCheckResponse();

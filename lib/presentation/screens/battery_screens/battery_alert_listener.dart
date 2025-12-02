@@ -1,12 +1,9 @@
 import 'package:alfred/core/toast_utils.dart';
 import 'package:alfred/models/battery_state.dart';
 import 'package:alfred/presentation/screens/battery_screens/shutdown_alert_screen.dart';
+import 'package:alfred/view_models/battery_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:alfred/view_models/battery_view_model.dart';
-import 'package:go_router/go_router.dart';
-
-import 'battery_charging_screen.dart';
 
 class BatteryAlertListener extends ConsumerStatefulWidget {
   final Widget child;
@@ -19,13 +16,13 @@ class BatteryAlertListener extends ConsumerStatefulWidget {
 }
 
 class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
-  BatteryLevelCategory? _lastCategory;
   bool _hasShownLowWarning = false;
 
   @override
   Widget build(BuildContext context) {
     final batteryState = ref.watch(batteryViewModelProvider);
 
+    // Listen to battery changes for low battery warnings
     ref.listen<AsyncValue<BatteryState>>(
       batteryViewModelProvider,
           (previous, next) {
@@ -35,25 +32,17 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
       },
     );
 
+    // Handle shutdown screen
     return batteryState.when(
       data: (battery) {
-        // Check if robot is charging - show charging screen
-        if (battery.statusEnum == BatteryStatus.charging) {
-          return const BatteryChargingScreen();
-        }
-
-        // Check if battery is critically low - show shutdown screen
-        final percentage = (battery.percentage ?? 0) * 100;
+        final percentage = ref.read(batteryPercentageProvider).round();
         if (percentage < 2) {
           return const ShutdownAlertScreen();
         }
-
-        // Normal app flow
         return widget.child;
       },
       loading: () => widget.child,
       error: (error, _) {
-        // Optional: Log error for debugging
         print('Battery error: $error');
         return widget.child;
       },
@@ -61,20 +50,10 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
   }
 
   void _handleBatteryChanges(BatteryState battery) {
-    final percentage = (battery.percentage ?? 0) * 100;
+    final percentage = ref.read(batteryPercentageProvider).round();
     final category = ref.read(batteryLevelCategoryProvider);
-    final isCharging = battery.statusEnum == BatteryStatus.charging;
 
-    // Don't show alerts when charging (already on charging screen)
-    if (isCharging) {
-      _resetFlags();
-      return;
-    }
-
-    // Don't show if battery is too low (will show shutdown screen)
-    if (percentage < 2) {
-      return;
-    }
+    if (percentage < 2) return;
 
     // Low Battery - Show banner (10-19%)
     if (category == BatteryLevelCategory.low && !_hasShownLowWarning) {
@@ -88,17 +67,10 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
     if (percentage >= 20) {
       _hasShownLowWarning = false;
     }
-
-    _lastCategory = category;
-  }
-
-  void _resetFlags() {
-    _hasShownLowWarning = false;
   }
 
   void _showLowBatteryBanner(BatteryState battery) {
-    final percentage = ((battery.percentage ?? 0) * 100).toInt();
-
+    final percentage = ref.read(batteryPercentageProvider).round();
     showLowBatteryWarning(
       context: context,
       batteryPercentage: percentage,

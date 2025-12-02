@@ -24,6 +24,10 @@ class BatteryViewModel extends StateNotifier<AsyncValue<BatteryState>> {
     );
   }
 
+  void subscribe() {
+    _batteryService.initializeBattery();
+  }
+
   // Computed properties for UI
   bool get isCharging => state.value?.statusEnum == BatteryStatus.charging;
 
