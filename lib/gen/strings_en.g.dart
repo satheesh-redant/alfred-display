@@ -3,12 +3,13 @@
 ///
 // coverage:ignore-file
 // ignore_for_file: type=lint, unused_import
+// dart format off
 
 part of 'strings.g.dart';
 
 // Path: <root>
 typedef TranslationsEn = Translations; // ignore: unused_element
-class Translations implements BaseTranslations<AppLocale, Translations> {
+class Translations with BaseTranslations<AppLocale, Translations> {
 	/// Returns the current translations of the given [context].
 	///
 	/// Usage:
@@ -39,13 +40,22 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+
+	/// en: 'Alfred'
 	String get title => 'Alfred';
+
 	late final TranslationsLoadingEn loading = TranslationsLoadingEn._(_root);
 	late final TranslationsRosConnectionEn ros_connection = TranslationsRosConnectionEn._(_root);
 	late final TranslationsTableMappingEn table_mapping = TranslationsTableMappingEn._(_root);
 	late final TranslationsOrderDeliveryEn order_delivery = TranslationsOrderDeliveryEn._(_root);
+
+	/// en: 'Save'
 	String get save => 'Save';
+
+	/// en: 'Next'
 	String get next => 'Next';
+
+	/// en: 'Send'
 	String get send => 'Send';
 }
 
@@ -56,9 +66,17 @@ class TranslationsLoadingEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Initializing System'
 	String get title => 'Initializing System';
+
+	/// en: 'Connecting to ROS...'
 	String get connecting => 'Connecting to ROS...';
+
+	/// en: 'Connected successfully!'
 	String get connected => 'Connected successfully!';
+
+	/// en: 'Connection failed. Retrying...'
 	String get failed => 'Connection failed. Retrying...';
 }
 
@@ -69,9 +87,17 @@ class TranslationsRosConnectionEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'ROS Connection'
 	String get title => 'ROS Connection';
+
+	/// en: 'Connection Status:'
 	String get status => 'Connection Status:';
+
+	/// en: 'Connected'
 	String get connected => 'Connected';
+
+	/// en: 'Disconnected'
 	String get disconnected => 'Disconnected';
 }
 
@@ -82,9 +108,17 @@ class TranslationsTableMappingEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Table Mapping'
 	String get title => 'Table Mapping';
+
+	/// en: 'Move the robot to the table location'
 	String get instruction => 'Move the robot to the table location';
+
+	/// en: 'Pose:'
 	String get pose => 'Pose:';
+
+	/// en: 'Orientation:'
 	String get orientation => 'Orientation:';
 }
 
@@ -95,35 +129,41 @@ class TranslationsOrderDeliveryEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Order Delivery'
 	String get title => 'Order Delivery';
+
+	/// en: 'No tables mapped yet'
 	String get no_tables => 'No tables mapped yet';
 }
 
-/// Flat map(s) containing all translations.
+/// The flat map containing all translations for locale <en>.
 /// Only for edge cases! For simple maps, use the map function of this library.
+///
+/// The Dart AOT compiler has issues with very large switch statements,
+/// so the map is split into smaller functions (512 entries each).
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
-		switch (path) {
-			case 'title': return 'Alfred';
-			case 'loading.title': return 'Initializing System';
-			case 'loading.connecting': return 'Connecting to ROS...';
-			case 'loading.connected': return 'Connected successfully!';
-			case 'loading.failed': return 'Connection failed. Retrying...';
-			case 'ros_connection.title': return 'ROS Connection';
-			case 'ros_connection.status': return 'Connection Status:';
-			case 'ros_connection.connected': return 'Connected';
-			case 'ros_connection.disconnected': return 'Disconnected';
-			case 'table_mapping.title': return 'Table Mapping';
-			case 'table_mapping.instruction': return 'Move the robot to the table location';
-			case 'table_mapping.pose': return 'Pose:';
-			case 'table_mapping.orientation': return 'Orientation:';
-			case 'order_delivery.title': return 'Order Delivery';
-			case 'order_delivery.no_tables': return 'No tables mapped yet';
-			case 'save': return 'Save';
-			case 'next': return 'Next';
-			case 'send': return 'Send';
-			default: return null;
-		}
+		return switch (path) {
+			'title' => 'Alfred',
+			'loading.title' => 'Initializing System',
+			'loading.connecting' => 'Connecting to ROS...',
+			'loading.connected' => 'Connected successfully!',
+			'loading.failed' => 'Connection failed. Retrying...',
+			'ros_connection.title' => 'ROS Connection',
+			'ros_connection.status' => 'Connection Status:',
+			'ros_connection.connected' => 'Connected',
+			'ros_connection.disconnected' => 'Disconnected',
+			'table_mapping.title' => 'Table Mapping',
+			'table_mapping.instruction' => 'Move the robot to the table location',
+			'table_mapping.pose' => 'Pose:',
+			'table_mapping.orientation' => 'Orientation:',
+			'order_delivery.title' => 'Order Delivery',
+			'order_delivery.no_tables' => 'No tables mapped yet',
+			'save' => 'Save',
+			'next' => 'Next',
+			'send' => 'Send',
+			_ => null,
+		};
 	}
 }
-

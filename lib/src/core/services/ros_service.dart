@@ -1,15 +1,17 @@
+
+
+//retry
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:rosbridge/rosbridge.dart';
 
 import '../configs/ros_constants.dart';
 
 enum ROSConnectionStatus { disconnected, connecting, connected, error }
+enum OperationMode { training, delivery, unknown }
 
 class ROSService {
   static final ROSService _instance = ROSService._internal();
-
   factory ROSService() => _instance;
 
   late final Ros _ros;
@@ -17,13 +19,39 @@ class ROSService {
   final Map<String, StreamSubscription> _subscriptions = {};
 
   final StreamController<ROSConnectionStatus> _connectionController =
-      StreamController<ROSConnectionStatus>.broadcast();
+  StreamController<ROSConnectionStatus>.broadcast();
 
-  Stream<ROSConnectionStatus> get connectionStream =>
-      _connectionController.stream;
+  // loading
+  final StreamController<String> _bootCheckController =
+  StreamController<String>.broadcast();
+  final StreamController<OperationMode> _opsModeController =
+  StreamController<OperationMode>.broadcast();
+
+  // base reset
+  final StreamController<String> _baseResetStatusController =
+  StreamController<String>.broadcast();
+
+  // delivery
+  final StreamController<String> _deliveryStatusController =
+  StreamController<String>.broadcast();
+  final StreamController<List<int>> _tableListController =
+  StreamController<List<int>>.broadcast();
+
+  Stream<ROSConnectionStatus> get connectionStream => _connectionController.stream;
+  Stream<String> get bootCheckStream => _bootCheckController.stream;
+  Stream<OperationMode> get opsModeStream => _opsModeController.stream;
+  Stream<String> get deliveryStatusStream => _deliveryStatusController.stream;
+  Stream<List<int>> get tableListStream => _tableListController.stream;
+  Stream<String> get baseResetStatusStream => _baseResetStatusController.stream;
+
   ROSConnectionStatus _currentStatus = ROSConnectionStatus.disconnected;
 
   Timer? _healthCheckTimer;
+
+  //  added retry timer
+  Timer? _retryTimer;
+  static const Duration _retryInterval = Duration(seconds: 5);
+
   bool _isDisposed = false;
 
   ROSConnectionStatus get currentStatus => _currentStatus;
@@ -40,9 +68,18 @@ class ROSService {
 
     _ros.statusStream.listen((status) {
       final newStatus = _mapROSStatus(status);
+
       if (_currentStatus != newStatus && !_isDisposed) {
         _currentStatus = newStatus;
         _connectionController.add(newStatus);
+
+        if (newStatus == ROSConnectionStatus.connected) {
+          _stopRetryTimer(); // ⭐ stop retry when connected
+          _initializeBootAndOpsSubscriptions();
+        } else if (newStatus == ROSConnectionStatus.error ||
+            newStatus == ROSConnectionStatus.disconnected) {
+          _startRetryTimer(); // ⭐ start retry on failure
+        }
       }
     });
   }
@@ -65,13 +102,8 @@ class ROSService {
     if (_isDisposed) return;
 
     try {
-      if (_currentStatus == ROSConnectionStatus.connected) {
-        return; // Already connected
-      }
-
-      if (_currentStatus == ROSConnectionStatus.connecting) {
-        return; // Connection already in progress
-      }
+      if (_currentStatus == ROSConnectionStatus.connected) return;
+      if (_currentStatus == ROSConnectionStatus.connecting) return;
 
       _connectionController.add(ROSConnectionStatus.connecting);
       await _ros.connect();
@@ -84,22 +116,119 @@ class ROSService {
     }
   }
 
+  // ⭐ retry logic added
+  void _startRetryTimer() {
+    _stopRetryTimer();
+    print("ROSService: Retrying connection in ${_retryInterval.inSeconds} seconds...");
+    _retryTimer = Timer.periodic(_retryInterval, (_) => _attemptReconnect());
+  }
+
+  void _stopRetryTimer() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
+  }
+
+  void _attemptReconnect() async {
+    if (_currentStatus == ROSConnectionStatus.connected ||
+        _currentStatus == ROSConnectionStatus.connecting) return;
+
+    print("ROSService: Attempting reconnect...");
+    await connect();
+  }
+  // ⭐ retry logic end
+
+  void _initializeBootAndOpsSubscriptions() {
+    print("ROSService: Initializing boot and ops subscriptions...");
+
+    subscribeToTopic('/set_parameter', 'std_msgs/String', (msg) {
+      try {
+        final data = msg['data'] as String;
+        _bootCheckController.add(data);
+      } catch (e) {
+        print("Boot parse error: $e");
+      }
+    });
+
+    subscribeToTopic('/ops_mode', 'std_msgs/String', (msg) {
+      final m = msg["data"]?.toString().toLowerCase() ?? "";
+      final mode = m == "delivery"
+          ? OperationMode.delivery
+          : m == "training"
+          ? OperationMode.training
+          : OperationMode.unknown;
+      _opsModeController.add(mode);
+    });
+
+    subscribeToTopic('/delivery_status', 'std_msgs/String', (msg) {
+      try {
+        final status = msg['data'] as String? ?? '';
+        print('Delivery status received: $status');
+        _deliveryStatusController.add(status);
+      } catch (e) {
+        _deliveryStatusController.addError("Failed to parse: $e");
+      }
+    });
+
+    subscribeToTopic('/table_list', 'std_msgs/String', (msg) {
+      try {
+        final data = msg['data'] as String? ?? '';
+        print('Table list received: $data');
+        final numbers = data
+            .split(',')
+            .where((s) => s.isNotEmpty)
+            .map((s) => int.tryParse(s.trim()))
+            .where((n) => n != null)
+            .cast<int>()
+            .toList();
+
+        _tableListController.add(numbers);
+      } catch (e) {
+        _tableListController.addError("Failed to parse: $e");
+      }
+    });
+
+    // RESET BASE ACK
+    subscribeToTopic('/reset_base_loc_ack', 'std_msgs/String', (msg) {
+      try {
+        final status = msg['data'] as String? ?? '';
+      //  print("Reset Base ACK received → $status");
+        _baseResetStatusController.add(status);
+      } catch (e) {
+        print("Reset Base ACK parse error: $e");
+      }
+    });
+
+  }
+
+  Future<void> requestTableList() async {
+    print('Requesting table list...');
+    await publishToTopic('/get_table_list', ROSConstants.emptyMessageType, {});
+  }
+
+  Future<void> gotoPoint(int tableNumber, int route) async {
+    final data = {'data': '$tableNumber:$route'};
+    print('Publishing goto_point: $data');
+    await publishToTopic('/goto_point', ROSConstants.stringMessageType, data);
+  }
+
+  Future<void> resetBaseLocation() async {
+    final data = {"data": "Base"};
+    print("Publishing /reset_base_loc: $data");
+    await publishToTopic('/reset_base_loc', ROSConstants.msgString, data);
+  }
+
+
   Future<void> disconnect() async {
     if (_isDisposed) return;
-
     try {
       print('ROSService: Disconnecting');
       _healthCheckTimer?.cancel();
-
-      // Simple close - let the library handle the details
+      _stopRetryTimer(); // ⭐ stop retry
       if (_currentStatus == ROSConnectionStatus.connected) {
         await _ros.close();
       }
-
       _connectionController.add(ROSConnectionStatus.disconnected);
     } catch (e) {
-      print('ROSService: Disconnect error - $e');
-      // Force status update even if error occurs
       _connectionController.add(ROSConnectionStatus.disconnected);
     }
   }
@@ -110,8 +239,8 @@ class ROSService {
         timer.cancel();
         return;
       }
-
-      if (_ros.status == false && _currentStatus == ROSConnectionStatus.connected) {
+      if (_ros.status == false &&
+          _currentStatus == ROSConnectionStatus.connected) {
         print('ROSService: Health check failed - connection lost');
         _connectionController.add(ROSConnectionStatus.error);
       }
@@ -120,164 +249,72 @@ class ROSService {
 
   Topic createTopic(String name, String type,
       {int queueSize = 10, int throttleRate = 0}) {
-    if (_isDisposed) {
-      throw StateError('ROSService has been disposed');
-    }
-
-    if (name.isEmpty || type.isEmpty) {
-      throw ArgumentError('Topic name and type cannot be empty');
-    }
-
-    if (_topics.containsKey(name)) {
-      return _topics[name]!;
-    }
-
+    if (_isDisposed) throw StateError('ROSService has been disposed');
+    if (_topics.containsKey(name)) return _topics[name]!;
     final topic = Topic(
       ros: _ros,
       name: name,
       type: type,
-      queueSize: queueSize.clamp(1, 100), // Reasonable limits
+      queueSize: queueSize.clamp(1, 100),
       throttleRate: throttleRate.clamp(0, 1000),
       reconnectOnClose: true,
     );
-
-    print('ROSService: Created topic $name');
     _topics[name] = topic;
     return topic;
   }
 
   void subscribeToTopic(String topicName, String messageType,
       void Function(Map<String, dynamic>) callback) {
-    if (_isDisposed) {
-      throw StateError('ROSService has been disposed');
-    }
-
+    if (_isDisposed) throw StateError('ROSService has been disposed');
     final topic = createTopic(topicName, messageType);
-
-    // Cancel existing subscription if it exists
     if (_subscriptions.containsKey(topicName)) {
       _subscriptions[topicName]!.cancel();
     }
-
-    try {
-      print('ROSService: Subscribed to $topicName');
-      // Subscribe to the topic
-      topic.subscribe((Map<String, dynamic> message) async {
-        if (!_isDisposed) {
-          callback(message);
-        }
-      });
-
-    } catch (e) {
-      print('ROSService: Subscribe error for $topicName - $e');
-      rethrow;
-    }
+    topic.subscribe((Map<String, dynamic> message) async {
+      if (!_isDisposed) callback(message);
+    });
   }
 
   Future<void> publishToTopic(
       String topicName, String messageType, Map<String, dynamic> data) async {
-    if (_isDisposed) {
-      throw StateError('ROSService has been disposed');
-    }
-
-    if (data.isEmpty) {
-      throw ArgumentError('Message data cannot be empty');
-    }
-
+    if (_isDisposed) throw StateError('ROSService has been disposed');
+    if (data.isEmpty) throw ArgumentError('Message data cannot be empty');
     if (_currentStatus != ROSConnectionStatus.connected) {
-      throw StateError('ROS is not connected. Current status: $_currentStatus');
+      throw StateError('ROS is not connected');
     }
-
-    try {
-      final topic = createTopic(topicName, messageType);
-      await topic.publish(data);
-      print('ROSService: Published to $topicName');
-    } catch (e) {
-      print('ROSService: Publish error for $topicName - $e');
-      rethrow;
-    }
-  }
-
-  void unsubscribeFromTopic(String topicName) {
-    if (_subscriptions.containsKey(topicName)) {
-      _subscriptions[topicName]!.cancel();
-      _subscriptions.remove(topicName);
-    }
-
-    if (_topics.containsKey(topicName)) {
-      try {
-        print('ROSService: Unsubscribed from $topicName');
-        _topics[topicName]!.unsubscribe();
-        _topics.remove(topicName);
-      } catch (e) {
-        print('ROSService: Unsubscribe error for $topicName - $e');
-      }
-    }
-  }
-
-  void unsubscribeFromAllTopics() {
-    print('ROSService: Unsubscribing from all topics');
-    final topicNames = List<String>.from(_topics.keys);
-    for (final topicName in topicNames) {
-      unsubscribeFromTopic(topicName);
-    }
+    final topic = createTopic(topicName, messageType);
+    await topic.publish(data);
   }
 
   Future<void> dispose() async {
     if (_isDisposed) return;
-
-    print('ROSService: Disposing service');
     _isDisposed = true;
+    _stopRetryTimer(); // ⭐ cancel retry
+    _healthCheckTimer?.cancel();
 
-    try {
-      // Stop health check timer
-      _healthCheckTimer?.cancel();
-
-      // Cancel all subscriptions
-      final subscriptionFutures = _subscriptions.values
-          .map((sub) => sub.cancel())
-          .where((future) => future != null)
-          .cast<Future>();
-
-      if (subscriptionFutures.isNotEmpty) {
-        await Future.wait(subscriptionFutures);
-      }
-      _subscriptions.clear();
-
-      // Unsubscribe from all topics
-      final topicFutures = _topics.values.map((topic) async {
-        try {
-          await topic.unsubscribe();
-        } catch (e) {
-          print('ROSService: Topic cleanup error - $e');
-        }
-      });
-
-      await Future.wait(topicFutures);
-      _topics.clear();
-
-      // Disconnect ROS connection
-      if (_currentStatus == ROSConnectionStatus.connected) {
-        await _ros.close();
-      }
-
-      // Close connection controller
-      await _connectionController.close();
-      print('ROSService: Service disposed');
-
-    } catch (e) {
-      print('ROSService: Disposal error - $e');
+    for (final topic in _topics.values) {
+      try {
+        await topic.unsubscribe();
+      } catch (_) {}
     }
-  }
+    _topics.clear();
 
-  // Utility methods for debugging and monitoring
-  Map<String, String> getActiveTopics() {
-    return Map.fromEntries(
-        _topics.entries.map((entry) => MapEntry(entry.key, entry.value.type))
-    );
-  }
+    for (final sub in _subscriptions.values) {
+      await sub.cancel();
+    }
+    _subscriptions.clear();
 
-  int get activeSubscriptionCount => _subscriptions.length;
+    if (_currentStatus == ROSConnectionStatus.connected) {
+      await _ros.close();
+    }
+
+    await _connectionController.close();
+    await _bootCheckController.close();
+    await _opsModeController.close();
+    await _baseResetStatusController.close();
+    await _deliveryStatusController.close();
+    await _tableListController.close();
+  }
 
   bool get isConnected => _currentStatus == ROSConnectionStatus.connected;
   bool get isConnecting => _currentStatus == ROSConnectionStatus.connecting;

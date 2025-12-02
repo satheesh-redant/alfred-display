@@ -1,21 +1,20 @@
-import 'package:alfred/src/shared/services/operation_mode_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
-import '../../../shared/services/boot_check_service.dart';
+//import '../../base/providers/base_provider.dart';
 import '../states/loading_screen_state.dart';
 import '../view_models/loading_screen_view_model.dart';
+import '../../../core/services/ros_service.dart';
 
-// Service Providers
-final bootCheckServiceProvider = Provider<BootCheckService>((ref) {
+// BootCheckService → now handled inside ROSService
+final bootCheckServiceProvider = Provider<ROSService>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  return BootCheckService(rosService);
+  return rosService;                       // return ROSService instead of BootCheckService
 });
 
-final operationsServiceProvider = Provider<OperationModeService>((ref) {
+// OperationModeService → now handled inside ROSService
+final operationsServiceProvider = Provider<ROSService>((ref) {
   final rosService = ref.watch(rosServiceProvider);
-  final service = OperationModeService(rosService);
-  ref.onDispose(() => service.dispose());
-  return service;
+  return rosService;                       // return ROSService instead of OperationModeService
 });
 
 // ViewModel Provider
@@ -26,14 +25,13 @@ StateNotifierProvider<LoadingScreenViewModel, LoadingScreenState>((ref) {
   final operationsService = ref.watch(operationsServiceProvider);
 
   return LoadingScreenViewModel(
-    rosService,
-    bootCheckService,
-    operationsService,
+    rosService
   );
 });
 
 // Global operation mode provider for other screens
 final currentOperationModeProvider = StreamProvider<OperationMode>((ref) {
   final operationsService = ref.watch(operationsServiceProvider);
-  return operationsService.operationStream;
+  return operationsService.opsModeStream;  // from ROSService
 });
+
