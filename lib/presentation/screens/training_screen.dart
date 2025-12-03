@@ -182,19 +182,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
-          Text(
-            mappingStatus,
-            style: GoogleFonts.nunito(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-          ),
           const SizedBox(height: 20),
-          // const ConnectionStatusWidget(),
-          // const SizedBox(height: 30),
           Expanded(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 300),

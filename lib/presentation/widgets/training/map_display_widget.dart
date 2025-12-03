@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../../providers/map_provider.dart';
 import '../../../providers/robot_pose_provider.dart';
 import '../../../providers/slam_connection_provider.dart';
 import 'live_map_painter.dart';
 
-class MapDisplayWidget extends ConsumerWidget {
+class MapDisplayWidget extends ConsumerStatefulWidget {
   final VoidCallback? onSaveMap;
 
   const MapDisplayWidget({
@@ -16,7 +15,17 @@ class MapDisplayWidget extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MapDisplayWidget> createState() => _MapDisplayWidgetState();
+}
+
+class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
+  bool _showGrid = false;
+  bool _showLegend = true;
+  double _zoom = 1.0;
+  Offset _panOffset = Offset.zero;
+
+  @override
+  Widget build(BuildContext context) {
     final mapData = ref.watch(mapProvider);
     final robotPose = ref.watch(robotPoseProvider);
     final connectionState = ref.watch(slamConnectionProvider);
@@ -33,123 +42,121 @@ class MapDisplayWidget extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // _buildHeader(),
-            // const SizedBox(height: 20),
             Expanded(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: _buildMapView(mapData, robotPose, connectionState),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildSaveButton(connectionState),
-                ],
-              ),
+              child: _buildMapView(mapData, robotPose, connectionState),
             ),
+            const SizedBox(height: 16),
+            _buildSaveButton(connectionState),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        "LIVE SLAM MAP",
-        style: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: Colors.blue,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _buildMapView(MapData? mapData, RobotPose? robotPose, SlamConnectionState connectionState) {
+  Widget _buildMapView(
+      MapData? mapData,
+      RobotPose? robotPose,
+      SlamConnectionState connectionState,
+      ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey[4],
+        color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Colors.grey.shade300, width: 2),
       ),
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              child: mapData != null
-                  ? CustomPaint(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          children: [
+            if (mapData != null)
+              CustomPaint(
                 painter: LiveMapPainter(mapData, robotPose),
                 child: Container(),
               )
-                  : _buildLoadingView(connectionState),
-            ),
-          ),
-          _buildMapOverlays(mapData, robotPose),
-        ],
+            else
+              _buildLoadingView(connectionState),
+            _buildMapOverlays(mapData, robotPose),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildLoadingView(SlamConnectionState connectionState) {
     String message;
+    IconData icon;
+    Color color;
+
     switch (connectionState.status) {
       case SlamConnectionStatus.disconnected:
         message = "Not connected to ROS";
+        icon = Icons.cloud_off;
+        color = Colors.orange;
         break;
       case SlamConnectionStatus.connecting:
         message = "Connecting to ROS...";
+        icon = Icons.cloud_sync;
+        color = Colors.blue;
         break;
       case SlamConnectionStatus.connected:
         message = "Subscribing to topics...";
+        icon = Icons.sync;
+        color = Colors.blue;
         break;
       case SlamConnectionStatus.subscribed:
         message = "Waiting for map data...";
+        icon = Icons.map_outlined;
+        color = Colors.blue;
         break;
       case SlamConnectionStatus.error:
         message = "Connection error";
+        icon = Icons.error_outline;
+        color = Colors.red;
         break;
     }
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (connectionState.status != SlamConnectionStatus.error)
-            CircularProgressIndicator(color: Colors.blue),
-          if (connectionState.status == SlamConnectionStatus.error)
-            Icon(Icons.error, color: Colors.red, size: 48),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: GoogleFonts.nunito(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (connectionState.errorMessage != null) ...[
-            const SizedBox(height: 8),
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (connectionState.status != SlamConnectionStatus.error)
+              CircularProgressIndicator(color: color)
+            else
+              Icon(icon, color: color, size: 64),
+            const SizedBox(height: 24),
             Text(
-              connectionState.errorMessage!,
+              message,
               style: GoogleFonts.nunito(
-                fontSize: 12,
-                color: Colors.red,
+                fontSize: 16,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),
+            if (connectionState.errorMessage != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Text(
+                  connectionState.errorMessage!,
+                  style: GoogleFonts.nunito(
+                    fontSize: 13,
+                    color: Colors.red.shade700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -157,50 +164,110 @@ class MapDisplayWidget extends ConsumerWidget {
   Widget _buildMapOverlays(MapData? mapData, RobotPose? robotPose) {
     return Stack(
       children: [
-        // Map info
+        // Map info overlay (top-left)
         Positioned(
           top: 12,
           left: 12,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(6),
+              color: Colors.black.withOpacity(0.75),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              mapData != null
-                  ? "Resolution: ${mapData.resolution.toStringAsFixed(3)}m/px\n${mapData.width}x${mapData.height} grid"
-                  : "No map data",
-              style: GoogleFonts.nunito(
-                fontSize: 10,
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (mapData != null) ...[
+                  _buildInfoRow(Icons.grid_on, "Grid",
+                      "${mapData.width} × ${mapData.height}"),
+                  const SizedBox(height: 4),
+                  _buildInfoRow(Icons.straighten, "Resolution",
+                      "${(mapData.resolution * 100).toStringAsFixed(1)} cm/cell"),
+                  const SizedBox(height: 4),
+                  _buildInfoRow(Icons.location_on, "Origin",
+                      "(${mapData.originX.toStringAsFixed(2)}, ${mapData.originY.toStringAsFixed(2)})"),
+                ] else
+                  Text(
+                    "No map data",
+                    style: GoogleFonts.nunito(
+                      fontSize: 11,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
 
-        // Robot pose info
+        // Robot pose overlay (bottom-left)
         if (robotPose != null)
           Positioned(
             bottom: 12,
             left: 12,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(6),
+                color: Colors.blue.withOpacity(0.85),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                robotPose.toString(),
-                style: GoogleFonts.nunito(
-                  fontSize: 10,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.smart_toy, color: Colors.white, size: 14),
+                      const SizedBox(width: 6),
+                      Text(
+                        "ROBOT POSE",
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  _buildInfoRow(Icons.arrow_forward, "X",
+                      "${robotPose.x.toStringAsFixed(3)} m", Colors.white),
+                  const SizedBox(height: 3),
+                  _buildInfoRow(Icons.arrow_upward, "Y",
+                      "${robotPose.y.toStringAsFixed(3)} m", Colors.white),
+                  const SizedBox(height: 3),
+                  _buildInfoRow(Icons.ac_unit, "Yaw",
+                      "${(robotPose.yaw * 180 / 3.14159).toStringAsFixed(1)}°", Colors.white),
+                ],
               ),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value,
+      [Color textColor = Colors.white]) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: textColor.withOpacity(0.8)),
+        const SizedBox(width: 4),
+        Text(
+          "$label: ",
+          style: GoogleFonts.nunito(
+            fontSize: 11,
+            color: textColor.withOpacity(0.9),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.nunito(
+            fontSize: 11,
+            color: textColor,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -212,16 +279,16 @@ class MapDisplayWidget extends ConsumerWidget {
       width: double.infinity,
       height: 50,
       child: ElevatedButton.icon(
-        onPressed: isEnabled ? onSaveMap : null,
+        onPressed: isEnabled ? widget.onSaveMap : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: isEnabled ? Colors.blue.shade600 : Colors.grey,
           foregroundColor: Colors.white,
-          elevation: 4,
+          elevation: isEnabled ? 4 : 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        icon: const Icon(Icons.save, size: 20),
+        icon: const Icon(Icons.save, size: 22),
         label: Text(
           "Save Map",
           style: GoogleFonts.inter(

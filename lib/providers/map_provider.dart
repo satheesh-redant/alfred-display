@@ -1,50 +1,74 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MapData {
-  final List<List<int>> occupancyGrid;
-  final double resolution;
   final int width;
   final int height;
+  final double resolution;
   final double originX;
   final double originY;
-  final DateTime timestamp;
+  final List<List<int>> occupancyGrid;
 
   MapData({
-    required this.occupancyGrid,
-    required this.resolution,
     required this.width,
     required this.height,
+    required this.resolution,
     required this.originX,
     required this.originY,
-    required this.timestamp,
+    required this.occupancyGrid,
   });
 
-  factory MapData.fromJson(Map<String, dynamic> json) {
+  factory MapData.fromJson(Map<dynamic, dynamic> json) {
     final info = json['info'];
-    final data = List<int>.from(json['data']);
+    final width = info['width'] as int;
+    final height = info['height'] as int;
+    final resolution = (info['resolution'] as num).toDouble();
 
-    final width = (info['width'] as num).toInt();
-    final height = (info['height'] as num).toInt();
-    final grid = <List<int>>[];
+    final origin = info['origin'];
+    final originX = (origin['position']['x'] as num).toDouble();
+    final originY = (origin['position']['y'] as num).toDouble();
 
-    for (int y = 0; y < height; y++) {
-      final row = <int>[];
-      for (int x = 0; x < width; x++) {
-        row.add(data[y * width + x]);
-      }
-      grid.add(row);
-    }
+    // ROS OccupancyGrid data format:
+    // Row-major order: data[y * width + x]
+    // Origin at bottom-left: (0,0)
+    // X-axis: left to right (columns)
+    // Y-axis: bottom to top (rows)
+
+    final data = (json['data'] as List).cast<int>();
+
+    // Convert flat array to 2D grid [y][x]
+    // data[y * width + x] -> grid[y][x]
+    final grid = List.generate(
+      height,
+          (y) => List.generate(
+        width,
+            (x) => data[y * width + x],
+      ),
+    );
+
+    print('Map loaded: ${width}x${height}, resolution: ${resolution}m');
+    print('Origin: ($originX, $originY)');
 
     return MapData(
-      occupancyGrid: grid,
-      resolution: (info['resolution'] as num).toDouble(),
       width: width,
       height: height,
-      originX: (info['origin']['position']['x'] as num).toDouble(),
-      originY: (info['origin']['position']['y'] as num).toDouble(),
-      timestamp: DateTime.now(),
+      resolution: resolution,
+      originX: originX,
+      originY: originY,
+      occupancyGrid: grid,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is MapData &&
+              runtimeType == other.runtimeType &&
+              width == other.width &&
+              height == other.height &&
+              resolution == other.resolution;
+
+  @override
+  int get hashCode => width.hashCode ^ height.hashCode ^ resolution.hashCode;
 }
 
 class MapNotifier extends StateNotifier<MapData?> {
