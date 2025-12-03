@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MapData {
   final int width;
@@ -8,7 +7,7 @@ class MapData {
   final double originY;
   final List<List<int>> occupancyGrid;
 
-  MapData({
+  const MapData({
     required this.width,
     required this.height,
     required this.resolution,
@@ -27,16 +26,9 @@ class MapData {
     final originX = (origin['position']['x'] as num).toDouble();
     final originY = (origin['position']['y'] as num).toDouble();
 
-    // ROS OccupancyGrid data format:
-    // Row-major order: data[y * width + x]
-    // Origin at bottom-left: (0,0)
-    // X-axis: left to right (columns)
-    // Y-axis: bottom to top (rows)
-
     final data = (json['data'] as List).cast<int>();
 
     // Convert flat array to 2D grid [y][x]
-    // data[y * width + x] -> grid[y][x]
     final grid = List.generate(
       height,
           (y) => List.generate(
@@ -44,9 +36,6 @@ class MapData {
             (x) => data[y * width + x],
       ),
     );
-
-    print('Map loaded: ${width}x${height}, resolution: ${resolution}m');
-    print('Origin: ($originX, $originY)');
 
     return MapData(
       width: width,
@@ -70,19 +59,3 @@ class MapData {
   @override
   int get hashCode => width.hashCode ^ height.hashCode ^ resolution.hashCode;
 }
-
-class MapNotifier extends StateNotifier<MapData?> {
-  MapNotifier() : super(null);
-
-  void updateMapData(MapData mapData) {
-    state = mapData;
-  }
-
-  void clearMap() {
-    state = null;
-  }
-}
-
-final mapProvider = StateNotifierProvider<MapNotifier, MapData?>((ref) {
-  return MapNotifier();
-});

@@ -81,7 +81,7 @@ class TableGridButtonWidget extends ConsumerWidget {
         child: Material(
           color: backgroundColor,
           child: InkWell(
-            //todo: Disable tap if in training mode or button is disabled
+            //todo: Disable tap if in mapping mode or button is disabled
             onTap: isTraining || showDisabled ? null : onPressed,
             borderRadius: BorderRadius.circular(8),
             child: buttonContent,

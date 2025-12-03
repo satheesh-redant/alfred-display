@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'dart:math' as math;
 
 class RobotPose {
@@ -27,7 +27,10 @@ class RobotPose {
     final qz = (rotation['z'] as num).toDouble();
     final qw = (rotation['w'] as num).toDouble();
 
-    final yaw = math.atan2(2.0 * (qw * qz + qx * qy), 1.0 - 2.0 * (qy * qy + qz * qz));
+    final yaw = math.atan2(
+      2.0 * (qw * qz + qx * qy),
+      1.0 - 2.0 * (qy * qy + qz * qz),
+    );
 
     return RobotPose(x: x, y: y, yaw: yaw);
   }
@@ -50,36 +53,3 @@ class RobotPose {
   @override
   int get hashCode => x.hashCode ^ y.hashCode ^ yaw.hashCode;
 }
-
-// Add to robot_pose_provider.dart
-class RobotPoseNotifier extends StateNotifier<RobotPose?> {
-  RobotPoseNotifier() : super(null);
-
-  void updatePose(RobotPose pose) {
-    print('\n📍 ROBOT POSE PROVIDER UPDATE');
-    print('Previous pose: $state');
-    print('New pose: $pose');
-    state = pose;
-    print('State updated successfully');
-  }
-
-  void clearPose() {
-    print('🗑️ Clearing robot pose');
-    state = null;
-  }
-
-  // Add a test method
-  void testPose() {
-    print('🧪 Testing robot pose with dummy data');
-    final testPose = RobotPose(
-      x: 2.0,
-      y: 1.5,
-      yaw: 0.785, // 45 degrees
-    );
-    updatePose(testPose);
-  }
-}
-
-final robotPoseProvider = StateNotifierProvider<RobotPoseNotifier, RobotPose?>((ref) {
-  return RobotPoseNotifier();
-});

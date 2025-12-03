@@ -48,7 +48,7 @@ class _BasePointMarkingScreenState
       print('Marker screen is now showing');
       return _BasePointMarkerScreen(
         onComplete: () {
-          context.go(AlfredConstants.routeTrainingScreen);
+          context.go(AlfredConstants.routeMappingScreen);
         },
       );
     }

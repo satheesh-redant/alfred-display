@@ -51,7 +51,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       opsVMProvider,
       (previous, next) {
         if (next.value?.toLowerCase() == 'mapping') {
-          context.go(AlfredConstants.routeTrainingScreen);
+          context.go(AlfredConstants.routeMappingScreen);
         } else if (next.value?.toLowerCase() == 'navigation') {
           context.go(AlfredConstants.routeDeliveryMainScreen);
         } else if (next.value?.toLowerCase() == 'routing') {

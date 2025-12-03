@@ -84,7 +84,7 @@ class _DeliveryMainScreenState extends ConsumerState<DeliveryMainScreen> {
     ref.listen(opsVMProvider, (previous, next) {
       context.loaderOverlay.hide();
       if (next.value?.toLowerCase() == 'mapping') {
-        context.go(AlfredConstants.routeTrainingScreen);
+        context.go(AlfredConstants.routeMappingScreen);
       } else {
         print(next.value?.toLowerCase());
       }

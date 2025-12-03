@@ -1,0 +1,134 @@
+import 'dart:async';
+
+import 'package:alfred/services/ros_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../config/ros_constants.dart';
+import '../data/mapping_repository.dart';
+import 'mapping_state.dart';
+
+class MappingViewModel extends StateNotifier<MappingState> {
+  final MappingRepository _repository;
+
+  StreamSubscription? _mapSub;
+  StreamSubscription? _poseSub;
+  StreamSubscription? _mapSaveSub;
+
+  bool _started = false;
+
+  MappingViewModel(this._repository) : super(MappingState.initial());
+
+  Future<void> initialize() async {
+    try {
+      await _repository.initialize();
+
+      state = state.copyWith(
+        statusMessage: 'Mapping repository initialized',
+      );
+    } catch (e) {
+      state = state.copyWith(
+        statusMessage: 'Error initializing SLAM: $e',
+      );
+    }
+  }
+
+  Future<void> startMapping() async {
+    if (_started) return;
+    _started = true;
+
+    state = state.copyWith(
+      statusMessage: 'Starting mapping...',
+    );
+
+    _mapSub = _repository.mapStream.listen((map) {
+      state = state.copyWith(
+        map: map,
+      );
+    });
+
+    _poseSub = _repository.poseStream.listen((pose) {
+      state = state.copyWith(
+        pose: pose,
+      );
+    });
+
+    _mapSaveSub = _repository.mapSavedAckStream.listen((msg) {
+      if (msg.isEmpty) return;
+      bool isSaved = false;
+      if (msg.toLowerCase() == ROSConstants.success) {
+        isSaved = true;
+      }
+      state = state.copyWith(
+          statusMessage: msg,
+          isSaving: false,
+          mapSaved: isSaved
+      );
+    });
+
+    try {
+      await _repository.start();
+      state = state.copyWith(
+        statusMessage: 'Mapping started - drive Alfred around',
+      );
+    } catch (e) {
+      state = state.copyWith(
+        statusMessage: 'Error starting mapping: $e',
+      );
+    }
+  }
+
+  Future<void> saveMap() async {
+    state = state.copyWith(
+      isSaving: true,
+      mapSaved: false,
+      statusMessage: 'Saving map...',
+    );
+
+    try {
+      await _repository.saveMap();
+    } catch (e) {
+      state = state.copyWith(
+        isSaving: false,
+        statusMessage: 'Error saving map: $e',
+      );
+    }
+  }
+
+  Future<void> stopMapping() async {
+    _started = false;
+    await _repository.stop();
+
+    await _mapSub?.cancel();
+    await _poseSub?.cancel();
+    await _mapSaveSub?.cancel();
+
+    _mapSub = null;
+    _poseSub = null;
+    _mapSaveSub = null;
+
+    state = MappingState.initial();
+  }
+
+  @override
+  void dispose() {
+    stopMapping();
+    _repository.dispose();
+    super.dispose();
+  }
+}
+
+// DI / Riverpod integration
+final mappingRepositoryProvider = Provider<MappingRepository>((ref) {
+  final rosService = ref.watch(rosServiceProvider);
+  final repo = MappingRepository(rosService);
+  ref.onDispose(repo.dispose);
+  return repo;
+});
+
+final mappingVMProvider =
+    StateNotifierProvider.autoDispose<MappingViewModel, MappingState>((ref) {
+  final repo = ref.watch(mappingRepositoryProvider);
+  final vm = MappingViewModel(repo);
+  ref.onDispose(vm.dispose);
+  return vm;
+});

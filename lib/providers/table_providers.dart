@@ -16,7 +16,7 @@ class TableNotifier extends StateNotifier<List<int>> {
 // Provider for selected table
 final selectedTableProvider = StateProvider<int?>((ref) => null);
 
-// Provider for training state
+// Provider for mapping state
 final isTrainingProvider = StateProvider<bool>((ref) => false);
 
 // New provider to track selected state for each table

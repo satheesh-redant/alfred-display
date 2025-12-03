@@ -1,12 +1,14 @@
+import 'package:alfred/mapping/view_models/mapping_view_model.dart';
+import 'package:alfred/view_models/ros_connection_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../providers/map_provider.dart';
-import '../../../providers/robot_pose_provider.dart';
-import '../../../providers/slam_connection_provider.dart';
+
+import '../../models/map_data.dart';
+import '../../models/robot_pose.dart';
 import 'live_map_painter.dart';
 
-class MapDisplayWidget extends ConsumerStatefulWidget {
+class MapDisplayWidget extends ConsumerWidget {
   final VoidCallback? onSaveMap;
 
   const MapDisplayWidget({
@@ -15,20 +17,11 @@ class MapDisplayWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<MapDisplayWidget> createState() => _MapDisplayWidgetState();
-}
-
-class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
-  bool _showGrid = false;
-  bool _showLegend = true;
-  double _zoom = 1.0;
-  Offset _panOffset = Offset.zero;
-
-  @override
-  Widget build(BuildContext context) {
-    final mapData = ref.watch(mapProvider);
-    final robotPose = ref.watch(robotPoseProvider);
-    final connectionState = ref.watch(slamConnectionProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mappingState = ref.watch(mappingVMProvider);
+    final mapData = mappingState.map;
+    final robotPose = mappingState.pose;
+    final connectionState = ref.watch(rosConnectionVMProvider);
 
     return Card(
       elevation: 6,
@@ -56,7 +49,7 @@ class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
   Widget _buildMapView(
       MapData? mapData,
       RobotPose? robotPose,
-      SlamConnectionState connectionState,
+      ConnectionStatus connectionState,
       ) {
     return Container(
       width: double.infinity,
@@ -69,7 +62,7 @@ class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
         borderRadius: BorderRadius.circular(12),
         child: Stack(
           children: [
-            if (mapData != null)
+            if (connectionState == ConnectionStatus.connected && mapData != null)
               CustomPaint(
                 painter: LiveMapPainter(mapData, robotPose),
                 child: Container(),
@@ -83,33 +76,28 @@ class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
     );
   }
 
-  Widget _buildLoadingView(SlamConnectionState connectionState) {
+  Widget _buildLoadingView(ConnectionStatus connectionState) {
     String message;
     IconData icon;
     Color color;
 
-    switch (connectionState.status) {
-      case SlamConnectionStatus.disconnected:
+    switch (connectionState) {
+      case ConnectionStatus.closed:
         message = "Not connected to ROS";
         icon = Icons.cloud_off;
         color = Colors.orange;
         break;
-      case SlamConnectionStatus.connecting:
+      case ConnectionStatus.connecting:
         message = "Connecting to ROS...";
         icon = Icons.cloud_sync;
         color = Colors.blue;
         break;
-      case SlamConnectionStatus.connected:
+      case ConnectionStatus.connected:
         message = "Subscribing to topics...";
         icon = Icons.sync;
         color = Colors.blue;
         break;
-      case SlamConnectionStatus.subscribed:
-        message = "Waiting for map data...";
-        icon = Icons.map_outlined;
-        color = Colors.blue;
-        break;
-      case SlamConnectionStatus.error:
+      case ConnectionStatus.error:
         message = "Connection error";
         icon = Icons.error_outline;
         color = Colors.red;
@@ -122,7 +110,7 @@ class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (connectionState.status != SlamConnectionStatus.error)
+            if (connectionState != ConnectionStatus.error)
               CircularProgressIndicator(color: color)
             else
               Icon(icon, color: color, size: 64),
@@ -136,7 +124,7 @@ class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
               ),
               textAlign: TextAlign.center,
             ),
-            if (connectionState.errorMessage != null) ...[
+            if (connectionState == ConnectionStatus.error) ...[
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -146,7 +134,7 @@ class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
                   border: Border.all(color: Colors.red.shade200),
                 ),
                 child: Text(
-                  connectionState.errorMessage!,
+                  "Connection error",
                   style: GoogleFonts.nunito(
                     fontSize: 13,
                     color: Colors.red.shade700,
@@ -272,14 +260,14 @@ class _MapDisplayWidgetState extends ConsumerState<MapDisplayWidget> {
     );
   }
 
-  Widget _buildSaveButton(SlamConnectionState connectionState) {
-    final isEnabled = connectionState.status == SlamConnectionStatus.subscribed;
+  Widget _buildSaveButton(ConnectionStatus connectionState) {
+    final isEnabled = connectionState == ConnectionStatus.connected;
 
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton.icon(
-        onPressed: isEnabled ? widget.onSaveMap : null,
+        onPressed: isEnabled ? onSaveMap : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: isEnabled ? Colors.blue.shade600 : Colors.grey,
           foregroundColor: Colors.white,

@@ -29,7 +29,6 @@ class OperationViewModel extends StateNotifier<AsyncValue<String>> {
   }
 
   Future<void> _handler(Map<String, dynamic> message) async {
-    print('Current ops mode: $message');
     state = AsyncValue.data(message['data']);
   }
 

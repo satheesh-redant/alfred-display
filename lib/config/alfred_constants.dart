@@ -8,7 +8,6 @@ class AlfredConstants {
   static const String routeLoadingScreen = '/loading';
   static const String routeChecklistScreen = '/checklist';
   static const String routeBasePointMarkingScreen = '/base_point';
-  static const String routeTrainingScreen = '/table';
   static const String routeMappingScreen = '/mapping';
   static const String routeDeliveryMainScreen = '/alfred_base';
   static const String routeDeliveryInProgressScreen = '/table-move';

@@ -1,19 +1,17 @@
 import 'package:alfred/config/alfred_constants.dart';
 import 'package:alfred/core/app_shell.dart';
 import 'package:alfred/presentation/screens/base_point_marking_screen.dart';
-import 'package:alfred/presentation/screens/battery_screens/battery_charging_screen.dart';
 import 'package:alfred/presentation/screens/battery_screens/shutdown_alert_screen.dart';
 import 'package:alfred/presentation/screens/battery_screens/soft_shutdown_alert_screen.dart';
 import 'package:alfred/presentation/screens/loading_screen.dart';
-import 'package:alfred/presentation/screens/mapping_screen.dart';
 import 'package:alfred/presentation/screens/routing_screen.dart';
 import 'package:alfred/presentation/screens/splash_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../mapping/ui/mapping_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_main_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_in_progress_screen.dart';
 import '../presentation/screens/check_list_screen.dart';
-import '../presentation/screens/training_screen.dart';
 import '../presentation/screens/delivery_screens/delivery_complete_screen.dart';
 
 final routerProvider = Provider((ref) {
@@ -41,10 +39,6 @@ final routerProvider = Provider((ref) {
           GoRoute(
             path: AlfredConstants.routeBasePointMarkingScreen,
             builder: (context, state) => const BasePointMarkingScreen(),
-          ),
-          GoRoute(
-            path: AlfredConstants.routeTrainingScreen,
-            builder: (context, state) => const TrainingScreen(),
           ),
           GoRoute(
             path: AlfredConstants.routeDeliveryMainScreen,
