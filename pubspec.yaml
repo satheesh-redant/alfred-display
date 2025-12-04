@@ -27,6 +27,7 @@ dependencies:
   intl: any
   window_manager: ^0.4.3
   flutter_screenutil: ^5.9.3
+  responsive_framework: ^1.2.0
 
 dev_dependencies:
   flutter_test:

@@ -29,9 +29,14 @@ StateNotifierProvider<LoadingScreenViewModel, LoadingScreenState>((ref) {
   );
 });
 
-// Global operation mode provider for other screens
-final currentOperationModeProvider = StreamProvider<OperationMode>((ref) {
-  final operationsService = ref.watch(operationsServiceProvider);
-  return operationsService.opsModeStream;  // from ROSService
+// // Global operation mode provider for other screens
+// final currentOperationModeProvider = StreamProvider<OperationMode>((ref) {
+//   final operationsService = ref.watch(operationsServiceProvider);
+//   return operationsService.opsModeStream;  // from ROSService
+// });
+// Expose only the operation mode string to other screens
+final currentOperationModeProvider = Provider<AsyncValue<String>>((ref) {
+  final loadingState = ref.watch(loadingScreenViewModelProvider);
+  return AsyncValue.data(loadingState.statusMessage);
 });
 

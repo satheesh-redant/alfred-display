@@ -12,6 +12,8 @@ class ROSConstants {
   static const String msgEmpty = 'std_msgs/Empty';
   static const String emptyMessageType = 'std_msgs/Empty';
 
+  // static const String mapTopic = '/map';
+  // static const String mapTopicMsg = 'nav_msgs/msg/OccupancyGrid';
   static const String mapTopic = '/map';
   static const String mapTopicMsg = 'nav_msgs/msg/OccupancyGrid';
 
@@ -23,7 +25,7 @@ class ROSConstants {
 
   /*  BATTERY */
   static const String topicBattery = '/battery_status';
-
+  static const String batteryTopicType = 'sensor_msgs/msg/BatteryState';
   /*  OPERATIONS  */
   static const String topicSetOpsMode = '/set_mode';
   // static const String topicCurrentMode = '/current_mode';
@@ -52,4 +54,7 @@ class ROSConstants {
   static const String topicRouteAck = '/save_route_ack';
 
   static const String success = 'SUCCESS';
+
+  static const String topicSaveMap = '/save_map';
+  static const String topicMapSaved = '/map_saved';
 }
