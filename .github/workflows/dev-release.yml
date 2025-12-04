@@ -51,13 +51,13 @@ jobs:
             exit 2
           fi
           tar -czf "$OUT" bundle/
+          mv "$OUT" ${{ github.workspace }}/
           echo "tarball=$OUT" >> $GITHUB_OUTPUT
 
       - name: Create checksum (SHA256)
         id: checksum
         run: |
           set -e
-          cd build/linux/x64/release
           TARBALL="${{ steps.package.outputs.tarball }}"
           if [ -z "$TARBALL" ]; then
             TARBALL=$(ls alfred-helios-*.tar.gz | head -n1)
