@@ -57,6 +57,7 @@ jobs:
         id: checksum
         run: |
           set -e
+          cd build/linux/x64/release
           TARBALL="${{ steps.package.outputs.tarball }}"
           if [ -z "$TARBALL" ]; then
             TARBALL=$(ls alfred-helios-*.tar.gz | head -n1)
