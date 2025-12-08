@@ -48,6 +48,7 @@ class ROSConstants {
   // static const String topicMoveTable = '/move_to_table';
   static const String topicMoveTable = '/goto_point';
   static const String topicDeliveryStatus = '/delivery_status';
+  static const String topicPowerOff = "/power_off";
 
   /*  ROUTE */
   static const String topicRoute = '/save_route';

@@ -14,6 +14,7 @@ class AlfredConstants {
   static const String routeDeliveryInProgressScreen = '/delivery_progress_screen';
   static const String routeDeliveryCompleteScreen = '/delivery_complete_screen';
   static const String routeRoutingScreen = '/routing_scream';
+  static const String routeSoftShutdownScreen = '/alfred-soft-shutdown';
 
   static const Color batteryColorRed = Color(0xFFEE0011);
   static const Color batteryColorOrange = Color(0xFFFF6B00);

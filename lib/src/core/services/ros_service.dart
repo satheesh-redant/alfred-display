@@ -37,12 +37,18 @@ class ROSService {
   final StreamController<List<int>> _tableListController =
   StreamController<List<int>>.broadcast();
 
+// power off ack
+  final StreamController<String> _powerOffAckController =
+  StreamController<String>.broadcast();
+
   Stream<ROSConnectionStatus> get connectionStream => _connectionController.stream;
   Stream<String> get bootCheckStream => _bootCheckController.stream;
   Stream<OperationMode> get opsModeStream => _opsModeController.stream;
   Stream<String> get deliveryStatusStream => _deliveryStatusController.stream;
   Stream<List<int>> get tableListStream => _tableListController.stream;
   Stream<String> get baseResetStatusStream => _baseResetStatusController.stream;
+  Stream<String> get powerOffAckStream => _powerOffAckController.stream;
+
 
   ROSConnectionStatus _currentStatus = ROSConnectionStatus.disconnected;
 
@@ -198,6 +204,13 @@ class ROSService {
       }
     });
 
+
+// POWER_OFF_ACK
+    subscribeToTopic('/power_off_ack', 'std_msgs/String', (msg) {
+      final ack = msg['data'] ?? '';
+      print("Power Off ACK received → $ack");
+      _powerOffAckController.add(ack);
+    });
   }
 
   Future<void> requestTableList() async {
@@ -217,6 +230,10 @@ class ROSService {
     await publishToTopic('/reset_base_loc', ROSConstants.msgString, data);
   }
 
+//publishes data
+  Future<void> sendPowerOffCommand() async {
+    await publishToTopic('/power_off', 'std_msgs/String', {'data': 'OFF'});
+  }
 
   Future<void> disconnect() async {
     if (_isDisposed) return;
@@ -313,6 +330,7 @@ class ROSService {
     await _opsModeController.close();
     await _baseResetStatusController.close();
     await _deliveryStatusController.close();
+    await _powerOffAckController.close();
     await _tableListController.close();
   }
 
