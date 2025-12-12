@@ -1,75 +1,3 @@
-// import 'package:alfred/src/core/configs/assets_constants.dart';
-// import 'package:alfred/src/features/battery/view_model/battery_view_model.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
-// import '../../../../view_models/timer_view_model.dart';
-// import '../../../../presentation/widgets/timer_widget.dart';
-// import '../../features/battery/presentation/widget/battery_widget.dart';
-//
-//
-// class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
-//   @override
-//   final Size preferredSize = Size.fromHeight(40.h);
-//
-//   AppBarWidget({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final batteryState = ref.watch(batteryViewModelProvider);
-//     final timerState = ref.watch(timerProvider);
-//
-//     return Container(
-//       height: preferredSize.height,
-//       color: Colors.white,
-//       padding: EdgeInsets.symmetric(horizontal: 16.w),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         crossAxisAlignment: CrossAxisAlignment.center,
-//         children: [
-//           // ───── Left side: logo + timer ─────
-//           Row(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               Image.asset(
-//                 AssetsConstants.companyLogo,
-//                 width: 15.w,
-//                 height: 20.h,
-//                 fit: BoxFit.contain,
-//               ),
-//               SizedBox(width: 12.w),
-//               Flexible(
-//                 child: FittedBox(
-//                   fit: BoxFit.scaleDown,
-//                   alignment: Alignment.centerLeft,
-//                   child: TimerWidget(timerState: timerState),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           // ───── Right side: wifi + battery ─────
-//           Row(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               SvgPicture.asset(
-//                 AssetsConstants.iconWifi,
-//                 width: 24.w,
-//                 height: 24.h,
-//                 fit: BoxFit.contain,
-//               ),
-//               SizedBox(width: 12.w),
-//               WidgetBattery(batteryState: batteryState.value),
-//
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
 import 'package:alfred/src/core/services/ros_service.dart';
 import 'package:alfred/src/features/battery/presentation/widget/battery_widget.dart';
 import 'package:flutter/material.dart';
@@ -79,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/providers/core_providers.dart';
-import '../../features/base/providers/base_provider.dart' hide rosConnectionStateProvider;
-import '../../features/battery/view_model/battery_view_model.dart';
+import '../../features/battery/provider/battery_provider.dart';
+
 
 class AlfredAppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
   final bool showBackButton;

@@ -1,19 +1,45 @@
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
 import '../model/battery_model.dart';
-import '../services/battery_service.dart';
 import 'dart:async';
+import '../../../core/configs/ros_constants.dart';
+import '../../../core/services/ros_service.dart';
+import 'package:rosbridge/rosbridge.dart';
 
 class BatteryViewModel extends StateNotifier<AsyncValue<BatteryState>> {
-  final BatteryService _batteryService;
+  final ROSService _batteryService;
   StreamSubscription<BatteryState>? _subscription;
 
+  // MERGED FROM BatteryService
+  Topic? _batteryTopic;
+  StreamController<BatteryState>? _batteryController;
+
   BatteryViewModel(this._batteryService) : super(const AsyncValue.loading()) {
+    print('initiating battery topics');
+
+    // EXACT COPY FROM BatteryService constructor
+    _batteryController = StreamController<BatteryState>.broadcast();
+
+    _batteryTopic = _batteryService.createTopic(
+      ROSConstants.topicBattery,
+      ROSConstants.batteryTopicType,
+      queueSize: 1,
+      throttleRate: 1000,
+    );
+
+    // ORIGINAL VIEWMODEL LOGIC
     _initialize();
+
+    // BATTERY SERVICE LOGIC
+    initializeBattery();
   }
 
+  // -------------------------------
+  // ORIGINAL VIEW MODEL _initialize
+  // -------------------------------
   void _initialize() {
-    _subscription = _batteryService.batteryStream.listen(
+    _subscription = _batteryController!.stream.listen(
           (batteryState) {
         state = AsyncValue.data(batteryState);
       },
@@ -24,11 +50,37 @@ class BatteryViewModel extends StateNotifier<AsyncValue<BatteryState>> {
     );
   }
 
-  void subscribe() {
-    _batteryService.initializeBattery();
+  // -------------------------------
+  // MERGED FROM BatteryService
+  // -------------------------------
+  void initializeBattery() {
+    try {
+      _batteryTopic!.subscribe(_handlerBatteryState);
+      print('Battery topic subscribed successfully');
+    } catch (e) {
+      print('Error initializing battery topic: $e');
+    }
   }
 
-  // Computed properties for UI
+  // EXACT COPY
+  Future<void> _handlerBatteryState(Map<String, dynamic> message) async {
+    try {
+      final batteryState = BatteryState.fromJson(message);
+      _batteryController?.add(batteryState);
+    } catch (e) {
+      print('Error parsing battery message: $e');
+    }
+  }
+
+  // EXACT COPY
+  void _cleanup() {
+    _batteryTopic?.unsubscribe();
+    _batteryTopic = null;
+  }
+
+  // -------------------------------
+  // ORIGINAL COMPUTED PROPERTIES
+  // -------------------------------
   bool get isCharging => state.value?.statusEnum == BatteryStatus.charging;
 
   bool get isCritical => (state.value?.percentage ?? 0) < 0.02;
@@ -85,48 +137,12 @@ class BatteryViewModel extends StateNotifier<AsyncValue<BatteryState>> {
   @override
   void dispose() {
     _subscription?.cancel();
+
+    // MERGED cleanup
+    _cleanup();
+    _batteryController?.close();
+
     super.dispose();
+    // END
   }
-}
-
-// Providers
-final batteryServiceProvider = Provider<BatteryService>((ref) {
-  final rosService = ref.watch(rosServiceProvider);
-  final batteryService = BatteryService(rosService);
-  ref.onDispose(() => batteryService.dispose());
-  return batteryService;
-});
-
-final batteryViewModelProvider =
-StateNotifierProvider<BatteryViewModel, AsyncValue<BatteryState>>((ref) {
-  final service = ref.watch(batteryServiceProvider);
-  return BatteryViewModel(service);
-});
-
-// Computed providers
-final isChargingProvider = Provider<bool>((ref) {
-  return ref.watch(batteryViewModelProvider).value?.statusEnum ==
-      BatteryStatus.charging;
-});
-
-final batteryPercentageProvider = Provider<double>((ref) {
-  return (ref.watch(batteryViewModelProvider).value?.percentage ?? 0) * 100;
-});
-
-final batteryLevelCategoryProvider = Provider<BatteryLevelCategory>((ref) {
-  final percentage = ref.watch(batteryPercentageProvider);
-
-  if (percentage < 2) return BatteryLevelCategory.shutdown;
-  if (percentage < 10) return BatteryLevelCategory.criticalLow;
-  if (percentage < 20) return BatteryLevelCategory.low;
-  if (percentage < 60) return BatteryLevelCategory.moderate;
-  return BatteryLevelCategory.healthy;
-});
-
-enum BatteryLevelCategory {
-  shutdown,
-  criticalLow,
-  low,
-  moderate,
-  healthy,
 }

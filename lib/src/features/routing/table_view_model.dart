@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/rosbridge.dart';
 
-import '../models/table_state.dart';
-import '../src/core/configs/ros_constants.dart';
-import '../src/core/providers/core_providers.dart';
-import '../src/core/services/ros_service.dart';
+import '../mapping/view_model/table_state.dart';
+import '../../core/configs/ros_constants.dart';
+import '../../core/providers/core_providers.dart';
+import '../../core/services/ros_service.dart';
 
 class TableViewModel extends StateNotifier<List<int>> {
   final ROSService _rosService;

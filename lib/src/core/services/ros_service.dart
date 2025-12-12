@@ -2,6 +2,7 @@
 
 //retry
 import 'dart:async';
+import 'package:alfred/src/features/battery/model/battery_model.dart';
 import 'package:flutter/material.dart';
 import 'package:rosbridge/rosbridge.dart';
 
@@ -41,6 +42,10 @@ class ROSService {
   final StreamController<String> _powerOffAckController =
   StreamController<String>.broadcast();
 
+  //battery
+  final StreamController<Map<String, dynamic>> _batteryRawController =
+  StreamController<Map<String, dynamic>>.broadcast();
+
   Stream<ROSConnectionStatus> get connectionStream => _connectionController.stream;
   Stream<String> get bootCheckStream => _bootCheckController.stream;
   Stream<OperationMode> get opsModeStream => _opsModeController.stream;
@@ -48,6 +53,7 @@ class ROSService {
   Stream<List<int>> get tableListStream => _tableListController.stream;
   Stream<String> get baseResetStatusStream => _baseResetStatusController.stream;
   Stream<String> get powerOffAckStream => _powerOffAckController.stream;
+  Stream<Map<String, dynamic>> get batteryRawStream => _batteryRawController.stream;
 
 
   ROSConnectionStatus _currentStatus = ROSConnectionStatus.disconnected;
@@ -211,6 +217,11 @@ class ROSService {
       print("Power Off ACK received → $ack");
       _powerOffAckController.add(ack);
     });
+
+    subscribeToTopic('/battery_state', 'std_msgs/String', (msg) {
+      _batteryRawController.add(msg);   // msg = Map<String, dynamic>
+    });
+
   }
 
   Future<void> requestTableList() async {

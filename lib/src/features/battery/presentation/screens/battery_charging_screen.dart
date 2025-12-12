@@ -1,17 +1,14 @@
 
 import 'package:alfred/src/shared/widgets/appbar_widget.dart';
-
-import '../../../../core/configs/alfred_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
 import '../../model/battery_model.dart';
+import '../../provider/battery_provider.dart';
 
-import '../../view_model/battery_view_model.dart';
 
 class _BatteryCirclePainter extends CustomPainter {
   final int batteryPercentage;

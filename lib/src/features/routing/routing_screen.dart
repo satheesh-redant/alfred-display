@@ -9,9 +9,9 @@
 // import 'package:loader_overlay/loader_overlay.dart';
 // import 'package:toastification/toastification.dart';
 //
-// import '../../../presentation/widgets/table_grid_button_widget.dart';
-// import '../../../view_models/base_point_view_model.dart';
-// import '../../../view_models/table_view_model.dart';
+// import 'table_grid_button_widget.dart';
+// import 'base_point_view_model.dart';
+// import 'table_view_model.dart';
 // import '../../core/helpers/toast_utils.dart';
 // import '../checklist/presentation/widget/buttonwidget.dart';
 // import '../loading/providers/loading_providers.dart';
