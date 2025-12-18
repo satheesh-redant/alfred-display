@@ -1,7 +1,10 @@
 import 'package:alfred/src/features/battery/view_model/battery_view_model.dart';
+import 'package:alfred/src/features/loading/model/operation_mode.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
+import '../../loading/providers/loading_providers.dart';
 import '../model/battery_model.dart';
+import '../states/battery_state.dart';
 
 final batteryViewModelProvider =
 StateNotifierProvider<BatteryViewModel, AsyncValue<BatteryState>>((ref) {
@@ -9,14 +12,12 @@ StateNotifierProvider<BatteryViewModel, AsyncValue<BatteryState>>((ref) {
   return BatteryViewModel(service);
 });
 
-// Computed providers
-final isChargingProvider = Provider<bool>((ref) {
-  return ref.watch(batteryViewModelProvider).value?.statusEnum ==
-      BatteryStatus.charging;
+final modeProvider = Provider<OperationMode>((ref) {
+  return ref.watch(batteryViewModelProvider).value?.mode ?? OperationMode.unknown;
 });
 
 final batteryPercentageProvider = Provider<double>((ref) {
-  return (ref.watch(batteryViewModelProvider).value?.percentage ?? 0) * 100;
+  return (ref.watch(batteryViewModelProvider).value?.batteryData?.percentage ?? -1) * 100; //must be -1 when no battery data
 });
 
 final batteryLevelCategoryProvider = Provider<BatteryLevelCategory>((ref) {

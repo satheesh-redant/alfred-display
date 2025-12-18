@@ -1,4 +1,4 @@
-
+import 'package:alfred/src/core/providers/core_providers.dart';
 import 'package:alfred/src/core/services/ros_service.dart';
 import 'package:alfred/src/features/mapping/model/map_model.dart';
 import 'package:alfred/src/features/mapping/model/robot_pose.dart';
@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../base/providers/base_provider.dart';
+import '../../providers/mapping_providers.dart';
 import '../../view_model/mapping_view_model.dart';
 
 class MapDisplayWidget extends ConsumerWidget {
@@ -22,7 +23,7 @@ class MapDisplayWidget extends ConsumerWidget {
     final mappingState = ref.watch(mappingVMProvider);
     final mapData = mappingState.map;
     final robotPose = mappingState.pose;
-    final connectionState = ref.watch(rosConnectionStatusProvider);
+    final connectionState = ref.watch(rosConnectionStateProvider);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -33,8 +34,6 @@ class MapDisplayWidget extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          // 🔥 TEXT ADDED HERE
           Text(
             'Mark Table (Only single selection is allowed)',
             style: GoogleFonts.inter(
@@ -44,7 +43,6 @@ class MapDisplayWidget extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-
           Expanded(
             child: _buildMapView(mapData, robotPose, connectionState),
           ),
@@ -56,10 +54,10 @@ class MapDisplayWidget extends ConsumerWidget {
   }
 
   Widget _buildMapView(
-      MapData? mapData,
-      RobotPose? robotPose,
-      AsyncValue<ROSConnectionStatus> connectionState,
-      ) {
+    MapData? mapData,
+    RobotPose? robotPose,
+    AsyncValue<ROSConnectionStatus> connectionState,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -236,8 +234,11 @@ class MapDisplayWidget extends ConsumerWidget {
                   _buildInfoRow(Icons.arrow_upward, "Y",
                       "${robotPose.y.toStringAsFixed(3)} m", Colors.white),
                   const SizedBox(height: 3),
-                  _buildInfoRow(Icons.ac_unit, "Yaw",
-                      "${(robotPose.yaw * 180 / 3.14159).toStringAsFixed(1)}°", Colors.white),
+                  _buildInfoRow(
+                      Icons.ac_unit,
+                      "Yaw",
+                      "${(robotPose.yaw * 180 / 3.14159).toStringAsFixed(1)}°",
+                      Colors.white),
                 ],
               ),
             ),
@@ -246,8 +247,7 @@ class MapDisplayWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoRow(
-      IconData icon, String label, String value,
+  Widget _buildInfoRow(IconData icon, String label, String value,
       [Color textColor = Colors.white]) {
     return Row(
       mainAxisSize: MainAxisSize.min,

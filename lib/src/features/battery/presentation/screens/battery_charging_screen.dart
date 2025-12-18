@@ -1,4 +1,3 @@
-
 import 'package:alfred/src/shared/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -370,7 +369,7 @@ class _BatteryChargingScreenState extends ConsumerState<BatteryChargingScreen> {
         backgroundColor: Colors.white,
         appBar:   AlfredAppBarWidget(),
         body: batteryState.when(
-          data: (battery) => _buildChargingView(battery),
+          data: (battery) => _buildChargingView(battery.batteryData),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Center(
             child: Column(
@@ -388,10 +387,10 @@ class _BatteryChargingScreenState extends ConsumerState<BatteryChargingScreen> {
     );
   }
 
-  Widget _buildChargingView(BatteryState battery) {
+  Widget _buildChargingView(BatteryData? battery) {
     final percentage = ref.read(batteryPercentageProvider).round();
     final estimatedRunTime = _calculateEstimatedRunTime(battery);
-    final estimatedChargingTime = _calculateChargingTime(battery);
+    final estimatedChargingTime = _calculateChargingTime();
     final fullChargeTime = _calculateFullChargeTime(estimatedChargingTime);
 
     const primaryGreen = Color(0xFF4CAF50);
@@ -623,15 +622,15 @@ class _BatteryChargingScreenState extends ConsumerState<BatteryChargingScreen> {
     );
   }
 
-  String _calculateEstimatedRunTime(BatteryState battery) {
-    if (battery.current == null || battery.charge == null) return '-- m';
+  String _calculateEstimatedRunTime(BatteryData? battery) {
+    if (battery?.current == null || battery?.charge == null) return '-- m';
     const avgDischargeCurrent = 5.0;
-    final runTimeHours = battery.charge! / avgDischargeCurrent;
+    final runTimeHours = battery!.charge! / avgDischargeCurrent;
     final runTimeMinutes = (runTimeHours * 60).toInt();
     return _formatTime(runTimeMinutes);
   }
 
-  String _calculateChargingTime(BatteryState battery) {
+  String _calculateChargingTime() {
     final viewModel = ref.read(batteryViewModelProvider.notifier);
     final minutes = viewModel.estimatedMinutesLeft;
     if (minutes == null || minutes <= 0) return '0h 0m';

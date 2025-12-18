@@ -1,6 +1,3 @@
-
-
-
 import 'package:alfred/src/features/battery/model/battery_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +15,7 @@ class WidgetBattery extends ConsumerWidget {
     required this.batteryState,
   });
 
-  final BatteryState? batteryState;
+  final BatteryData? batteryState;
   final double trackHeight;
   final double trackAspectRatio;
   final BorderRadius? borderRadius;
@@ -37,7 +34,7 @@ class WidgetBattery extends ConsumerWidget {
         _batteryTrack(context),
         _batteryKnob(context),
         _batteryPercentage(context),
-        if (batteryState?.statusEnum == BatteryStatus.charging)
+        if (batteryState?.statusEnum == BatteryChargingStatus.charging)
           _chargingAnimation(context)
         else
           const SizedBox.shrink(key: ValueKey("empty")),

@@ -97,7 +97,7 @@ class AlfredAppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
           // const SizedBox(width: 12),
 
           // Battery Widget - already centered from previous fix
-          WidgetBattery(batteryState: batteryState.value),
+          WidgetBattery(batteryState: batteryState.value?.batteryData),
         ],
       ),
     );
@@ -122,7 +122,7 @@ class _ConnectionStatusIcon extends StatelessWidget {
     IconData icon;
     Color color;
 
-    switch (rosStatus) {
+    switch (rosStatus.value) {
       case ROSConnectionStatus.connected:
         icon = Icons.wifi_rounded;
         color = Colors.green.shade700;
@@ -138,10 +138,12 @@ class _ConnectionStatusIcon extends StatelessWidget {
         color = Colors.red;
         break;
 
-      case ROSConnectionStatus.disconnected: // if ROS disconnected/closed
+      case ROSConnectionStatus.disconnected:
+      default:
         icon = Icons.wifi_off_rounded;
         color = Colors.red;
         break;
+
     }
 
     return Icon(icon, size: 20, color: color);

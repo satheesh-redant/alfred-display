@@ -1,58 +1,37 @@
+import 'package:alfred/src/features/loading/model/operation_mode.dart';
+
 import '../../features/battery/model/battery_model.dart';
 import '../../features/battery/presentation/screens/battery_alert_listener.dart';
 import '../../features/battery/presentation/screens/battery_charging_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/battery/provider/battery_provider.dart';
 import '../../features/loading/providers/loading_providers.dart';
 import '../../core/services/ros_service.dart';
 
-class AppShell extends ConsumerStatefulWidget {
+class AppOverlayWidget extends ConsumerStatefulWidget {
   final Widget child;
 
-  const AppShell({Key? key, required this.child}) : super(key: key);
+  const AppOverlayWidget({Key? key, required this.child}) : super(key: key);
 
   @override
-  ConsumerState<AppShell> createState() => _AppShellState();
+  ConsumerState<AppOverlayWidget> createState() => _AppOverlayWidgetState();
 }
 
-class _AppShellState extends ConsumerState<AppShell> {
+class _AppOverlayWidgetState extends ConsumerState<AppOverlayWidget> {
   OverlayEntry? _chargingOverlay;
   bool _isChargingScreenVisible = false;
 
   @override
   Widget build(BuildContext context) {
-    // Listen for charging mode
-    // ref.listen<AsyncValue<OperationMode>>(
-    //   currentOperationModeProvider,
-    //       (previous, next) {
-    //     next.whenData((operation) {
-    //       // extract mode string from operation model
-    //       final modeStr = operation.mode.toLowerCase();  // <-- update field name if needed
-    //
-    //       if (modeStr.contains("charging")) {
-    //         _showChargingScreen();
-    //       } else {
-    //         _hideChargingScreen();
-    //       }
-    //     });
-    //   },
-    // );
 
-    ref.listen<AsyncValue<String>>(
-      currentOperationModeProvider,
-          (previous, next) {
-        next.whenData((value) {
-          final modeStr = value.toLowerCase();
-
-          if (modeStr.contains("charging")) {
-            _showChargingScreen();
-          } else {
-            _hideChargingScreen();
-          }
-        });
-      },
-    );
-
+    ref.listen(modeProvider, (previous, next) {
+      if (next == OperationMode.charging) {
+        _showChargingScreen();
+      } else {
+        _hideChargingScreen();
+      }
+    },);
 
     // Provide overlay context for the entire app
     return Overlay(

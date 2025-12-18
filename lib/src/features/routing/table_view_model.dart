@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosbridge/rosbridge.dart';
 
-import '../mapping/view_model/table_state.dart';
+import '../mapping/states/table_state.dart';
 import '../../core/configs/ros_constants.dart';
 import '../../core/providers/core_providers.dart';
 import '../../core/services/ros_service.dart';

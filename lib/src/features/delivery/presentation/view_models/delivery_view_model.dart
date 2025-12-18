@@ -110,7 +110,6 @@ class DeliveryViewModel extends BaseViewModel<DeliveryData> {
     safeUpdateState(const DeliveryData());
   }
 
-  // 🔥 publish power off
   Future<void> sendPowerOff() async {
     await _rosService.sendPowerOffCommand();
   }

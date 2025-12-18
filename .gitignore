@@ -50,6 +50,8 @@ Thumbs.db
 
 .dart_tool/
 .packages
+.flutter-plugins-dependencies
+*.lock
 build/
 doc/api/
 

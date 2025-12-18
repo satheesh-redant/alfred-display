@@ -1,8 +1,7 @@
 
 import '../../../core/services/ros_service.dart';
-import '../../../shared/models/boot_check_response.dart';
-// import '../../../shared/services/operation_mode_service.dart';
-
+import '../model/boot_check_response.dart';
+import '../model/operation_mode.dart';
 
 enum LoadingStep {
   connecting,

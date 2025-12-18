@@ -3,10 +3,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/base/base_view_model.dart';
 import '../../../core/services/ros_service.dart';
+import '../model/boot_check_response.dart';
 import '../states/loading_screen_state.dart';
 
-class LoadingScreenViewModel extends StateNotifier<LoadingScreenState> {
+class LoadingScreenViewModel extends BaseViewModel<LoadingScreenState> {
   final ROSService _rosService;
 
   StreamSubscription? _connectionSubscription;
@@ -15,12 +17,12 @@ class LoadingScreenViewModel extends StateNotifier<LoadingScreenState> {
 
   LoadingScreenViewModel(this._rosService)
       : super(
-    LoadingScreenState(
-      step: LoadingStep.connecting,
-      connectionStatus: ROSConnectionStatus.disconnected,
-      statusMessage: 'Initializing connection...',
-    ),
-  );
+          LoadingScreenState(
+            step: LoadingStep.connecting,
+            connectionStatus: ROSConnectionStatus.disconnected,
+            statusMessage: 'Initializing connection...',
+          ),
+        );
 
   Future<void> startLoadingProcess() async {
     print('Starting loading process');
@@ -30,7 +32,7 @@ class LoadingScreenViewModel extends StateNotifier<LoadingScreenState> {
 
   void _listenToConnectionStatus() {
     _connectionSubscription = _rosService.connectionStream.listen(
-          (connectionStatus) {
+      (connectionStatus) {
         state = state.copyWith(connectionStatus: connectionStatus);
 
         switch (connectionStatus) {
@@ -62,61 +64,6 @@ class LoadingScreenViewModel extends StateNotifier<LoadingScreenState> {
     } catch (_) {}
   }
 
-  // void _startBootCheck() {
-  //   print('Starting boot check');
-  //
-  //   state = state.copyWith(
-  //     step: LoadingStep.bootChecking,
-  //     statusMessage: 'Checking system status...',
-  //   );
-  //
-  //   _bootCheckSubscription = _rosService.bootCheckStream.listen(
-  //         (rawBootMsg) {
-  //       try {
-  //         final Map<String, dynamic> outer = jsonDecode(rawBootMsg);
-  //
-  //         final String? nested = outer["value"];
-  //         if (nested == null || nested.isEmpty) {
-  //           state = state.copyWith(statusMessage: "Boot check running...");
-  //           return;
-  //         }
-  //
-  //         final Map<String, dynamic> value = jsonDecode(nested);
-  //         final String overallStatus = (value["overall_status"] ?? "").toString();
-  //         final String msg = (value["message"] ?? "").toString();
-  //
-  //         if (overallStatus.isEmpty) {
-  //           state = state.copyWith(
-  //             statusMessage:
-  //             msg.isEmpty ? "System initializing..." : msg,
-  //           );
-  //           return;
-  //         }
-  //
-  //         if (overallStatus == "OK") {
-  //           print("System READY");
-  //           state = state.copyWith(
-  //             statusMessage: "System ready! Getting operation mode...",
-  //           );
-  //           _startOpsMode();
-  //           return;
-  //         }
-  //
-  //         state = state.copyWith(
-  //           statusMessage:
-  //           "System check failed: $msg. Waiting for system recovery...",
-  //         );
-  //         return;
-  //       } catch (e) {
-  //         print("Boot parse error: $e");
-  //         state = state.copyWith(statusMessage: "Checking for system status...");
-  //       }
-  //     },
-  //     onError: (error) => print('Boot check error: $error'),
-  //   );
-  // }
-
-
   void _startBootCheck() {
     print('Starting boot check');
 
@@ -126,55 +73,57 @@ class LoadingScreenViewModel extends StateNotifier<LoadingScreenState> {
     );
 
     _bootCheckSubscription = _rosService.bootCheckStream.listen(
-          (rawBootMsg) {
+      (rawBootMsg) {
         try {
-          // 🔥 First check if boot msg is NOT json (Success / Failed / Ready etc.)
           if (!rawBootMsg.trim().startsWith("{")) {
             state = state.copyWith(statusMessage: rawBootMsg);
             return;
           }
 
-          final Map<String, dynamic> outer = jsonDecode(rawBootMsg);
-
-          final String? nested = outer["value"];
-          if (nested == null || nested.isEmpty) {
-            state = state.copyWith(statusMessage: "Boot check running...");
-            return;
-          }
-
-          final Map<String, dynamic> value = jsonDecode(nested);
-          final String overallStatus = (value["overall_status"] ?? "").toString();
-          final String msg = (value["message"] ?? "").toString();
-
-          if (overallStatus.isEmpty) {
+          var bootStatus = bootCheckResponseFromJson(rawBootMsg);
+          if (bootStatus.isLoading) {
             state = state.copyWith(
-              statusMessage: msg.isEmpty ? "System initializing..." : msg,
+              statusMessage: bootStatus.message.isEmpty
+                  ? "System initializing..."
+                  : bootStatus.message,
             );
             return;
           }
 
-          if (overallStatus == "OK") {
+          if (bootStatus.isReady) {
             print("System READY");
             state = state.copyWith(
-              statusMessage: "System ready! Getting operation mode...",
-            );
+                statusMessage: "System ready! Getting operation mode...",
+                bootCheckResponse: bootStatus);
             _startOpsMode();
             return;
           }
 
           state = state.copyWith(
-            statusMessage:
-            "System check failed: $msg. Waiting for system recovery...",
-          );
+              statusMessage: "System check failed: $bootStatus.message",
+              bootCheckResponse: bootStatus);
           return;
-
         } catch (e) {
           print("Boot parse error: $e");
-          state = state.copyWith(statusMessage: "Checking for system status...");
+          state =
+              state.copyWith(statusMessage: "Checking for system status...");
         }
       },
       onError: (error) => print('Boot check error: $error'),
     );
+
+    // TODO This is temporary hack since the boot status implementation is not done yet at ROS side
+    Future.delayed(const Duration(seconds: 2), () {
+      BootCheckResponse response = BootCheckResponse();
+      response.message = 'OK';
+      response.overallStatus = 'OK';
+      response.checks = [];
+      print("System READY (FORCED)");
+      state = state.copyWith(
+          statusMessage: "System ready! Getting operation mode...",
+          bootCheckResponse: response);
+      _startOpsMode();
+    });
   }
 
   void _startOpsMode() {
@@ -188,8 +137,7 @@ class LoadingScreenViewModel extends StateNotifier<LoadingScreenState> {
     );
 
     _operationsSubscription = _rosService.opsModeStream.listen(
-          (operationMode) {
-        print("Operation mode: $operationMode");
+      (operationMode) {
         state = state.copyWith(
           operationMode: operationMode,
           step: LoadingStep.navigating,
@@ -214,10 +162,10 @@ class LoadingScreenViewModel extends StateNotifier<LoadingScreenState> {
   }
 
   @override
-  void dispose() {
+  void onDispose() {
     _connectionSubscription?.cancel();
     _bootCheckSubscription?.cancel();
     _operationsSubscription?.cancel();
-    super.dispose();
+    super.onDispose();
   }
 }

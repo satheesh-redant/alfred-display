@@ -1,24 +1,23 @@
 import 'dart:async';
+import 'package:alfred/src/core/base/base_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/core_providers.dart';
 import '../../../core/services/ros_service.dart';
 import '../model/base_model.dart';
 import '../providers/base_provider.dart';
-import '../state/base_state.dart'; // <-- added import for state model
+import '../state/base_state.dart';
 
-class BasePointViewModel extends StateNotifier<BasePointState> {
+class BasePointViewModel extends BaseViewModel<BasePointState> {
   final ROSService _rosService;
   StreamSubscription? _resetAckSubscription;
 
-  BasePointViewModel(this._rosService)
-      : super(BasePointState.initial()) { // <-- initial model
+  BasePointViewModel(this._rosService) : super(BasePointState.initial()) {
     _listenToResetAck();
   }
 
   void _listenToResetAck() {
     _resetAckSubscription = _rosService.baseResetStatusStream.listen((msg) {
-   // print("Base reset ACK received: $msg");
-
       state = state.copyWith(
         isResetting: false,
         isResetComplete: true,
@@ -40,15 +39,15 @@ class BasePointViewModel extends StateNotifier<BasePointState> {
   }
 
   @override
-  void dispose() {
+  void onDispose() {
     print('Disposing BasePointViewModel');
     _resetAckSubscription?.cancel();
-    super.dispose();
+    super.onDispose();
   }
 }
 
 final basePointVMProvider =
-StateNotifierProvider<BasePointViewModel, BasePointState>((ref) {
+    StateNotifierProvider<BasePointViewModel, BasePointState>((ref) {
   final rosService = ref.watch(rosServiceProvider);
   final vm = BasePointViewModel(rosService);
   ref.onDispose(() => vm.dispose());

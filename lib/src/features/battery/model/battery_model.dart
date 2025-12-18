@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 // -----------------------------------------------------------------------------
 // ENUMS
 // -----------------------------------------------------------------------------
-enum BatteryStatus {
+enum BatteryChargingStatus {
   unknown,
   charging,
   discharging,
@@ -39,7 +39,7 @@ enum BatteryTechnology {
 // -----------------------------------------------------------------------------
 // MODEL CLASS
 // -----------------------------------------------------------------------------
-class BatteryState {
+class BatteryData {
   double? voltage;
   double? current;
   double? charge;
@@ -55,7 +55,7 @@ class BatteryState {
   String? location;
   String? serialNumber;
 
-  BatteryState({
+  BatteryData({
     this.voltage,
     this.current,
     this.charge,
@@ -75,8 +75,8 @@ class BatteryState {
   // ---------------------------------------------------------------------------
   // JSON Parsing
   // ---------------------------------------------------------------------------
-  factory BatteryState.fromJson(Map<String, dynamic> json) {
-    return BatteryState(
+  factory BatteryData.fromJson(Map<String, dynamic> json) {
+    return BatteryData(
       voltage: _toDouble(json['voltage']),
       current: _toDouble(json['current']),
       charge: _toDouble(json['charge']),
@@ -100,9 +100,9 @@ class BatteryState {
     );
   }
 
-  factory BatteryState.fromString(String jsonString) {
+  factory BatteryData.fromString(String jsonString) {
     final Map<String, dynamic> data = jsonDecode(jsonString);
-    return BatteryState.fromJson(data);
+    return BatteryData.fromJson(data);
   }
 
   Map<String, dynamic> toJson() {
@@ -127,18 +127,18 @@ class BatteryState {
   // ---------------------------------------------------------------------------
   // Conversion Functions → Enums
   // ---------------------------------------------------------------------------
-  BatteryStatus get statusEnum {
+  BatteryChargingStatus get statusEnum {
     switch (powerSupplyStatus) {
       case 1:
-        return BatteryStatus.charging;
+        return BatteryChargingStatus.charging;
       case 2:
-        return BatteryStatus.discharging;
+        return BatteryChargingStatus.discharging;
       case 3:
-        return BatteryStatus.notCharging;
+        return BatteryChargingStatus.notCharging;
       case 4:
-        return BatteryStatus.full;
+        return BatteryChargingStatus.full;
       default:
-        return BatteryStatus.unknown;
+        return BatteryChargingStatus.unknown;
     }
   }
 
@@ -189,15 +189,15 @@ class BatteryState {
   // ---------------------------------------------------------------------------
   String get statusLabel {
     switch (statusEnum) {
-      case BatteryStatus.charging:
+      case BatteryChargingStatus.charging:
         return 'Charging';
-      case BatteryStatus.discharging:
+      case BatteryChargingStatus.discharging:
         return 'Discharging';
-      case BatteryStatus.notCharging:
+      case BatteryChargingStatus.notCharging:
         return 'Idle';
-      case BatteryStatus.full:
+      case BatteryChargingStatus.full:
         return 'Full';
-      case BatteryStatus.unknown:
+      case BatteryChargingStatus.unknown:
       default:
         return 'Unknown';
     }

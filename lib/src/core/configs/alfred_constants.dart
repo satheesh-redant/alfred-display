@@ -8,12 +8,11 @@ class AlfredConstants {
   static const String routeLoadingScreen = '/loading_screen';
   static const String routeChecklistScreen = '/checklist_screen';
   static const String routeBasePointMarkingScreen = '/base_point_screen';
-  static const String routeTrainingScreen = '/table_screen';
   static const String routeMappingScreen = '/mapping_screen';
   static const String routeDeliveryMainScreen = '/delivery_main_screen';
   static const String routeDeliveryInProgressScreen = '/delivery_progress_screen';
   static const String routeDeliveryCompleteScreen = '/delivery_complete_screen';
-  static const String routeRoutingScreen = '/routing_scream';
+  static const String routeRoutingScreen = '/routing_screen';
   static const String routeSoftShutdownScreen = '/alfred-soft-shutdown';
 
   static const Color batteryColorRed = Color(0xFFEE0011);

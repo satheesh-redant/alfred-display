@@ -1,11 +1,10 @@
-
-//new
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/services/ros_service.dart';
 import '../../../../core/configs/alfred_constants.dart';
+import '../../model/operation_mode.dart';
 import '../../providers/loading_providers.dart';
 import '../../states/loading_screen_state.dart';
 import '../widgets/loading_status_widget.dart';
@@ -24,27 +23,24 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   void initState() {
     super.initState();
 
-    /// Trigger loading after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(loadingScreenViewModelProvider.notifier).startLoadingProcess();
     });
 
-    /// Navigation listener – allowed in initState using listenManual
     _removeListener = ref.listenManual(
       loadingScreenViewModelProvider,
           (previous, next) {
-        if (next.step == LoadingStep.navigating && next.operationMode != null) {
-          print("Navigating to ${next.operationMode} screen");
-
-          if (!mounted) return;
-
+        if (previous.step != next.step && next.step == LoadingStep.navigating) {
+          print("Navigating to ${next.operationMode.toString()} screen");
           Future.delayed(const Duration(seconds: 2), () {
-            if (!mounted) return;
-
-            if (next.operationMode == OperationMode.delivery) {
+            if (next.operationMode == OperationMode.mapping) {
+              context.go(AlfredConstants.routeMappingScreen);
+            } else if (next.operationMode == OperationMode.routing) {
+              context.go(AlfredConstants.routeRoutingScreen);
+            } else if (next.operationMode == OperationMode.navigation) {
               context.go(AlfredConstants.routeDeliveryMainScreen);
             } else {
-              context.go(AlfredConstants.routeChecklistScreen);
+              print(next.value?.toLowerCase());
             }
           });
         }

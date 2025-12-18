@@ -27,18 +27,18 @@ class LoadingStatusWidget extends StatelessWidget {
           child: CircularProgressIndicator(),
         ),
 
-        SizedBox(height: 20.h),
-
-        // Dynamic status message
-        Text(
-          state.statusMessage,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            textStyle: Theme.of(context).textTheme.titleMedium,
-            fontSize: 24.sp,
-            color: _getStatusColor(),
-          ),
-        ),
+        // SizedBox(height: 20.h),
+        //
+        // // Dynamic status message
+        // Text(
+        //   state.statusMessage,
+        //   textAlign: TextAlign.center,
+        //   style: GoogleFonts.inter(
+        //     textStyle: Theme.of(context).textTheme.titleMedium,
+        //     fontSize: 24.sp,
+        //     color: _getStatusColor(),
+        //   ),
+        // ),
       ],
     );
   }

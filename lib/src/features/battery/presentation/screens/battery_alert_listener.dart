@@ -1,6 +1,7 @@
 import '../../../../core/helpers/toast_utils.dart';
 import '../../model/battery_model.dart';
 import '../../provider/battery_provider.dart';
+import '../../states/battery_state.dart';
 import '../../view_model/battery_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,7 +29,7 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
       batteryViewModelProvider,
           (previous, next) {
         next.whenData((battery) {
-          _handleBatteryChanges(battery);
+          _handleBatteryChanges();
         });
       },
     );
@@ -37,7 +38,7 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
     return batteryState.when(
       data: (battery) {
         final percentage = ref.read(batteryPercentageProvider).round();
-        if (percentage < 2) {
+        if (percentage >= 0 && percentage < 2) {
           return const ShutdownAlertScreen();
         }
         return widget.child;
@@ -50,7 +51,7 @@ class _BatteryAlertListenerState extends ConsumerState<BatteryAlertListener> {
     );
   }
 
-  void _handleBatteryChanges(BatteryState battery) {
+  void _handleBatteryChanges() {
     final percentage = ref.read(batteryPercentageProvider).round();
     final category = ref.read(batteryLevelCategoryProvider);
 

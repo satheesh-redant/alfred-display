@@ -18,8 +18,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 2), () {
-      context.pushReplacement(AlfredConstants.routeLoadingScreen);
+    _navigateToNextScreen();
+  }
+
+  void _navigateToNextScreen() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted)  {
+        context.pushReplacement(AlfredConstants.routeLoadingScreen);
+      }
     });
   }
 

@@ -1,13 +1,15 @@
 import 'dart:async';
+import 'package:alfred/src/core/base/base_view_model.dart';
 import 'package:alfred/src/core/configs/ros_constants.dart';
 import 'package:alfred/src/features/mapping/data/mapping_repo.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
-import 'mapping_state.dart';
+import '../states/mapping_state.dart';
 
-class MappingViewModel extends StateNotifier<MappingState> {
+class MappingViewModel extends BaseViewModel<MappingState> {
   final MappingRepository _repository;
 
+  StreamSubscription? _rosConnectionStream;
   StreamSubscription? _mapSub;
   StreamSubscription? _poseSub;
   StreamSubscription? _mapSaveSub;
@@ -108,25 +110,9 @@ class MappingViewModel extends StateNotifier<MappingState> {
   }
 
   @override
-  void dispose() {
+  void onDispose() {
     stopMapping();
     _repository.dispose();
-    super.dispose();
+    super.onDispose();
   }
 }
-
-// DI / Riverpod integration
-final mappingRepositoryProvider = Provider<MappingRepository>((ref) {
-  final rosService = ref.watch(rosServiceProvider);
-  final repo = MappingRepository(rosService);
-  ref.onDispose(repo.dispose);
-  return repo;
-});
-
-final mappingVMProvider =
-StateNotifierProvider.autoDispose<MappingViewModel, MappingState>((ref) {
-  final repo = ref.watch(mappingRepositoryProvider);
-  final vm = MappingViewModel(repo);
-  ref.onDispose(vm.dispose);
-  return vm;
-});

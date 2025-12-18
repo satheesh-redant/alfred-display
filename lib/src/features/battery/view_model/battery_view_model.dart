@@ -1,4 +1,4 @@
-
+import 'package:alfred/src/core/base/base_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
 import '../model/battery_model.dart';
@@ -7,104 +7,75 @@ import '../../../core/configs/ros_constants.dart';
 import '../../../core/services/ros_service.dart';
 import 'package:rosbridge/rosbridge.dart';
 
-class BatteryViewModel extends StateNotifier<AsyncValue<BatteryState>> {
-  final ROSService _batteryService;
-  StreamSubscription<BatteryState>? _subscription;
+import '../states/battery_state.dart';
 
-  // MERGED FROM BatteryService
-  Topic? _batteryTopic;
-  StreamController<BatteryState>? _batteryController;
+class BatteryViewModel extends BaseViewModel<AsyncValue<BatteryState>> {
+  final ROSService _rosService;
 
-  BatteryViewModel(this._batteryService) : super(const AsyncValue.loading()) {
+  StreamSubscription? _batteryStreamSubscription;
+  StreamSubscription? _modeSubscription;
+
+  BatteryViewModel(this._rosService) : super(const AsyncValue.loading()) {
     print('initiating battery topics');
-
-    // EXACT COPY FROM BatteryService constructor
-    _batteryController = StreamController<BatteryState>.broadcast();
-
-    _batteryTopic = _batteryService.createTopic(
-      ROSConstants.topicBattery,
-      ROSConstants.batteryTopicType,
-      queueSize: 1,
-      throttleRate: 1000,
-    );
-
-    // ORIGINAL VIEWMODEL LOGIC
     _initialize();
-
-    // BATTERY SERVICE LOGIC
-    initializeBattery();
   }
 
-  // -------------------------------
-  // ORIGINAL VIEW MODEL _initialize
-  // -------------------------------
-  void _initialize() {
-    _subscription = _batteryController!.stream.listen(
-          (batteryState) {
-        state = AsyncValue.data(batteryState);
+  void _initialize() async {
+    _batteryStreamSubscription = _rosService.batteryRawStream.listen(
+      (batteryState) {
+        final prevValue = state.asData!.value;
+        state = AsyncValue.data(prevValue.copyWith(batteryData: batteryState));
       },
       onError: (error, stackTrace) {
         print('Battery stream error: $error');
         state = AsyncValue.error(error, stackTrace);
       },
     );
-  }
 
-  // -------------------------------
-  // MERGED FROM BatteryService
-  // -------------------------------
-  void initializeBattery() {
-    try {
-      _batteryTopic!.subscribe(_handlerBatteryState);
-      print('Battery topic subscribed successfully');
-    } catch (e) {
-      print('Error initializing battery topic: $e');
-    }
-  }
+    _modeSubscription = _rosService.opsModeStream.listen(
+      (operationMode) {
+        final prevState = state.asData!.value;
+        state = AsyncValue.data(prevState.copyWith(mode: operationMode));
+      },
+      onError: (error) => print('mode error: $error'),
+    );
 
-  // EXACT COPY
-  Future<void> _handlerBatteryState(Map<String, dynamic> message) async {
-    try {
-      final batteryState = BatteryState.fromJson(message);
-      _batteryController?.add(batteryState);
-    } catch (e) {
-      print('Error parsing battery message: $e');
-    }
-  }
-
-  // EXACT COPY
-  void _cleanup() {
-    _batteryTopic?.unsubscribe();
-    _batteryTopic = null;
+    state = await AsyncValue.guard(() async {
+      return BatteryState();
+    });
   }
 
   // -------------------------------
   // ORIGINAL COMPUTED PROPERTIES
   // -------------------------------
-  bool get isCharging => state.value?.statusEnum == BatteryStatus.charging;
+  bool get isCharging =>
+      state.value?.batteryData?.statusEnum == BatteryChargingStatus.charging;
 
-  bool get isCritical => (state.value?.percentage ?? 0) < 0.02;
+  bool get isCritical => (state.value?.batteryData?.percentage ?? 0) < 0.02;
 
-  bool get isCriticalLow => (state.value?.percentage ?? 0) < 0.10;
+  bool get isCriticalLow => (state.value?.batteryData?.percentage ?? 0) < 0.10;
 
-  bool get isLow => (state.value?.percentage ?? 0) < 0.20;
+  bool get isLow => (state.value?.batteryData?.percentage ?? 0) < 0.20;
 
-  bool get hasHealthIssue => state.value?.healthEnum != BatteryHealth.good;
+  bool get hasHealthIssue =>
+      state.value?.batteryData?.healthEnum != BatteryHealth.good;
 
   int? get estimatedMinutesLeft {
     final battery = state.value;
-    if (battery == null || battery.current == null || battery.charge == null) {
+    if (battery == null ||
+        battery.batteryData?.current == null ||
+        battery.batteryData?.charge == null) {
       return null;
     }
 
-    if (battery.statusEnum == BatteryStatus.charging) {
+    if (battery.batteryData?.statusEnum == BatteryChargingStatus.charging) {
       return _calculateChargingTime(battery);
     }
 
-    if (battery.current! < 0) {
-      final currentAbs = battery.current!.abs();
+    if (battery.batteryData!.current! < 0) {
+      final currentAbs = battery.batteryData!.current!.abs();
       if (currentAbs > 0) {
-        final hoursLeft = battery.charge! / currentAbs;
+        final hoursLeft = battery.batteryData!.charge! / currentAbs;
         return (hoursLeft * 60).toInt();
       }
     }
@@ -113,15 +84,16 @@ class BatteryViewModel extends StateNotifier<AsyncValue<BatteryState>> {
   }
 
   int? _calculateChargingTime(BatteryState battery) {
-    if (battery.capacity == null ||
-        battery.charge == null ||
-        battery.current == null) {
+    if (battery.batteryData?.capacity == null ||
+        battery.batteryData?.charge == null ||
+        battery.batteryData?.current == null) {
       return null;
     }
 
-    final remainingCapacity = battery.capacity! - battery.charge!;
-    if (battery.current! > 0) {
-      final hoursToFull = remainingCapacity / battery.current!;
+    final remainingCapacity =
+        battery.batteryData!.capacity! - battery.batteryData!.charge!;
+    if (battery.batteryData!.current! > 0) {
+      final hoursToFull = remainingCapacity / battery.batteryData!.current!;
       return (hoursToFull * 60).toInt();
     }
 
@@ -135,14 +107,9 @@ class BatteryViewModel extends StateNotifier<AsyncValue<BatteryState>> {
   }
 
   @override
-  void dispose() {
-    _subscription?.cancel();
-
-    // MERGED cleanup
-    _cleanup();
-    _batteryController?.close();
-
-    super.dispose();
-    // END
+  void onDispose() {
+    _batteryStreamSubscription?.cancel();
+    _modeSubscription?.cancel();
+    super.onDispose();
   }
 }
