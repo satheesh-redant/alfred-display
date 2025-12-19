@@ -71,8 +71,6 @@ class ROSService {
 
   ROSConnectionStatus _currentStatus = ROSConnectionStatus.disconnected;
 
-  Timer? _healthCheckTimer;
-
   //  added retry timer
   Timer? _retryTimer;
   static const Duration _retryInterval = Duration(seconds: 10);
@@ -84,7 +82,6 @@ class ROSService {
   ROSService._internal() {
     print('ROSService: Initialized');
     _initializeROS();
-    _startHealthCheck();
   }
 
   void _initializeROS({String? customUrl}) {
@@ -99,11 +96,11 @@ class ROSService {
         _connectionController.add(newStatus);
 
         if (newStatus == ROSConnectionStatus.connected) {
-          _stopRetryTimer(); // ⭐ stop retry when connected
+          _stopRetryTimer();
           _initializeBootAndOpsSubscriptions();
         } else if (newStatus == ROSConnectionStatus.error ||
             newStatus == ROSConnectionStatus.disconnected) {
-          _startRetryTimer(); // ⭐ start retry on failure
+          _startRetryTimer();
         }
       }
     });
@@ -196,7 +193,7 @@ class ROSService {
         print('Delivery status received: $status');
         _deliveryStatusController.add(status);
       } catch (e) {
-        _deliveryStatusController.addError("Failed to parse: $e");
+        print("Delivery status parse error: $e");
       }
     });
 
@@ -215,7 +212,7 @@ class ROSService {
 
         _tableListController.add(numbers);
       } catch (e) {
-        _tableListController.addError("Failed to parse: $e");
+        print("Table list parse error: $e");
       }
     });
 
@@ -224,7 +221,6 @@ class ROSService {
         (msg) {
       try {
         final status = msg['data'] as String? ?? '';
-        //  print("Reset Base ACK received → $status");
         _baseResetStatusController.add(status);
       } catch (e) {
         print("Reset Base ACK parse error: $e");
@@ -235,7 +231,6 @@ class ROSService {
         (msg) {
       try {
         final status = msg['data'] as String? ?? '';
-        //  print("Reset Base ACK received → $status");
         _baseReturnStatusController.add(status);
       } catch (e) {
         print("Reset Base ACK parse error: $e");
@@ -256,17 +251,24 @@ class ROSService {
     });
   }
 
+  Future<void> requestModeChange(String mode) async {
+    final data = {'data': '$mode'};
+    print('Requesting mode change: $data');
+    await publishToTopic(
+        ROSConstants.topicModeRequested, ROSConstants.msgString, data);
+  }
+
   Future<void> requestTableList() async {
     print('Requesting table list...');
     await publishToTopic(
         ROSConstants.topicGetTables, ROSConstants.emptyMessageType, {});
   }
 
-  Future<void> gotoPoint(int tableNumber, int route) async {
-    final data = {'data': '$tableNumber:$route'};
+  Future<void> gotoPoint(int tableNumber) async {
+    final data = {'data': tableNumber};
     print('Publishing table number: $data');
     await publishToTopic(
-        ROSConstants.topicMoveTable, ROSConstants.stringMessageType, data);
+        ROSConstants.topicMoveTable, ROSConstants.msgInteger, data);
   }
 
   Future<void> resetBaseLocation() async {
@@ -285,7 +287,6 @@ class ROSService {
     if (_isDisposed) return;
     try {
       print('ROSService: Disconnecting');
-      _healthCheckTimer?.cancel();
       _stopRetryTimer(); // ⭐ stop retry
       if (_currentStatus == ROSConnectionStatus.connected) {
         await _ros.close();
@@ -294,20 +295,6 @@ class ROSService {
     } catch (e) {
       _connectionController.add(ROSConnectionStatus.disconnected);
     }
-  }
-
-  void _startHealthCheck() {
-    _healthCheckTimer = Timer.periodic(Duration(seconds: 30), (timer) {
-      if (_isDisposed) {
-        timer.cancel();
-        return;
-      }
-      if (_ros.status == false &&
-          _currentStatus == ROSConnectionStatus.connected) {
-        print('ROSService: Health check failed - connection lost');
-        _connectionController.add(ROSConnectionStatus.error);
-      }
-    });
   }
 
   Topic createTopic(String name, String type,
@@ -353,7 +340,6 @@ class ROSService {
     if (_isDisposed) return;
     _isDisposed = true;
     _stopRetryTimer(); // ⭐ cancel retry
-    _healthCheckTimer?.cancel();
 
     for (final topic in _topics.values) {
       try {

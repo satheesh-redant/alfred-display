@@ -45,7 +45,7 @@ class TableGridButtonWidget extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            'Table $label',
+            '$label',
             style: GoogleFonts.nunito(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,

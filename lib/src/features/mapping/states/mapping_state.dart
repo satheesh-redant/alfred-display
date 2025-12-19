@@ -9,6 +9,7 @@ class MappingState {
   final String statusMessage;
   final bool isSaving;
   final bool mapSaved;
+  final bool isModeChanged;
 
   const MappingState({
     this.map,
@@ -16,6 +17,7 @@ class MappingState {
     this.statusMessage = '',
     this.isSaving = false,
     this.mapSaved = false,
+    this.isModeChanged = false,
   });
 
   factory MappingState.initial() {
@@ -25,6 +27,7 @@ class MappingState {
       statusMessage: 'Initializing...',
       isSaving: false,
       mapSaved: false,
+      isModeChanged: false,
     );
   }
 
@@ -34,6 +37,7 @@ class MappingState {
     String? statusMessage,
     bool? isSaving,
     bool? mapSaved,
+    bool? isModeChanged,
   }) {
     return MappingState(
       map: map ?? this.map,
@@ -41,6 +45,7 @@ class MappingState {
       statusMessage: statusMessage ?? this.statusMessage,
       isSaving: isSaving ?? this.isSaving,
       mapSaved: mapSaved ?? this.mapSaved,
+      isModeChanged: isModeChanged ?? this.isModeChanged,
     );
   }
 }

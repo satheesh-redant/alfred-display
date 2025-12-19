@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:alfred/src/core/base/base_view_model.dart';
 import 'package:alfred/src/core/configs/ros_constants.dart';
 import 'package:alfred/src/features/mapping/data/mapping_repo.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/providers/core_providers.dart';
 import '../states/mapping_state.dart';
 
 class MappingViewModel extends BaseViewModel<MappingState> {
@@ -13,6 +11,7 @@ class MappingViewModel extends BaseViewModel<MappingState> {
   StreamSubscription? _mapSub;
   StreamSubscription? _poseSub;
   StreamSubscription? _mapSaveSub;
+  StreamSubscription? _operationsSubscription;
 
   bool _started = false;
 
@@ -55,15 +54,25 @@ class MappingViewModel extends BaseViewModel<MappingState> {
     _mapSaveSub = _repository.mapSavedAckStream.listen((msg) {
       if (msg.isEmpty) return;
       bool isSaved = false;
-      if (msg.toLowerCase() == ROSConstants.success) {
+      if (msg.toUpperCase() == ROSConstants.success) {
         isSaved = true;
       }
       state = state.copyWith(
-          statusMessage: msg,
-          isSaving: false,
-          mapSaved: isSaved
-      );
+          statusMessage: msg, isSaving: false, mapSaved: isSaved);
     });
+
+    _operationsSubscription = _repository.rosService.opsModeStream.listen(
+      (operationMode) {
+        if (operationMode.name == ROSConstants.mode_routing) {
+          state = state.copyWith(
+            isSaving: false,
+            isModeChanged: true,
+            statusMessage: "Starting ${operationMode.name} mode...",
+          );
+        }
+      },
+      onError: (error) => print('Ops mode error: $error'),
+    );
 
     try {
       await _repository.start();
@@ -86,6 +95,21 @@ class MappingViewModel extends BaseViewModel<MappingState> {
 
     try {
       await _repository.saveMap();
+    } catch (e) {
+      state = state.copyWith(
+        isSaving: false,
+        statusMessage: 'Error saving map: $e',
+      );
+    }
+  }
+
+  Future<void> changeMode() async {
+    state = state.copyWith(
+      isSaving: true,
+    );
+
+    try {
+      await _repository.rosService.requestModeChange(ROSConstants.mode_routing);
     } catch (e) {
       state = state.copyWith(
         isSaving: false,

@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 import 'dart:math';
 import '../../../../core/base/base_view_model.dart';
@@ -10,14 +8,15 @@ class DeliveryViewModel extends BaseViewModel<DeliveryData> {
   final ROSService _rosService;
   late StreamSubscription _tableListSubscription;
   late StreamSubscription _deliveryStatusSubscription;
-  List<int> _availableTables = [1,2,3,4,5,6,7,8,9,10];
+
+  List<int> _availableTables = [];
+
+  List<int> get availableTables => _availableTables;
 
   DeliveryViewModel(this._rosService) : super(const DeliveryData()) {
     _initializeSubscriptions();
-    loadTables();
+    _initializeTableList();
   }
-
-  List<int> get availableTables => _availableTables;
 
   void _initializeSubscriptions() {
     _tableListSubscription = _rosService.tableListStream.listen((tables) {
@@ -25,16 +24,20 @@ class DeliveryViewModel extends BaseViewModel<DeliveryData> {
       safeUpdateState(state.copyWith());
     });
 
-    // 🔥 delivery_status also contains POWER-OFF ACK (SHUTTING_DOWN)
+    // delivery_status also contains POWER-OFF ACK (SHUTTING_DOWN)
     _deliveryStatusSubscription =
         _rosService.deliveryStatusStream.listen((status) {
-          _handleDeliveryStatus(status);
+      _handleDeliveryStatus(status);
 
-          // 🔥 detect power-off ACK
-          if (status.toString().toLowerCase().contains("shutting_down")) {
-            safeUpdateState(state.copyWith(powerOffAck: true));
-          }
-        });
+      // // detect power-off ACK
+      // if (status.toString().toLowerCase().contains("shutting_down")) {
+      //   safeUpdateState(state.copyWith(powerOffAck: true));
+      // }
+    });
+  }
+
+  void _initializeTableList() async {
+    _availableTables = List.generate(10, (index) => index + 1);
   }
 
   void _handleDeliveryStatus(String status) {
@@ -46,12 +49,21 @@ class DeliveryViewModel extends BaseViewModel<DeliveryData> {
             : 'Alfred is returning to base...',
       ));
     } else if (status.toLowerCase() == 'delivered') {
-      safeUpdateState(state.copyWith(
-        state: DeliveryState.delivered,
-        message: state.isBaseToTable
-            ? 'Ready to serve at table ${state.selectedTable}'
-            : 'Alfred is back at base',
-      ));
+      _initializeTableList();
+      if (state.isBaseToTable) {
+        //add base
+        _availableTables.first = 0;
+        // Remove current table location
+        _availableTables.removeWhere((table) => table == state.selectedTable!);
+        safeUpdateState(state.copyWith(
+          state: DeliveryState.delivered,
+          message: state.isBaseToTable
+              ? 'Ready to serve at table ${state.selectedTable}'
+              : 'Alfred is back at base',
+        ));
+      } else {
+        resetToIdle();
+      }
     }
   }
 
@@ -68,7 +80,6 @@ class DeliveryViewModel extends BaseViewModel<DeliveryData> {
   void selectTable(int? tableNumber) {
     safeUpdateState(state.copyWith(
       selectedTable: tableNumber,
-      state: DeliveryState.idle,
     ));
   }
 
@@ -78,10 +89,9 @@ class DeliveryViewModel extends BaseViewModel<DeliveryData> {
 
     try {
       safeUpdateState(state.copyWith(
-        route: DeliveryRoute.baseToTable,
-        state: DeliveryState.moving,
+        route: state.selectedTable == 0 ? DeliveryRoute.tableToBase : DeliveryRoute.baseToTable,
       ));
-      await _rosService.gotoPoint(selectedTable, 0);
+      await _rosService.gotoPoint(selectedTable);
     } catch (_) {
       safeUpdateState(state.copyWith(
         state: DeliveryState.error,
@@ -89,22 +99,22 @@ class DeliveryViewModel extends BaseViewModel<DeliveryData> {
     }
   }
 
-  Future<void> returnToBase() async {
-    final selectedTable = state.selectedTable;
-    if (selectedTable == null) return;
-
-    try {
-      safeUpdateState(state.copyWith(
-        route: DeliveryRoute.tableToBase,
-        state: DeliveryState.moving,
-      ));
-      await _rosService.gotoPoint(selectedTable, 1);
-    } catch (_) {
-      safeUpdateState(state.copyWith(
-        message: 'Failed to return to base: $e',
-      ));
-    }
-  }
+  // Future<void> returnToBase() async {
+  //   final selectedTable = state.selectedTable;
+  //   if (selectedTable == null) return;
+  //
+  //   try {
+  //     safeUpdateState(state.copyWith(
+  //       route: DeliveryRoute.tableToBase,
+  //       state: DeliveryState.moving,
+  //     ));
+  //     await _rosService.gotoPoint(selectedTable);
+  //   } catch (_) {
+  //     safeUpdateState(state.copyWith(
+  //       message: 'Failed to return to base: $e',
+  //     ));
+  //   }
+  // }
 
   void resetToIdle() {
     safeUpdateState(const DeliveryData());

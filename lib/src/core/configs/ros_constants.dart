@@ -4,7 +4,6 @@ class ROSConstants {
 
   /*  GENERIC */
   static const String msgString = 'std_msgs/String';
-  static const String stringMessageType = 'std_msgs/String';
   static const String msgInteger = 'std_msgs/Int32';
   static const String msgFloat = 'std_msgs/Float32';
   static const String msgEmpty = 'std_msgs/Empty';
@@ -12,6 +11,9 @@ class ROSConstants {
 
   static const String mapTopic = '/map';
   static const String mapTopicMsg = 'nav_msgs/msg/OccupancyGrid';
+
+  static const String tfTopic = '/tf';
+  static const String tfTopicMsg = 'tf2_msgs/msg/TFMessage';
 
   /*  BOOT STATUS CHECK */
   static const String topicBootCheck = '/boot_check';
@@ -22,7 +24,7 @@ class ROSConstants {
 
   /*  OPERATIONS  */
   static const String topicMode = '/mode';
-  static const String topicSetMode = '/mode_requested';
+  static const String topicModeRequested = '/mode_requested';
 
   /*  TABLES  */
   static const String topicAddTable = '/save_point';
@@ -52,5 +54,9 @@ class ROSConstants {
   static const String topicMapSaved = '/map_saved';
 
   static const String success = 'SUCCESS';
+
+  static const String mode_mapping = 'mapping';
+  static const String mode_routing = 'routing';
+  static const String mode_navigation = 'navigation';
 
 }

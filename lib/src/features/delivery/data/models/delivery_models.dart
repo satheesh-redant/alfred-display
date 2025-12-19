@@ -18,7 +18,7 @@ class DeliveryData {
   final DeliveryState state;
   final String message;
 
-  // 🔥 NEW FIELD (default false)
+  // NEW FIELD (default false)
   final bool powerOffAck;
 
   const DeliveryData({
@@ -26,7 +26,7 @@ class DeliveryData {
     this.route = DeliveryRoute.baseToTable,
     this.state = DeliveryState.idle,
     this.message = '',
-    this.powerOffAck = false, // 🔥 default
+    this.powerOffAck = false, // default
   });
 
   DeliveryData copyWith({
@@ -34,14 +34,14 @@ class DeliveryData {
     DeliveryRoute? route,
     DeliveryState? state,
     String? message,
-    bool? powerOffAck, // 🔥 added
+    bool? powerOffAck, // added
   }) {
     return DeliveryData(
       selectedTable: selectedTable ?? this.selectedTable,
       route: route ?? this.route,
       state: state ?? this.state,
       message: message ?? this.message,
-      powerOffAck: powerOffAck ?? this.powerOffAck, // 🔥 added
+      powerOffAck: powerOffAck ?? this.powerOffAck, // added
     );
   }
 

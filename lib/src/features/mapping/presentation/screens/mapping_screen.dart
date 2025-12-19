@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
+import '../../../../core/configs/alfred_constants.dart';
 import '../../../../shared/widgets/appbar_widget.dart';
 import '../../providers/mapping_providers.dart';
 import '../../view_model/mapping_view_model.dart';
@@ -67,23 +68,18 @@ class _MappingScreenState extends ConsumerState<MappingScreen> {
               "Would you like to go to the route planning screen to create navigation routes?",
               onYes: () {
                 context.loaderOverlay.show();
-                //todo
-                // ref.read(opsVMProvider.notifier).sendOpsMode(mode: "routing");
+                ref.read(mappingVMProvider.notifier).changeMode();
               },
               onNo: () {},
             );
           },
         );
       }
-    });
 
-    // todo
-    // ref.listen(opsVMProvider, (previous, next) {
-    //   if (next.value?.toLowerCase() == 'routing') {
-    //     context.loaderOverlay.hide();
-    //     context.go(AlfredConstants.routeRoutingScreen);
-    //   }
-    // });
+      if(next.isModeChanged) {
+        context.go(AlfredConstants.routeRoutingScreen);
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),

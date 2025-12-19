@@ -6,6 +6,7 @@ import 'package:alfred/src/core/services/ros_service.dart';
 import 'package:alfred/src/features/mapping/model/map_model.dart';
 import 'package:alfred/src/features/mapping/model/robot_pose.dart';
 import 'package:rosbridge/core/topic.dart';
+import 'package:rosbridge/rosbridge.dart';
 
 class MappingRepository {
   final ROSService _rosService;
@@ -29,18 +30,20 @@ class MappingRepository {
   Stream<RobotPose> get poseStream => _poseController.stream;
   Stream<String> get mapSavedAckStream => _mapSavedAckController.stream;
 
+  ROSService get rosService => _rosService;
+
   Future<void> initialize() async {
     if (_isInitialized) return;
 
     _mapTopic = _rosService.createTopic(
-      '/map',
-      'nav_msgs/OccupancyGrid',
-      throttleRate: 500,
+      ROSConstants.mapTopic,
+      ROSConstants.mapTopicMsg,
+      throttleRate: 100,
     );
 
     _tfTopic = _rosService.createTopic(
-      '/tf',
-      'tf2_msgs/TFMessage',
+      ROSConstants.tfTopic,
+      ROSConstants.tfTopicMsg,
       throttleRate: 100,
     );
 
