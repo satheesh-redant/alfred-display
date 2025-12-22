@@ -61,7 +61,7 @@ class MappingViewModel extends BaseViewModel<MappingState> {
           statusMessage: msg, isSaving: false, mapSaved: isSaved);
     });
 
-    _operationsSubscription = _repository.rosService.opsModeStream.listen(
+    _operationsSubscription = _repository.rosService.modeStream.listen(
       (operationMode) {
         if (operationMode.name == ROSConstants.mode_routing) {
           state = state.copyWith(
@@ -125,6 +125,7 @@ class MappingViewModel extends BaseViewModel<MappingState> {
     await _mapSub?.cancel();
     await _poseSub?.cancel();
     await _mapSaveSub?.cancel();
+    await _operationsSubscription?.cancel();
 
     _mapSub = null;
     _poseSub = null;

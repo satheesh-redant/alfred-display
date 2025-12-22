@@ -1,14 +1,13 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/configs/alfred_constants.dart';
 import '../../../../core/helpers/toast_utils.dart';
-import '../../data/models/delivery_models.dart';
-import '../view_models/delivery_view_model.dart';
 import '../../../../shared/widgets/appbar_widget.dart';
-import '../providers/delivery_providers.dart';
+import '../../providers/delivery_providers.dart';
+import '../../state/delivery_state.dart';
+import '../../view_model/delivery_view_model.dart';
 
 class DeliveryCompleteScreen extends ConsumerStatefulWidget {
   const DeliveryCompleteScreen({super.key});
@@ -26,11 +25,11 @@ class _DeliveryCompleteScreenState extends ConsumerState<DeliveryCompleteScreen>
     final screenWidth = MediaQuery.of(context).size.width;
 
     ref.listen(deliveryViewModelProvider, (previous, next) {
-      if (next.state == DeliveryState.moving) {
+      if (next.state == DeliveryStatus.moving) {
         context.pushReplacement(AlfredConstants.routeDeliveryInProgressScreen);
         return;
       }
-      if (next.state == DeliveryState.error) {
+      if (next.state == DeliveryStatus.error) {
         showErrorToast(context: context, description: next.message);
       }
     });
@@ -106,7 +105,7 @@ class _DeliveryCompleteScreenState extends ConsumerState<DeliveryCompleteScreen>
     );
   }
 
-  Widget _buildTableSelectionCard(DeliveryData deliveryState, DeliveryViewModel viewModel) {
+  Widget _buildTableSelectionCard(DeliveryState deliveryState, DeliveryViewModel viewModel) {
     final availableTables = viewModel.availableTables;
 
     return Expanded(

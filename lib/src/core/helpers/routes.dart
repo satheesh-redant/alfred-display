@@ -2,6 +2,7 @@ import 'package:alfred/src/core/configs/alfred_constants.dart';
 import 'package:alfred/src/features/battery/presentation/screens/soft_shutdown_screen.dart';
 import 'package:alfred/src/features/loading/presentation/screens/loading_screen.dart';
 import 'package:alfred/src/features/mapping/presentation/screens/mapping_screen.dart';
+import 'package:alfred/src/features/routing/presentation/screens/routing_screen.dart';
 import 'package:alfred/src/features/splash/presentation/splash_screen.dart';
 import 'package:alfred/src/features/delivery/presentation/screens/delivery_main_screen.dart';
 import 'package:alfred/src/shared/widgets/app_overlay_widget.dart';
@@ -56,6 +57,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(
               path: AlfredConstants.routeSoftShutdownScreen,
               builder: (context, state) => const SoftShutdownAlertScreen(),
+            ),
+            GoRoute(
+              path: AlfredConstants.routeRoutingScreen,
+              builder: (context, state) => const RoutingScreen(),
             ),
           ])
     ],

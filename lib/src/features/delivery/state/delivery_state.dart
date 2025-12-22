@@ -1,6 +1,4 @@
-
-
-enum DeliveryState {
+enum DeliveryStatus {
   idle,
   moving,
   delivered,
@@ -8,35 +6,35 @@ enum DeliveryState {
 }
 
 enum DeliveryRoute {
-  baseToTable, // 0
-  tableToBase  // 1
+  baseToTable,
+  tableToBase
 }
 
-class DeliveryData {
+class DeliveryState {
   final int? selectedTable;
   final DeliveryRoute route;
-  final DeliveryState state;
+  final DeliveryStatus state;
   final String message;
 
   // NEW FIELD (default false)
   final bool powerOffAck;
 
-  const DeliveryData({
+  const DeliveryState({
     this.selectedTable,
     this.route = DeliveryRoute.baseToTable,
-    this.state = DeliveryState.idle,
+    this.state = DeliveryStatus.idle,
     this.message = '',
     this.powerOffAck = false, // default
   });
 
-  DeliveryData copyWith({
+  DeliveryState copyWith({
     int? selectedTable,
     DeliveryRoute? route,
-    DeliveryState? state,
+    DeliveryStatus? state,
     String? message,
     bool? powerOffAck, // added
   }) {
-    return DeliveryData(
+    return DeliveryState(
       selectedTable: selectedTable ?? this.selectedTable,
       route: route ?? this.route,
       state: state ?? this.state,

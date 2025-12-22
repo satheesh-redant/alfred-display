@@ -1,12 +1,8 @@
-
-
-//ack
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../provider/battery_provider.dart';
-import '../../../delivery/presentation/providers/delivery_providers.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alfred/src/core/configs/alfred_constants.dart';
 
@@ -22,27 +18,7 @@ class _SoftShutdownAlertScreenState
     extends ConsumerState<SoftShutdownAlertScreen> {
 
   @override
-  void initState() {
-    super.initState();
-
-    // publish shutdown command after 4s
-    Future.delayed(
-      const Duration(seconds: 4),
-          () {
-        ref.read(deliveryViewModelProvider.notifier).sendPowerOff();
-      },
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // 🔥 Listen here (correct location)
-    ref.listen(deliveryViewModelProvider, (previous, next) {
-      if (next.powerOffAck == true) {
-        context.go(AlfredConstants.routeSoftShutdownScreen);
-      }
-    });
-
     return Scaffold(
       backgroundColor: const Color(0xFF151414),
       body: SafeArea(

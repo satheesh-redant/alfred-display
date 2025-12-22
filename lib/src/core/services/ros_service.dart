@@ -1,7 +1,5 @@
-//retry
 import 'dart:async';
 import 'package:alfred/src/features/battery/model/battery_model.dart';
-import 'package:flutter/material.dart';
 import 'package:rosbridge/rosbridge.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -22,62 +20,69 @@ class ROSService {
   final BehaviorSubject<ROSConnectionStatus> _connectionController =
       BehaviorSubject<ROSConnectionStatus>();
 
+  Stream<ROSConnectionStatus> get connectionStream =>
+      _connectionController.stream;
+
   // loading
   final StreamController<String> _bootCheckController =
       StreamController<String>.broadcast();
-  final StreamController<OperationMode> _opsModeController =
+
+  Stream<String> get bootCheckStream => _bootCheckController.stream;
+
+  final StreamController<OperationMode> _modeController =
       StreamController<OperationMode>.broadcast();
+
+  Stream<OperationMode> get modeStream => _modeController.stream;
 
   // base reset
   final StreamController<String> _baseResetStatusController =
       StreamController<String>.broadcast();
 
+  Stream<String> get baseResetStatusStream => _baseResetStatusController.stream;
+
   final StreamController<String> _baseReturnStatusController =
       StreamController<String>.broadcast();
+
+  Stream<String> get returnToBaseStatusStream =>
+      _baseReturnStatusController.stream;
 
   // delivery
   final StreamController<String> _deliveryStatusController =
       StreamController<String>.broadcast();
+
+  Stream<String> get deliveryStatusStream => _deliveryStatusController.stream;
+
   final StreamController<List<int>> _tableListController =
       StreamController<List<int>>.broadcast();
+
+  Stream<List<int>> get tableListStream => _tableListController.stream;
 
   // power off ack
   final StreamController<String> _powerOffAckController =
       StreamController<String>.broadcast();
 
+  Stream<String> get powerOffAckStream => _powerOffAckController.stream;
+
   //battery
   final StreamController<BatteryData> _batteryController =
       StreamController<BatteryData>.broadcast();
 
-  Stream<ROSConnectionStatus> get connectionStream =>
-      _connectionController.stream;
-
-  Stream<String> get bootCheckStream => _bootCheckController.stream;
-
-  Stream<OperationMode> get opsModeStream => _opsModeController.stream;
-
-  Stream<String> get deliveryStatusStream => _deliveryStatusController.stream;
-
-  Stream<List<int>> get tableListStream => _tableListController.stream;
-
-  Stream<String> get baseResetStatusStream => _baseResetStatusController.stream;
-
-  Stream<String> get returnToBaseStatusStream =>
-      _baseReturnStatusController.stream;
-
-  Stream<String> get powerOffAckStream => _powerOffAckController.stream;
-
   Stream<BatteryData> get batteryRawStream => _batteryController.stream;
 
   ROSConnectionStatus _currentStatus = ROSConnectionStatus.disconnected;
+
+  ROSConnectionStatus get currentStatus => _currentStatus;
+
+  final StreamController<String> _routingAckController =
+      StreamController<String>.broadcast();
+
+  Stream<String> get routingAckStream => _routingAckController.stream;
 
   //  added retry timer
   Timer? _retryTimer;
   static const Duration _retryInterval = Duration(seconds: 10);
 
   bool _isDisposed = false;
-
-  ROSConnectionStatus get currentStatus => _currentStatus;
 
   ROSService._internal() {
     print('ROSService: Initialized');
@@ -97,7 +102,7 @@ class ROSService {
 
         if (newStatus == ROSConnectionStatus.connected) {
           _stopRetryTimer();
-          _initializeBootAndOpsSubscriptions();
+          _initializeSubscriptions();
         } else if (newStatus == ROSConnectionStatus.error ||
             newStatus == ROSConnectionStatus.disconnected) {
           _startRetryTimer();
@@ -138,7 +143,6 @@ class ROSService {
     }
   }
 
-  // ⭐ retry logic added
   void _startRetryTimer() {
     _stopRetryTimer();
     print(
@@ -159,9 +163,7 @@ class ROSService {
     await connect();
   }
 
-  // ⭐ retry logic end
-
-  void _initializeBootAndOpsSubscriptions() {
+  void _initializeSubscriptions() {
     print("ROSService: Initializing topic subscriptions...");
 
     subscribeToTopic(ROSConstants.topicBootCheck, ROSConstants.msgString,
@@ -183,7 +185,7 @@ class ROSService {
               : m == "navigation"
                   ? OperationMode.navigation
                   : OperationMode.unknown;
-      _opsModeController.add(mode);
+      _modeController.add(mode);
     });
 
     subscribeToTopic(ROSConstants.topicDeliveryStatus, ROSConstants.msgString,
@@ -241,13 +243,18 @@ class ROSService {
     subscribeToTopic(ROSConstants.topicPowerOffAck, ROSConstants.msgString,
         (msg) {
       final ack = msg['data'] ?? '';
-      print("Power Off ACK received → $ack");
       _powerOffAckController.add(ack);
     });
 
     subscribeToTopic(ROSConstants.topicBattery, ROSConstants.msgString, (msg) {
-      final batteryState = BatteryData.fromJson(msg);
+      final data = msg['data'] ?? '';
+      final batteryState = BatteryData.fromJson(data);
       _batteryController.add(batteryState);
+    });
+
+    subscribeToTopic(ROSConstants.topicRouteAck, ROSConstants.msgString, (msg) {
+      final data = msg['data'] ?? '';
+      _routingAckController.add(data);
     });
   }
 
@@ -281,6 +288,15 @@ class ROSService {
   Future<void> sendPowerOffCommand() async {
     await publishToTopic(
         ROSConstants.topicPowerOff, ROSConstants.msgString, {'data': 'OFF'});
+  }
+
+  Future<void> sendWaypoint({required String data}) async {
+
+    Map<String, dynamic> json = {"data": data};
+    print('Publishing route data: $json');
+
+    await publishToTopic(
+        ROSConstants.topicRoute, ROSConstants.msgString, json);
   }
 
   Future<void> disconnect() async {
@@ -359,7 +375,7 @@ class ROSService {
 
     await _connectionController.close();
     await _bootCheckController.close();
-    await _opsModeController.close();
+    await _modeController.close();
     await _baseResetStatusController.close();
     await _baseReturnStatusController.close();
     await _deliveryStatusController.close();

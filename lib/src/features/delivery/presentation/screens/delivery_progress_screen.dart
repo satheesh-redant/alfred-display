@@ -1,8 +1,5 @@
-
-
 import 'dart:math';
-import '../providers/delivery_providers.dart';
-import '../view_models/delivery_view_model.dart';
+import 'package:alfred/src/features/delivery/state/delivery_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,8 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/appbar_widget.dart';
 import '../../../../core/configs/alfred_constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import '../../data/state/route_state.dart';
-import '../../data/models/delivery_models.dart';
+
+import '../../providers/delivery_providers.dart';
 
 class DeliveryInProgressScreen extends ConsumerStatefulWidget {
   const DeliveryInProgressScreen({super.key});
@@ -32,7 +29,7 @@ class _DeliveryInProgressScreenState
     final viewModel = ref.read(deliveryViewModelProvider.notifier);
 
     ref.listen(deliveryViewModelProvider, (previous, next) {
-      if (next.state == DeliveryState.delivered) {
+      if (next.state == DeliveryStatus.delivered) {
         if (next.isBaseToTable) {
           context.pushReplacement(AlfredConstants.routeDeliveryCompleteScreen);
         } else {

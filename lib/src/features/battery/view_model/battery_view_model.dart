@@ -1,11 +1,8 @@
 import 'package:alfred/src/core/base/base_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/providers/core_providers.dart';
 import '../model/battery_model.dart';
 import 'dart:async';
-import '../../../core/configs/ros_constants.dart';
 import '../../../core/services/ros_service.dart';
-import 'package:rosbridge/rosbridge.dart';
 
 import '../states/battery_state.dart';
 
@@ -32,7 +29,7 @@ class BatteryViewModel extends BaseViewModel<AsyncValue<BatteryState>> {
       },
     );
 
-    _modeSubscription = _rosService.opsModeStream.listen(
+    _modeSubscription = _rosService.modeStream.listen(
       (operationMode) {
         final prevState = state.asData!.value;
         state = AsyncValue.data(prevState.copyWith(mode: operationMode));

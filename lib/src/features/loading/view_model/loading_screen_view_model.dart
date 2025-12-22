@@ -1,7 +1,4 @@
-//retry
 import 'dart:async';
-import 'dart:convert';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/base/base_view_model.dart';
 import '../../../core/services/ros_service.dart';
@@ -136,7 +133,7 @@ class LoadingScreenViewModel extends BaseViewModel<LoadingScreenState> {
       statusMessage: 'Loading...',
     );
 
-    _operationsSubscription = _rosService.opsModeStream.listen(
+    _operationsSubscription = _rosService.modeStream.listen(
       (operationMode) {
         state = state.copyWith(
           operationMode: operationMode,

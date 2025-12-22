@@ -90,7 +90,7 @@ class _BasePointMarkingScreenState extends ConsumerState<BasePointMarkingScreen>
                     context: context,
                     builder: (context) => SaveStartingPointDialog(
                       onConfirmed: () {
-                        _publishPressed = true; // <-- added
+                        _publishPressed = true;
                         context.loaderOverlay.show();
                         ref.read(basePointVMProvider.notifier).resetBaseLoc();
                       },

@@ -21,7 +21,7 @@ class BasePointState {
     );
   }
 
-  // Initial default state
+  // Initial default states
   factory BasePointState.initial() {
     return const BasePointState(
       isResetting: false,

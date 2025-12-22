@@ -10,7 +10,7 @@ final rosServiceProvider = Provider<ROSService>((ref) {
   return service;
 });
 
-//  Connection state provider + retry logic like ViewModel (all in one)
+//  Connection states provider + retry logic like ViewModel (all in one)
 final rosConnectionStateProvider = StreamProvider<ROSConnectionStatus>((ref) {
   final rosService = ref.watch(rosServiceProvider);
   return rosService.connectionStream;

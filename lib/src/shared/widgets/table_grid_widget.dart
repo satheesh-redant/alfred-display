@@ -23,7 +23,7 @@ class TableGridButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isMarked ? onPressed : null,         // <<< Only logic change
+      onTap: isMarked ? onPressed : null,
       child: Container(
         width: 138.w,
         height: 60.h,
@@ -32,14 +32,14 @@ class TableGridButtonWidget extends StatelessWidget {
               ? Colors.blue
               : isMarked
               ? Colors.grey.shade200
-              : Colors.grey.shade300,        // dim if not marked
+              : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(8.r),
           border: Border.all(
             color: isSelected
                 ? Colors.blue.shade700
                 : isMarked
                 ? Colors.grey.shade400
-                : Colors.grey.shade500,      // border dim if not marked
+                : Colors.grey.shade500,
             width: 2.w,
           ),
         ),
@@ -53,7 +53,7 @@ class TableGridButtonWidget extends StatelessWidget {
                   ? Colors.white
                   : isMarked
                   ? Colors.black
-                  : Colors.grey.shade600,    // text dim if not marked
+                  : Colors.grey.shade600,
             ),
           ),
         ),

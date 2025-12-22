@@ -1,5 +1,4 @@
 import 'package:alfred/src/core/configs/alfred_constants.dart';
-import 'package:alfred/src/features/delivery/presentation/view_models/delivery_view_model.dart';
 import 'package:alfred/src/shared/widgets/appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +9,10 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:go_router/go_router.dart';
 import 'package:slider_button/slider_button.dart';
 
-import '../../data/models/delivery_models.dart';
-import '../providers/delivery_providers.dart';
-import '../widgets/table_grid_widget.dart';
+import '../../providers/delivery_providers.dart';
+import '../../state/delivery_state.dart';
+import '../../view_model/delivery_view_model.dart';
+import '../../../../shared/widgets/table_grid_widget.dart';
 import '../widgets/delivery_action_button.dart';
 
 class DeliveryScreen extends ConsumerStatefulWidget {
@@ -45,19 +45,11 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     final viewModel = ref.read(deliveryViewModelProvider.notifier);
 
     ref.listen(deliveryViewModelProvider, (previous, next) {
-      if (next.state == DeliveryState.error) {
+      if (next.state == DeliveryStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(next.message)),
         );
       }
-
-      // if (previous?.state == DeliveryState.moving &&
-      //     next.state == DeliveryState.delivered &&
-      //     next.isTableToBase) {
-      //   Future.delayed(const Duration(seconds: 2), () {
-      //     viewModel.resetToIdle();
-      //   });
-      // }
 
       // POWER-OFF ACK HANDLING ADDED (only change)
       if (next.powerOffAck) {
@@ -73,23 +65,18 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     );
   }
 
-  Widget _buildBody(DeliveryData deliveryState, DeliveryViewModel viewModel) {
-    if (deliveryState.state == DeliveryState.idle) {
+  Widget _buildBody(DeliveryState deliveryState, DeliveryViewModel viewModel) {
+    if (deliveryState.state == DeliveryStatus.idle) {
       return _buildTableSelectionView(deliveryState, viewModel);
-    } else if (deliveryState.state == DeliveryState.moving) {
+    } else if (deliveryState.state == DeliveryStatus.moving) {
       return _buildDeliveryProgressView(deliveryState, viewModel);
     } else {
-      /*if (deliveryState.isTableToBase) {
-        return _buildTableSelectionView(deliveryState, viewModel);
-      } else {
-        return _buildDeliveryCompletedView(deliveryState, viewModel);
-      }*/
       return _buildDeliveryCompletedView(deliveryState, viewModel);
     }
   }
 
   Widget _buildTableSelectionView(
-      DeliveryData deliveryState, DeliveryViewModel viewModel) {
+      DeliveryState deliveryState, DeliveryViewModel viewModel) {
     final availableTables = viewModel.availableTables;
 
     return Container(
@@ -257,7 +244,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     );
   }
 
-  Widget _buildAlfredBaseSection(DeliveryData deliveryState) {
+  Widget _buildAlfredBaseSection(DeliveryState deliveryState) {
     return Expanded(
       flex: 2,
       child: Stack(
@@ -302,7 +289,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
   }
 
   Widget _buildTableSelectionSection(List<int> availableTables,
-      DeliveryData deliveryState, DeliveryViewModel viewModel) {
+      DeliveryState deliveryState, DeliveryViewModel viewModel) {
     return Expanded(
       flex: 3,
       child: Padding(
@@ -346,7 +333,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                 DeliveryActionButton(
                   text: "Go to Table",
                   isEnabled: deliveryState.selectedTable != null,
-                  isLoading: deliveryState.state == DeliveryState.moving,
+                  isLoading: deliveryState.state == DeliveryStatus.moving,
                   onPressed: () => viewModel.goToTable(),
                   width: double.infinity,
                 ),
@@ -371,7 +358,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     );
   }
 
-  Widget _buildTableGrid(List<int> availableTables, DeliveryData deliveryState,
+  Widget _buildTableGrid(List<int> availableTables, DeliveryState deliveryState,
       DeliveryViewModel viewModel) {
     return Scrollbar(
       controller: _gridScrollController,
@@ -407,7 +394,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
   }
 
   Widget _buildDeliveryProgressView(
-      DeliveryData deliveryState, DeliveryViewModel viewModel) {
+      DeliveryState deliveryState, DeliveryViewModel viewModel) {
     return Align(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -460,7 +447,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
   }
 
   Widget _buildDeliveryCompletedView(
-      DeliveryData deliveryState, DeliveryViewModel viewModel) {
+      DeliveryState deliveryState, DeliveryViewModel viewModel) {
     return Row(
       children: [
         Expanded(
@@ -496,7 +483,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
   }
 
   Widget _buildTableSelectionSectionSuccess(List<int> availableTables,
-      DeliveryData deliveryState, DeliveryViewModel viewModel) {
+      DeliveryState deliveryState, DeliveryViewModel viewModel) {
     return Expanded(
       flex: 1,
       child: Padding(
@@ -539,7 +526,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                   text:
                       "Go to ${deliveryState.selectedTable == 0 ? 'Base' : 'Table ${deliveryState.selectedTable}'}",
                   isEnabled: deliveryState.selectedTable != null,
-                  isLoading: deliveryState.state == DeliveryState.moving,
+                  isLoading: deliveryState.state == DeliveryStatus.moving,
                   onPressed: () => viewModel.goToTable(),
                   width: double.infinity,
                 ),
@@ -552,7 +539,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
   }
 
   Widget _buildTableGridSuccess(List<int> availableTables,
-      DeliveryData deliveryState, DeliveryViewModel viewModel) {
+      DeliveryState deliveryState, DeliveryViewModel viewModel) {
     return Scrollbar(
       controller: _gridScrollController,
       thumbVisibility: true,
@@ -586,12 +573,12 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     );
   }
 
-  String _getProgressMessage(DeliveryData deliveryState) {
-    if (deliveryState.state == DeliveryState.moving) {
+  String _getProgressMessage(DeliveryState deliveryState) {
+    if (deliveryState.state == DeliveryStatus.moving) {
       return deliveryState.isBaseToTable
           ? "Alfred is on move..."
           : "Alfred is returning...";
-    } else if (deliveryState.state == DeliveryState.delivered) {
+    } else if (deliveryState.state == DeliveryStatus.delivered) {
       return deliveryState.isBaseToTable
           ? "Ready to serve"
           : "Alfred is back at base";
@@ -599,10 +586,10 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
     return "Alfred is on move...";
   }
 
-  String _getProgressImage(DeliveryData deliveryState) {
-    if (deliveryState.state == DeliveryState.moving) {
+  String _getProgressImage(DeliveryState deliveryState) {
+    if (deliveryState.state == DeliveryStatus.moving) {
       return "assets/images/alfred_moving.png";
-    } else if (deliveryState.state == DeliveryState.delivered) {
+    } else if (deliveryState.state == DeliveryStatus.delivered) {
       if (deliveryState.isBaseToTable) {
         return "assets/images/alfred_ready.png";
       } else {

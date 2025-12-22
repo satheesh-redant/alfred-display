@@ -6,7 +6,6 @@ import '../../../core/providers/core_providers.dart';
 import '../../../core/services/ros_service.dart';
 import '../model/base_model.dart';
 import '../providers/base_provider.dart';
-import '../state/base_state.dart';
 
 class BasePointViewModel extends BaseViewModel<BasePointState> {
   final ROSService _rosService;
