@@ -39,7 +39,7 @@ class RouteViewModel extends BaseViewModel<RouteState> {
   }
 
   void markWaypoint({required String data}) {
-    safeUpdateState(state.copyWith(isLoading: true, statusMessage: 'Marking waypoint...'));
+    safeUpdateState(state.copyWith(isLoading: true, isMarked: false, statusMessage: 'Marking waypoint...'));
     _rosService.sendWaypoint(data: data);
   }
 

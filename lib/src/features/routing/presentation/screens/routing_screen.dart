@@ -28,7 +28,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
 
   void _startRouting() {
     if (selectedFromTable != null && selectedToTable != null) {
-      print("Starting routing from Table $selectedFromTable to Table $selectedToTable");
+      print(
+          "Starting routing from Table $selectedFromTable to Table $selectedToTable");
       setState(() {
         isRoutingMode = true;
         waypoints.clear();
@@ -46,17 +47,16 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
   }
 
   void _addWaypoint() {
-    String route = selectedFromTable.toString() + "-" + selectedToTable.toString();
+    String route =
+        selectedFromTable.toString() + "-" + selectedToTable.toString();
     ref.read(routeVMProvider.notifier).markWaypoint(data: route);
   }
 
   @override
   Widget build(BuildContext context) {
-
     ref.listen(
       routeVMProvider,
-          (previous, next) {
-
+      (previous, next) {
         // 1. Print/log only when statusMessage actually changes
         if (previous?.statusMessage != next.statusMessage &&
             next.statusMessage.isNotEmpty) {
@@ -72,11 +72,15 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
           }
         }
 
-
-        if(next.isModeChanged) {
-          context.go(AlfredConstants.routeRoutingScreen);
+        if (next.isMarked) {
+          setState(() {
+            waypoints.add("Waypoint ${waypoints.length + 1}");
+          });
         }
 
+        if (next.isModeChanged) {
+          context.go(AlfredConstants.routeRoutingScreen);
+        }
       },
     );
 
@@ -102,7 +106,9 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                     style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: isRoutingMode ? const Color(0xFF059669) : const Color(0xFF1F2937),
+                      color: isRoutingMode
+                          ? const Color(0xFF059669)
+                          : const Color(0xFF1F2937),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -132,11 +138,13 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                     ElevatedButton.icon(
                       onPressed: _dismissRoute,
                       icon: Icon(Icons.close, color: Colors.white),
-                      label: Text("Dismiss", style: TextStyle(color: Colors.white)),
+                      label: Text("Dismiss",
+                          style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFEF4444),
                         elevation: 2,
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -146,11 +154,13 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                     ElevatedButton.icon(
                       onPressed: _addWaypoint,
                       icon: Icon(Icons.add_location, color: Colors.white),
-                      label: Text("Add Waypoint", style: TextStyle(color: Colors.white)),
+                      label: Text("Add Waypoint",
+                          style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3B82F6),
                         elevation: 2,
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -191,7 +201,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                             return Chip(
                               label: Text(
                                 waypoint,
-                                style: TextStyle(color: const Color(0xFF1E40AF)),
+                                style:
+                                    TextStyle(color: const Color(0xFF1E40AF)),
                               ),
                               backgroundColor: const Color(0xFFDBEAFE),
                               shape: RoundedRectangleBorder(
@@ -221,7 +232,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 15, top: 15),
+                          padding: const EdgeInsets.only(
+                              left: 24, right: 24, bottom: 15, top: 15),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -238,12 +250,11 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-
                               SizedBox(height: 10),
-
                               Expanded(
                                 child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 4,
                                     crossAxisSpacing: 12,
                                     mainAxisSpacing: 12,
@@ -252,7 +263,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                                   itemCount: fromTables.length,
                                   itemBuilder: (context, index) {
                                     final tableNumber = fromTables[index];
-                                    final isSelected = selectedFromTable == tableNumber;
+                                    final isSelected =
+                                        selectedFromTable == tableNumber;
                                     final isBase = tableNumber == 0;
 
                                     return Container(
@@ -260,7 +272,9 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                                         children: [
                                           // Custom FROM table button with blue selection color
                                           _buildFromTableButton(
-                                            label: isBase ? "BASE" : tableNumber.toString(),
+                                            label: isBase
+                                                ? "BASE"
+                                                : tableNumber.toString(),
                                             tableNumber: tableNumber,
                                             isSelected: isSelected,
                                             onPressed: () {
@@ -303,7 +317,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 15, top: 15),
+                          padding: const EdgeInsets.only(
+                              left: 24, right: 24, bottom: 15, top: 15),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -320,12 +335,11 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-
                               SizedBox(height: 10),
-
                               Expanded(
                                 child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 4,
                                     crossAxisSpacing: 12,
                                     mainAxisSpacing: 12,
@@ -334,7 +348,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                                   itemCount: toTables.length,
                                   itemBuilder: (context, index) {
                                     final tableNumber = toTables[index];
-                                    final isSelected = selectedToTable == tableNumber;
+                                    final isSelected =
+                                        selectedToTable == tableNumber;
 
                                     return _buildToTableButton(
                                       label: tableNumber.toString(),
@@ -378,11 +393,14 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                             builder: (BuildContext context) {
                               return ConfirmationDialog(
                                 title: "Ready for Deliveries?",
-                                message: "Would you like to navigate to delivery screen to begin serving tables?",
+                                message:
+                                    "Would you like to navigate to delivery screen to begin serving tables?",
                                 onYes: () {
                                   print("User confirmed routing");
                                   context.loaderOverlay.show();
-                                  ref.read(routeVMProvider.notifier).changeMode();
+                                  ref
+                                      .read(routeVMProvider.notifier)
+                                      .changeMode();
                                 },
                                 onNo: () {
                                   print("User cancelled routing");
@@ -390,24 +408,26 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                               );
                             },
                           );
-                        },// Disabled when tables not selected
+                        }, // Disabled when tables not selected
                         icon: Icon(
                           Icons.check_circle,
-                          color: const Color(0xFF10B981),// Grey when disabled
+                          color: const Color(0xFF10B981), // Grey when disabled
                         ),
                         label: Text(
                           "Finish",
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF10B981),// Grey when disabled
+                            color:
+                                const Color(0xFF10B981), // Grey when disabled
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(
                               width: 2.0,
-                              color: const Color(0xFF10B981)  // Green border when enabled
-                          ),
+                              color: const Color(
+                                  0xFF10B981) // Green border when enabled
+                              ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -422,7 +442,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
-                        onPressed: (selectedFromTable != null && selectedToTable != null)
+                        onPressed: (selectedFromTable != null &&
+                                selectedToTable != null)
                             ? _startRouting
                             : null, // Disabled when conditions not met
                         icon: Icon(Icons.route, color: Colors.white),
@@ -437,7 +458,8 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: (selectedFromTable != null && selectedToTable != null)
+                          backgroundColor: (selectedFromTable != null &&
+                                  selectedToTable != null)
                               ? const Color(0xFF059669) // Green when enabled
                               : Colors.grey, // Grey when disabled
                           elevation: 3,
@@ -451,7 +473,6 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
                   ],
                 ),
               ),
-
           ],
         ),
       ),
