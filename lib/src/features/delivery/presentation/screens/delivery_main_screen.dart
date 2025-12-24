@@ -51,10 +51,21 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
         );
       }
 
+      if (previous?.isLoading != next.isLoading) {
+        if (next.isLoading) {
+          context.loaderOverlay.show();
+        } else {
+          context.loaderOverlay.hide();
+        }
+      }
+
       // POWER-OFF ACK HANDLING ADDED (only change)
       if (next.powerOffAck) {
-        context.loaderOverlay.hide();
         context.go(AlfredConstants.routeSoftShutdownScreen);
+      }
+
+      if (next.isModeChanged) {
+        context.go(AlfredConstants.routeChecklistScreen);
       }
     });
 
@@ -84,7 +95,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSidebar(),
+            _buildSidebar(viewModel),
             _buildAlfredBaseSection(deliveryState),
             SizedBox(width: 20.w),
             _buildTableSelectionSection(
@@ -93,7 +104,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
         ));
   }
 
-  Widget _buildSidebar() {
+  Widget _buildSidebar(DeliveryViewModel viewModel) {
     return Padding(
       padding: EdgeInsets.only(left: 0.w, top: 70.h),
       child: SizedBox(
@@ -115,7 +126,7 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
                   height: 31.h,
                 ),
                 onPressed: () {
-                  context.loaderOverlay.show();
+                  viewModel.changeMode();
                 },
               ),
               Center(
@@ -216,7 +227,6 @@ class _DeliveryScreenState extends ConsumerState<DeliveryScreen> {
               child: SliderButton(
                 action: () async {
                   Navigator.pop(context);
-                  context.loaderOverlay.show();
                   ref.read(deliveryViewModelProvider.notifier).sendPowerOff();
                   return true;
                 },

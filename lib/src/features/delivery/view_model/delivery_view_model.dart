@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import '../../../core/base/base_view_model.dart';
+import '../../../core/configs/ros_constants.dart';
 import '../../../core/services/ros_service.dart';
 import '../state/delivery_state.dart';
 
@@ -11,6 +12,7 @@ class DeliveryViewModel extends BaseViewModel<DeliveryState> {
   late StreamSubscription _tableListSubscription;
   late StreamSubscription _deliveryStatusSubscription;
   late StreamSubscription _softPowerOffSubscription;
+  StreamSubscription? _operationsSubscription;
 
   List<int> _availableTables = [];
 
@@ -38,6 +40,18 @@ class DeliveryViewModel extends BaseViewModel<DeliveryState> {
         safeUpdateState(state.copyWith(powerOffAck: true));
       }
     });
+
+    _operationsSubscription = _rosService.modeStream.listen(
+          (operationMode) {
+        if (operationMode.name == ROSConstants.mode_mapping) {
+          state = state.copyWith(
+            isModeChanged: true,
+             message: "Starting ${operationMode.name} mode...",
+          );
+        }
+      },
+      onError: (error) => print('Ops mode error: $error'),
+    );
   }
 
   void _initializeTableList() async {
@@ -105,35 +119,43 @@ class DeliveryViewModel extends BaseViewModel<DeliveryState> {
     }
   }
 
-  // Future<void> returnToBase() async {
-  //   final selectedTable = states.selectedTable;
-  //   if (selectedTable == null) return;
-  //
-  //   try {
-  //     safeUpdateState(states.copyWith(
-  //       route: DeliveryRoute.tableToBase,
-  //       states: DeliveryState.moving,
-  //     ));
-  //     await _rosService.gotoPoint(selectedTable);
-  //   } catch (_) {
-  //     safeUpdateState(states.copyWith(
-  //       message: 'Failed to return to base: $e',
-  //     ));
-  //   }
-  // }
-
   void resetToIdle() {
     safeUpdateState(const DeliveryState());
   }
 
   Future<void> sendPowerOff() async {
-    await _rosService.sendPowerOffCommand();
+    state = state.copyWith(
+      isLoading: true,
+    );
+    try {
+      await _rosService.sendPowerOffCommand();
+    } catch (e) {
+      state = state.copyWith(
+        message: 'Error sending power off command: $e',
+      );
+    }
+
+  }
+
+  Future<void> changeMode() async {
+    state = state.copyWith(
+      isLoading: true,
+    );
+    try {
+      await _rosService.requestModeChange(ROSConstants.mode_mapping);
+    } catch (e) {
+      state = state.copyWith(
+        message: 'Error saving map: $e',
+      );
+    }
   }
 
   @override
   void onDispose() {
     _tableListSubscription.cancel();
     _deliveryStatusSubscription.cancel();
+    _softPowerOffSubscription.cancel();
+    _operationsSubscription!.cancel();
     super.onDispose();
   }
 }
