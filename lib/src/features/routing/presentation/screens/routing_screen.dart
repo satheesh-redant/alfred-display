@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 import '../../../../core/configs/alfred_constants.dart';
+import '../../../../shared/models/operation_mode.dart';
+import '../../../../shared/providers/system_provider.dart';
 import '../../../mapping/presentation/screens/confirmation_dialog.dart';
 import '../../view_model/route_view_model.dart';
 
@@ -77,9 +79,14 @@ class _RoutingScreenState extends ConsumerState<RoutingScreen> {
             waypoints.add("Waypoint ${waypoints.length + 1}");
           });
         }
+      },
+    );
 
-        if (next.isModeChanged) {
-          context.go(AlfredConstants.routeRoutingScreen);
+    ref.listen(
+      systemViewModelProvider,
+      (previous, next) {
+        if (next.currentMode == OperationMode.navigation) {
+          context.go(AlfredConstants.routeDeliveryScreen);
         }
       },
     );

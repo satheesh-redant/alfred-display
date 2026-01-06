@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../provider/battery_provider.dart';
-import 'package:go_router/go_router.dart';
-import 'package:alfred/src/core/configs/alfred_constants.dart';
 
 class SoftShutdownAlertScreen extends ConsumerStatefulWidget {
   const SoftShutdownAlertScreen({Key? key}) : super(key: key);

@@ -1,8 +1,6 @@
 import '../../../../core/helpers/toast_utils.dart';
-import '../../model/battery_model.dart';
 import '../../provider/battery_provider.dart';
 import '../../states/battery_state.dart';
-import '../../view_model/battery_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'shutdown_alert_screen.dart';

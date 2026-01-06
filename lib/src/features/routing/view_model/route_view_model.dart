@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:alfred/src/core/base/base_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rosbridge/rosbridge.dart';
 
 import '../../../core/configs/ros_constants.dart';
 import '../../../core/providers/core_providers.dart';
@@ -12,7 +11,6 @@ class RouteViewModel extends BaseViewModel<RouteState> {
   final ROSService _rosService;
 
   StreamSubscription? _routeAckSubscription;
-  StreamSubscription? _operationsSubscription;
 
   RouteViewModel(this._rosService) : super(RouteState()) {
     _initializeListeners();
@@ -24,18 +22,6 @@ class RouteViewModel extends BaseViewModel<RouteState> {
         safeUpdateState(state.copyWith(isLoading: false, isMarked: true, statusMessage: "Waypoint marked successfully"));
       }
     });
-
-    _operationsSubscription = _rosService.modeStream.listen(
-          (operationMode) {
-        if (operationMode.name == ROSConstants.mode_navigation) {
-          state = state.copyWith(
-            isModeChanged: true,
-            statusMessage: "Starting ${operationMode.name} mode...",
-          );
-        }
-      },
-      onError: (error) => print('Ops mode error: $error'),
-    );
   }
 
   void markWaypoint({required String data}) {
@@ -59,7 +45,6 @@ class RouteViewModel extends BaseViewModel<RouteState> {
   @override
   void onDispose() {
     _routeAckSubscription!.cancel();
-    _operationsSubscription!.cancel();
     super.onDispose();
   }
 }

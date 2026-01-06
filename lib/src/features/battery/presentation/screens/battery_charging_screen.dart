@@ -8,7 +8,6 @@ import 'dart:math' as math;
 import '../../model/battery_model.dart';
 import '../../provider/battery_provider.dart';
 
-
 class _BatteryCirclePainter extends CustomPainter {
   final int batteryPercentage;
   final Color baseColor;

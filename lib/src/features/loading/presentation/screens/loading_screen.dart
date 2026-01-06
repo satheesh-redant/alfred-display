@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/services/ros_service.dart';
 import '../../../../core/configs/alfred_constants.dart';
-import '../../model/operation_mode.dart';
+import '../../../../shared/models/operation_mode.dart';
+import '../../../../shared/providers/system_provider.dart';
 import '../../providers/loading_providers.dart';
 import '../../states/loading_screen_state.dart';
 import '../widgets/loading_status_widget.dart';
@@ -17,7 +17,6 @@ class LoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
-  late final ProviderSubscription _removeListener;
 
   @override
   void initState() {
@@ -27,31 +26,27 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       ref.read(loadingScreenViewModelProvider.notifier).startLoadingProcess();
     });
 
-    _removeListener = ref.listenManual(
-      loadingScreenViewModelProvider,
-          (previous, next) {
-        if (previous.step != next.step && next.step == LoadingStep.navigating) {
-          print("Navigating to ${next.operationMode.toString()} screen");
-          Future.delayed(const Duration(seconds: 2), () {
-            if (next.operationMode == OperationMode.mapping) {
-              context.go(AlfredConstants.routeMappingScreen);
-            } else if (next.operationMode == OperationMode.routing) {
-              context.go(AlfredConstants.routeRoutingScreen);
-            } else if (next.operationMode == OperationMode.navigation) {
-              context.go(AlfredConstants.routeDeliveryMainScreen);
-            } else {
-              print(next.value?.toLowerCase());
-            }
-          });
-        }
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(loadingScreenViewModelProvider);
 
+    ref.listen(loadingScreenViewModelProvider, (previous, next) {
+      if (next.step == LoadingStep.opsMode) {
+        final mode = ref.read(systemViewModelProvider).currentMode;
+        if (mode == OperationMode.mapping) {
+          context.go(AlfredConstants.routeMappingScreen);
+        } else if (mode == OperationMode.routing) {
+          context.go(AlfredConstants.routeRoutingScreen);
+        } else if (mode == OperationMode.navigation) {
+          context.go(AlfredConstants.routeDeliveryScreen);
+        } else {
+          print(mode.name.toLowerCase());
+        }
+      }
+    },);
+
+    final state = ref.watch(loadingScreenViewModelProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -80,10 +75,5 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _removeListener.close(); // remove navigation listener safely
-    super.dispose();
-  }
 }
 

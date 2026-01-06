@@ -5,9 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 import '../../../../core/configs/alfred_constants.dart';
+import '../../../../shared/models/operation_mode.dart';
+import '../../../../shared/providers/system_provider.dart';
 import '../../../../shared/widgets/appbar_widget.dart';
 import '../../providers/mapping_providers.dart';
-import '../../view_model/mapping_view_model.dart';
 import '../widgets/map_display_widget.dart';
 import 'confirmation_dialog.dart';
 
@@ -65,21 +66,35 @@ class _MappingScreenState extends ConsumerState<MappingScreen> {
             return ConfirmationDialog(
               title: "Map Saved Successfully",
               message:
-              "Would you like to go to the route planning screen to create navigation routes?",
-              onYes: () {
-                context.loaderOverlay.show();
-                ref.read(mappingVMProvider.notifier).changeMode();
-              },
+                  "Would you like to go to the route planning screen to create navigation routes?",
+              onYes: _handleModeChange,
               onNo: () {},
             );
           },
         );
       }
-
-      if(next.isModeChanged) {
-        context.go(AlfredConstants.routeRoutingScreen);
-      }
     });
+
+    ref.listen(
+      systemViewModelProvider,
+      (previous, next) {
+
+        if (previous?.statusMessage != next.statusMessage &&
+            next.statusMessage.isNotEmpty) {
+          print(next.statusMessage);
+        }
+
+        if (next.isLoading) {
+          context.loaderOverlay.show();
+        } else {
+          context.loaderOverlay.hide();
+        }
+
+        if (next.currentMode == OperationMode.routing) {
+          context.go(AlfredConstants.routeRoutingScreen);
+        }
+      },
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
@@ -111,7 +126,6 @@ class _MappingScreenState extends ConsumerState<MappingScreen> {
                       ],
                     ),
                   ),
-                  // _buildSidebar() if you still want it
                 ],
               ),
             ),
@@ -155,5 +169,9 @@ class _MappingScreenState extends ConsumerState<MappingScreen> {
     // only call VM here
     ref.read(mappingVMProvider.notifier).saveMap();
   }
-}
 
+  void _handleModeChange() {
+    // only call VM here
+    ref.read(systemViewModelProvider.notifier).changeMode(OperationMode.routing);
+  }
+}

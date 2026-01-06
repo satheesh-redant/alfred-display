@@ -3,7 +3,6 @@ import 'package:alfred/src/features/mapping/model/robot_pose.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-
 class LiveMapPainter extends CustomPainter {
   final MapData mapData;
   final RobotPose? robotPose;

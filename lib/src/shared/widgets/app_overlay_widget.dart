@@ -1,13 +1,10 @@
-import 'package:alfred/src/features/loading/model/operation_mode.dart';
+import 'package:alfred/src/shared/providers/system_provider.dart';
 
-import '../../features/battery/model/battery_model.dart';
 import '../../features/battery/presentation/screens/battery_alert_listener.dart';
 import '../../features/battery/presentation/screens/battery_charging_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/battery/provider/battery_provider.dart';
-import '../../features/loading/providers/loading_providers.dart';
-import '../../core/services/ros_service.dart';
+import '../models/operation_mode.dart';
 
 class AppOverlayWidget extends ConsumerStatefulWidget {
   final Widget child;
@@ -25,8 +22,8 @@ class _AppOverlayWidgetState extends ConsumerState<AppOverlayWidget> {
   @override
   Widget build(BuildContext context) {
 
-    ref.listen(modeProvider, (previous, next) {
-      if (next == OperationMode.charging) {
+    ref.listen(systemViewModelProvider, (previous, next) {
+      if (next.currentMode == OperationMode.charging) {
         _showChargingScreen();
       } else {
         _hideChargingScreen();

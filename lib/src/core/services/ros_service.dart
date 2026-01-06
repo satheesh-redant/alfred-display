@@ -3,7 +3,6 @@ import 'package:alfred/src/features/battery/model/battery_model.dart';
 import 'package:rosbridge/rosbridge.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../features/loading/model/operation_mode.dart';
 import '../configs/ros_constants.dart';
 
 enum ROSConnectionStatus { disconnected, connecting, connected, error }
@@ -29,10 +28,10 @@ class ROSService {
 
   Stream<String> get bootCheckStream => _bootCheckController.stream;
 
-  final StreamController<OperationMode> _modeController =
-      StreamController<OperationMode>.broadcast();
+  final StreamController<String> _modeController =
+      StreamController<String>.broadcast();
 
-  Stream<OperationMode> get modeStream => _modeController.stream;
+  Stream<String> get modeStream => _modeController.stream;
 
   // base reset
   final StreamController<String> _baseResetStatusController =
@@ -177,15 +176,8 @@ class ROSService {
     });
 
     subscribeToTopic(ROSConstants.topicMode, ROSConstants.msgString, (msg) {
-      final m = msg["data"]?.toString().toLowerCase() ?? "";
-      final mode = m == "mapping"
-          ? OperationMode.mapping
-          : m == "routing"
-              ? OperationMode.routing
-              : m == "navigation"
-                  ? OperationMode.navigation
-                  : OperationMode.unknown;
-      _modeController.add(mode);
+      final data = msg['data'] as String? ?? '';
+      _modeController.add(data);
     });
 
     subscribeToTopic(ROSConstants.topicDeliveryStatus, ROSConstants.msgString,
@@ -268,7 +260,7 @@ class ROSService {
   Future<void> requestTableList() async {
     print('Requesting table list...');
     await publishToTopic(
-        ROSConstants.topicGetTables, ROSConstants.emptyMessageType, {});
+        ROSConstants.topicGetTables, ROSConstants.msgEmpty, {});
   }
 
   Future<void> gotoPoint(int tableNumber) async {
@@ -286,8 +278,10 @@ class ROSService {
   }
 
   Future<void> sendPowerOffCommand() async {
+    final data = {"data": "OFF"};
+    print("Publishing power off command: $data");
     await publishToTopic(
-        ROSConstants.topicPowerOff, ROSConstants.msgString, {'data': 'OFF'});
+        ROSConstants.topicPowerOff, ROSConstants.msgString, data);
   }
 
   Future<void> sendWaypoint({required String data}) async {
@@ -344,7 +338,7 @@ class ROSService {
   Future<void> publishToTopic(
       String topicName, String messageType, Map<String, dynamic> data) async {
     if (_isDisposed) throw StateError('ROSService has been disposed');
-    if (data.isEmpty) throw ArgumentError('Message data cannot be empty');
+    // if (data.isEmpty) throw ArgumentError('Message data cannot be empty');
     if (_currentStatus != ROSConnectionStatus.connected) {
       throw StateError('ROS is not connected');
     }

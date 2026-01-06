@@ -10,7 +10,6 @@ class BatteryViewModel extends BaseViewModel<AsyncValue<BatteryState>> {
   final ROSService _rosService;
 
   StreamSubscription? _batteryStreamSubscription;
-  StreamSubscription? _modeSubscription;
 
   BatteryViewModel(this._rosService) : super(const AsyncValue.loading()) {
     print('initiating battery topics');
@@ -27,14 +26,6 @@ class BatteryViewModel extends BaseViewModel<AsyncValue<BatteryState>> {
         print('Battery stream error: $error');
         state = AsyncValue.error(error, stackTrace);
       },
-    );
-
-    _modeSubscription = _rosService.modeStream.listen(
-      (operationMode) {
-        final prevState = state.asData!.value;
-        state = AsyncValue.data(prevState.copyWith(mode: operationMode));
-      },
-      onError: (error) => print('mode error: $error'),
     );
 
     state = await AsyncValue.guard(() async {
@@ -106,7 +97,6 @@ class BatteryViewModel extends BaseViewModel<AsyncValue<BatteryState>> {
   @override
   void onDispose() {
     _batteryStreamSubscription?.cancel();
-    _modeSubscription?.cancel();
     super.onDispose();
   }
 }

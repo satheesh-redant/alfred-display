@@ -7,7 +7,6 @@ class ROSConstants {
   static const String msgInteger = 'std_msgs/Int32';
   static const String msgFloat = 'std_msgs/Float32';
   static const String msgEmpty = 'std_msgs/Empty';
-  static const String emptyMessageType = 'std_msgs/Empty';
 
   static const String mapTopic = '/map';
   static const String mapTopicMsg = 'nav_msgs/msg/OccupancyGrid';

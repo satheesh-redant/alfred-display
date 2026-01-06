@@ -11,7 +11,6 @@ class MappingViewModel extends BaseViewModel<MappingState> {
   StreamSubscription? _mapSub;
   StreamSubscription? _poseSub;
   StreamSubscription? _mapSaveSub;
-  StreamSubscription? _operationsSubscription;
 
   bool _started = false;
 
@@ -61,19 +60,6 @@ class MappingViewModel extends BaseViewModel<MappingState> {
           statusMessage: msg, isSaving: false, mapSaved: isSaved);
     });
 
-    _operationsSubscription = _repository.rosService.modeStream.listen(
-      (operationMode) {
-        if (operationMode.name == ROSConstants.mode_routing) {
-          state = state.copyWith(
-            isSaving: false,
-            isModeChanged: true,
-            statusMessage: "Starting ${operationMode.name} mode...",
-          );
-        }
-      },
-      onError: (error) => print('Ops mode error: $error'),
-    );
-
     try {
       await _repository.start();
       state = state.copyWith(
@@ -103,21 +89,6 @@ class MappingViewModel extends BaseViewModel<MappingState> {
     }
   }
 
-  Future<void> changeMode() async {
-    state = state.copyWith(
-      isSaving: true,
-    );
-
-    try {
-      await _repository.rosService.requestModeChange(ROSConstants.mode_routing);
-    } catch (e) {
-      state = state.copyWith(
-        isSaving: false,
-        statusMessage: 'Error saving map: $e',
-      );
-    }
-  }
-
   Future<void> stopMapping() async {
     _started = false;
     await _repository.stop();
@@ -125,7 +96,6 @@ class MappingViewModel extends BaseViewModel<MappingState> {
     await _mapSub?.cancel();
     await _poseSub?.cancel();
     await _mapSaveSub?.cancel();
-    await _operationsSubscription?.cancel();
 
     _mapSub = null;
     _poseSub = null;

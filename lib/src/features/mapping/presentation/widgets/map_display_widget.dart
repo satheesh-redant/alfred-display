@@ -6,9 +6,7 @@ import 'package:alfred/src/features/mapping/presentation/widgets/live_map_painte
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../base/providers/base_provider.dart';
 import '../../providers/mapping_providers.dart';
-import '../../view_model/mapping_view_model.dart';
 
 class MapDisplayWidget extends ConsumerWidget {
   final VoidCallback? onSaveMap;

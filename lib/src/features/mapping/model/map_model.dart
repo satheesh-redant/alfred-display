@@ -1,4 +1,3 @@
-
 class MapData {
   final int width;
   final int height;

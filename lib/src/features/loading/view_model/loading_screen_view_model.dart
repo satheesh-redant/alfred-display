@@ -10,7 +10,6 @@ class LoadingScreenViewModel extends BaseViewModel<LoadingScreenState> {
 
   StreamSubscription? _connectionSubscription;
   StreamSubscription? _bootCheckSubscription;
-  StreamSubscription? _operationsSubscription;
 
   LoadingScreenViewModel(this._rosService)
       : super(
@@ -133,27 +132,15 @@ class LoadingScreenViewModel extends BaseViewModel<LoadingScreenState> {
       statusMessage: 'Loading...',
     );
 
-    _operationsSubscription = _rosService.modeStream.listen(
-      (operationMode) {
-        state = state.copyWith(
-          operationMode: operationMode,
-          step: LoadingStep.navigating,
-          statusMessage: "Starting ${operationMode.name} mode...",
-        );
-      },
-      onError: (error) => print('Ops mode error: $error'),
-    );
   }
 
   void _cleanupTopicSubscriptions() {
     _bootCheckSubscription?.cancel();
-    _operationsSubscription?.cancel();
 
     if (state.step != LoadingStep.connecting) {
       state = state.copyWith(
         step: LoadingStep.connecting,
         bootCheckResponse: null,
-        operationMode: null,
       );
     }
   }
@@ -162,7 +149,6 @@ class LoadingScreenViewModel extends BaseViewModel<LoadingScreenState> {
   void onDispose() {
     _connectionSubscription?.cancel();
     _bootCheckSubscription?.cancel();
-    _operationsSubscription?.cancel();
     super.onDispose();
   }
 }
