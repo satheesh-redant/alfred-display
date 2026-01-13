@@ -18,7 +18,7 @@ class ROSConstants {
   static const String topicBootCheck = '/boot_check';
 
   /*  BATTERY */
-  static const String topicBattery = '/battery_status';
+  static const String topicBattery = '/battery_state';
   static const String batteryTopicType = 'sensor_msgs/msg/BatteryState';
 
   /*  OPERATIONS  */

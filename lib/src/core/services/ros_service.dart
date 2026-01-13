@@ -238,11 +238,11 @@ class ROSService {
       _powerOffAckController.add(ack);
     });
 
-    subscribeToTopic(ROSConstants.topicBattery, ROSConstants.msgString, (msg) {
-      final data = msg['data'] ?? '';
-      final batteryState = BatteryData.fromJson(data);
+     subscribeToTopic(ROSConstants.topicBattery, ROSConstants.batteryTopicType, (msg) {
+      final batteryState = BatteryData.fromJson(msg);
       _batteryController.add(batteryState);
     });
+
 
     subscribeToTopic(ROSConstants.topicRouteAck, ROSConstants.msgString, (msg) {
       final data = msg['data'] ?? '';
